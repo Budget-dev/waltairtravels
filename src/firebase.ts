@@ -39,7 +39,15 @@ import {
   type User as FirebaseUser
 } from 'firebase/auth';
 
-import firebaseConfig from '../firebase-applet-config.json';
+const firebaseConfig = {
+  apiKey: "AIzaSyD0pr2E36ZR8fqcEWrmn3B6TfRknNhAonc",
+  authDomain: "gen-lang-client-0358801581.firebaseapp.com",
+  projectId: "gen-lang-client-0358801581",
+  storageBucket: "gen-lang-client-0358801581.firebasestorage.app",
+  messagingSenderId: "713405026723",
+  appId: "1:713405026723:web:62d05cad3b801499ceca16",
+  firestoreDatabaseId: "ai-studio-waltairtravels-c20e2943-2c23-497d-8246-de3a5fcb0531"
+} as any;
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
