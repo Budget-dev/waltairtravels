@@ -1,0 +1,113 @@
+{
+  "entities": {
+    "Booking": {
+      "title": "Booking",
+      "description": "A taxi or rental booking reservation for Waltair Travels.",
+      "type": "object",
+      "properties": {
+        "bookingRef": { "type": "string", "description": "Unique booking reference ID (e.g. WAL-84920)" },
+        "customerName": { "type": "string", "description": "Full name of the passenger" },
+        "customerPhone": { "type": "string", "description": "Contact telephone number" },
+        "customerEmail": { "type": "string", "description": "Contact email address" },
+        "serviceType": { "type": "string", "description": "Category of service (airport, outstation, local, packages)" },
+        "subType": { "type": "string", "description": "Sub-type of trip (pickup, drop, oneway, roundtrip, etc.)" },
+        "pickupLocation": { "type": "string", "description": "Starting location or landmark" },
+        "dropoffLocation": { "type": "string", "description": "Destination location or landmark" },
+        "travelDate": { "type": "string", "description": "Date of trip" },
+        "pickupTime": { "type": "string", "description": "Scheduled pickup time" },
+        "vehicleCategory": { "type": "string", "description": "Vehicle class" },
+        "vehicleName": { "type": "string", "description": "Vehicle display name" },
+        "estimatedDistanceKm": { "type": "number", "description": "Estimated road distance in km" },
+        "totalFare": { "type": "number", "description": "Total tariff amount in INR" },
+        "paymentMethod": { "type": "string", "description": "Payment mode" },
+        "status": { "type": "string", "description": "Lifecycle status of the booking" },
+        "otp": { "type": "string", "description": "4-digit trip start verification OTP" },
+        "createdAt": { "type": "string", "description": "Creation timestamp" }
+      },
+      "required": ["bookingRef", "customerName", "customerPhone", "pickupLocation", "dropoffLocation", "travelDate", "pickupTime", "totalFare", "status"]
+    },
+    "ContactSubmission": {
+      "title": "ContactSubmission",
+      "description": "User inquiries and corporate contact form submissions.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Contact person name" },
+        "email": { "type": "string", "description": "Email address" },
+        "message": { "type": "string", "description": "Inquiry or message text" },
+        "phone": { "type": "string", "description": "Contact phone number" },
+        "serviceType": { "type": "string", "description": "Requested service or query category" },
+        "createdAt": { "type": "string", "description": "Submission timestamp" }
+      },
+      "required": ["name", "email", "message"]
+    },
+    "BlogPost": {
+      "title": "BlogPost",
+      "description": "Travel and tourist blog articles, airport guides, and cab advice.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "Blog post headline" },
+        "content": { "type": "string", "description": "Full markdown or text body content" },
+        "author": { "type": "string", "description": "Author name" },
+        "authorEmail": { "type": "string", "description": "Author email or UID" },
+        "date": { "type": "string", "description": "Formatted date of publishing" },
+        "excerpt": { "type": "string", "description": "Short summary preview" },
+        "category": { "type": "string", "description": "Category or topic tag" },
+        "readTime": { "type": "string", "description": "Estimated reading duration (e.g. 4 min read)" },
+        "coverImage": { "type": "string", "description": "Image URL for the banner" },
+        "createdAt": { "type": "string", "description": "Timestamp created" },
+        "updatedAt": { "type": "string", "description": "Timestamp updated" }
+      },
+      "required": ["title", "content", "author", "date"]
+    },
+    "CustomerReview": {
+      "title": "CustomerReview",
+      "description": "Customer feedback and testimonials.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Reviewer name" },
+        "rating": { "type": "number", "description": "Rating out of 5" },
+        "location": { "type": "string", "description": "City or locality" },
+        "serviceUsed": { "type": "string", "description": "Cab service used" },
+        "comment": { "type": "string", "description": "Review text" },
+        "date": { "type": "string", "description": "Review date" },
+        "verified": { "type": "boolean", "description": "Whether verified trip" }
+      },
+      "required": ["name", "rating", "comment", "date"]
+    },
+    "User": {
+      "title": "User",
+      "description": "Registered rider or traveler profile.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "email": { "type": "string", "description": "User email address" },
+        "displayName": { "type": "string", "description": "Full name" },
+        "phoneNumber": { "type": "string", "description": "Phone number" },
+        "createdAt": { "type": "string", "description": "Account registration timestamp" }
+      },
+      "required": ["uid", "email"]
+    }
+  },
+  "firestore": {
+    "/bookings/{bookingId}": {
+      "schema": { "$ref": "#/entities/Booking" },
+      "description": "Stores taxi bookings, ride status, and fare details."
+    },
+    "/contact_submissions/{submissionId}": {
+      "schema": { "$ref": "#/entities/ContactSubmission" },
+      "description": "Stores contact and inquiry form submissions."
+    },
+    "/blog_posts/{postId}": {
+      "schema": { "$ref": "#/entities/BlogPost" },
+      "description": "Stores community and editorial blog posts with CRUD support."
+    },
+    "/reviews/{reviewId}": {
+      "schema": { "$ref": "#/entities/CustomerReview" },
+      "description": "Stores customer reviews and ratings."
+    },
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Stores user profiles."
+    }
+  }
+}

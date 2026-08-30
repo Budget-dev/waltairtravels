@@ -1,0 +1,6 @@
+{
+  "name": "Waltair Travels",
+  "description": "Reliable airport taxi, outstation cabs, and local rental booking platform with transparent pricing, live tracking, and Firebase persistence.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
