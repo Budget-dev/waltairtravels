@@ -1,6 +1,5 @@
 import React from 'react';
 import { PageLayout } from '../components/PageLayout';
-import { SEOHead } from '../components/SEOHead';
 import { 
   ShieldCheck, 
   Clock, 
@@ -35,19 +34,7 @@ export const CancellationPolicyPage: React.FC<CancellationPolicyPageProps> = ({
 
   return (
     <>
-      <SEOHead
-        title="Cancellation & Refund Policy - Waltair Travels Visakhapatnam"
-        description="Read Waltair Travels transparent cancellation and refund rules. Free cancellations up to 2-4 hours before departure and 100% advance refund process."
-        keywords={[
-          'Waltair Travels cancellation policy',
-          'Vizag cab refund rules',
-          'taxi booking cancellation fee',
-          'cab reschedule policy Visakhapatnam',
-        ]}
-        canonicalPath="/cancellation-policy"
-        structuredData={structuredData}
-      />
-
+      
       <PageLayout
         title="Cancellation & Refund Policy"
         subtitle="Transparent, flexible, and customer-first cancellation rules designed to accommodate unexpected schedule changes."

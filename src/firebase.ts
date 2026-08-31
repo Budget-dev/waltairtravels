@@ -1,7 +1,9 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { 
   initializeFirestore,
-  getFirestore, 
+  getFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager, 
   collection, 
   addDoc, 
   setDoc,
@@ -56,11 +58,13 @@ let dbInstance;
 try {
   if (firebaseConfig.firestoreDatabaseId) {
     dbInstance = initializeFirestore(app, {
-      experimentalForceLongPolling: true,
+      experimentalAutoDetectLongPolling: true,
+      localCache: persistentLocalCache({tabManager: persistentMultipleTabManager()})
     }, firebaseConfig.firestoreDatabaseId);
   } else {
     dbInstance = initializeFirestore(app, {
-      experimentalForceLongPolling: true,
+      experimentalAutoDetectLongPolling: true,
+      localCache: persistentLocalCache({tabManager: persistentMultipleTabManager()})
     });
   }
 } catch {

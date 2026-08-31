@@ -275,7 +275,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               id="city-selector-btn"
               onClick={() => setIsCityMenuOpen(!isCityMenuOpen)}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-full border border-slate-200 bg-slate-50/80 hover:bg-slate-100 text-slate-700 text-xs sm:text-sm font-medium transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/80 hover:bg-slate-100 text-slate-700 text-xs sm:text-sm font-medium transition-all cursor-pointer"
             >
               <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-700" />
               <span className="truncate max-w-[120px] sm:max-w-none">{currentCity}</span>
@@ -323,7 +323,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
 
             {isNotifOpen && (
-              <div className="absolute right-0 mt-2 w-72 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-100 p-4 z-50">
+              <div className="fixed top-[60px] left-1/2 -translate-x-1/2 w-[calc(100vw-1rem)] sm:absolute sm:top-auto sm:left-auto sm:translate-x-0 sm:right-0 mt-1 sm:mt-2 sm:w-96 origin-top bg-white rounded-2xl shadow-2xl border border-slate-100 p-4 z-50">
                 <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                   <div className="font-bold text-slate-900 text-sm flex items-center gap-2">
                     <Bell className="w-4 h-4 text-cyan-700" />

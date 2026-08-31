@@ -1,6 +1,5 @@
 import React from 'react';
 import { PageLayout } from '../components/PageLayout';
-import { SEOHead } from '../components/SEOHead';
 import { 
   ArrowRight, 
   CheckCircle2, 
@@ -47,20 +46,7 @@ export const OneWayTripsPage: React.FC<OneWayTripsPageProps> = ({
 
   return (
     <>
-      <SEOHead
-        title="One-Way Taxi Drops from Visakhapatnam - Pay One Side Only"
-        description="Book one-way outstation cabs from Visakhapatnam to Vijayawada, Rajahmundry, Kakinada, Srikakulam, and Hyderabad. Save up to 50% on return km charges."
-        keywords={[
-          'one way cab Vizag',
-          'one way taxi Visakhapatnam to Rajahmundry',
-          'Vizag to Vijayawada one way cab',
-          'single drop taxi Andhra Pradesh',
-          'cheap outstation cab Vizag',
-        ]}
-        canonicalPath="/one-way-trips"
-        structuredData={structuredData}
-      />
-
+      
       <PageLayout
         title="One-Way Intercity Drops"
         subtitle="Why pay double when you're only travelling one way? Save up to 50% with our guaranteed single-sided outstation fares."

@@ -1,3 +1,4 @@
+import { motion, AnimatePresence } from 'motion/react';
 import React, { useState } from 'react';
 import { 
   Sparkles, 
@@ -61,11 +62,25 @@ export const AiTripPlannerModal: React.FC<AiTripPlannerModalProps> = ({
     }
   };
 
-  if (!isOpen) return null;
+  
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/75 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl w-full max-w-3xl max-h-[92vh] flex flex-col text-slate-900 shadow-2xl overflow-hidden border border-slate-200">
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div 
+          initial={{ opacity: 0 }} 
+          animate={{ opacity: 1 }} 
+          exit={{ opacity: 0 }} 
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/75 backdrop-blur-md"
+        >
+      <motion.div 
+          initial={{ scale: 0.95, opacity: 0, y: 10 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.95, opacity: 0, y: 10 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+          className="bg-white rounded-3xl w-full max-w-3xl max-h-[92vh] flex flex-col text-slate-900 shadow-2xl overflow-hidden border border-slate-200"
+        >
         
         {/* Modal Header */}
         <div className="px-6 py-4.5 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-cyan-900 to-[#005a66] text-white">
@@ -76,7 +91,7 @@ export const AiTripPlannerModal: React.FC<AiTripPlannerModalProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-base sm:text-lg font-bold tracking-tight">AI Travel Concierge & Trip Planner</h2>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-400 text-cyan-950 uppercase">
+                <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-cyan-400 text-cyan-950 uppercase">
                   Server Gemini 3.7
                 </span>
               </div>
@@ -298,7 +313,9 @@ export const AiTripPlannerModal: React.FC<AiTripPlannerModalProps> = ({
 
         </div>
 
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
+      )}
+    </AnimatePresence>
   );
 };

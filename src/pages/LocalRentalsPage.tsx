@@ -1,6 +1,5 @@
 import React from 'react';
 import { PageLayout } from '../components/PageLayout';
-import { SEOHead } from '../components/SEOHead';
 import { 
   Clock, 
   MapPin, 
@@ -68,20 +67,7 @@ export const LocalRentalsPage: React.FC<LocalRentalsPageProps> = ({
 
   return (
     <>
-      <SEOHead
-        title="Local Hourly Car Rentals in Visakhapatnam - 4Hr, 8Hr, 12Hr Cabs"
-        description="Rent a car with chauffeur by the hour in Visakhapatnam. Flexible 4-hour, 8-hour, and 12-hour packages with unlimited stops and zero waiting hassle."
-        keywords={[
-          'hourly car rental Vizag',
-          'local taxi package Visakhapatnam',
-          '8 hour car rental Vizag',
-          'cab for full day in Visakhapatnam',
-          'chauffeur driven car rental Vizag',
-        ]}
-        canonicalPath="/local-rentals"
-        structuredData={structuredData}
-      />
-
+      
       <PageLayout
         title="Local Hourly Car Rentals"
         subtitle="Keep a dedicated car and chauffeur at your disposal. Flexible packages with unlimited stops across Visakhapatnam."
@@ -102,7 +88,7 @@ export const LocalRentalsPage: React.FC<LocalRentalsPageProps> = ({
               >
                 <div className="space-y-5">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs px-3 py-1 rounded-full bg-emerald-950 text-emerald-300 font-bold border border-emerald-800/50">
+                    <span className="text-xs px-3 py-1 rounded-md bg-emerald-950 text-emerald-300 font-bold border border-emerald-800/50">
                       {pkg.badge}
                     </span>
                     <Clock className="w-5 h-5 text-emerald-400" />

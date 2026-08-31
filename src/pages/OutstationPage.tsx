@@ -1,6 +1,5 @@
 import React from 'react';
 import { PageLayout } from '../components/PageLayout';
-import { SEOHead } from '../components/SEOHead';
 import { 
   Compass, 
   MapPin, 
@@ -40,20 +39,7 @@ export const OutstationPage: React.FC<OutstationPageProps> = ({
 
   return (
     <>
-      <SEOHead
-        title="Outstation Cabs from Visakhapatnam - One-Way & Round Trip Taxi"
-        description="Book reliable outstation cabs from Visakhapatnam to Araku, Rajahmundry, Vijayawada, Hyderabad, Srikakulam, and Kakinada. Fixed per-km rates with zero return charges on one-way trips."
-        keywords={[
-          'outstation cabs Vizag',
-          'Visakhapatnam to Hyderabad taxi',
-          'Vizag to Vijayawada cab',
-          'one way outstation taxi Andhra Pradesh',
-          'intercity car rental Visakhapatnam',
-        ]}
-        canonicalPath="/outstation"
-        structuredData={structuredData}
-      />
-
+      
       <PageLayout
         title="Outstation Taxi Services"
         subtitle="Hassle-free intercity journeys across South India. Choose one-way drops or multi-day family round trips with verified highway chauffeurs."
@@ -107,7 +93,7 @@ export const OutstationPage: React.FC<OutstationPageProps> = ({
                 <h2 className="text-2xl sm:text-3xl font-bold text-white">Popular Outstation Corridors from Visakhapatnam</h2>
                 <p className="text-xs sm:text-sm text-slate-400 mt-1">Instant online booking with guaranteed vehicle confirmation.</p>
               </div>
-              <span className="text-xs px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-cyan-400 font-bold self-start sm:self-auto">
+              <span className="text-xs px-3 py-1 rounded-md bg-slate-900 border border-slate-800 text-cyan-400 font-bold self-start sm:self-auto">
                 Flat Rates Available
               </span>
             </div>

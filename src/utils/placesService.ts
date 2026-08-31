@@ -1317,7 +1317,14 @@ export async function searchAnyLocation(query: string, cityBias = 'Visakhapatnam
  * Reverse Geocoding with OpenStreetMap Nominatim
  * Resolves GPS lat/lng into village / street / town name
  */
+const reverseGeocodeCache = new Map<string, { address: string; name: string }>();
+
 export async function reverseGeocodeCoords(lat: number, lng: number): Promise<{ address: string; name: string } | null> {
+  const cacheKey = `${lat.toFixed(4)},${lng.toFixed(4)}`;
+  if (reverseGeocodeCache.has(cacheKey)) {
+    return reverseGeocodeCache.get(cacheKey) || null;
+  }
+
   try {
     const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1`;
     const res = await fetch(url, {
@@ -1332,10 +1339,13 @@ export async function reverseGeocodeCoords(lat: number, lng: number): Promise<{ 
     const addr = data.address || {};
     const name = addr.village || addr.town || addr.suburb || addr.neighbourhood || addr.city || addr.road || 'Current Location';
 
-    return {
+    const result = {
       name,
       address: data.display_name,
     };
+    
+    reverseGeocodeCache.set(cacheKey, result);
+    return result;
   } catch (err) {
     console.warn('Reverse geocoding notice:', err);
     return null;

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { PageLayout } from '../components/PageLayout';
-import { SEOHead } from '../components/SEOHead';
 import { 
   Palmtree, 
   MapPin, 
@@ -47,20 +46,7 @@ export const PackagesPage: React.FC<PackagesPageProps> = ({
 
   return (
     <>
-      <SEOHead
-        title="Sightseeing & Holiday Tour Packages - Araku Valley, Borra Caves, Lambasingi"
-        description="Book all-inclusive holiday taxi packages from Visakhapatnam to Araku Valley, Lambasingi, Borra Caves, and coastal temples. Experienced mountain chauffeurs and verified AC cabs."
-        keywords={[
-          'Araku tour package cab',
-          'Vizag sightseeing taxi',
-          'Lambasingi trip package from Vizag',
-          'Borra caves cab package',
-          'Annavaram temple tour package Vizag',
-        ]}
-        canonicalPath="/packages"
-        structuredData={structuredData}
-      />
-
+      
       <PageLayout
         title="Curated Sightseeing Packages"
         subtitle="Unforgettable journeys to the Eastern Ghats, mist-covered valleys, tribal coffee plantations, and coastal heritage temples."

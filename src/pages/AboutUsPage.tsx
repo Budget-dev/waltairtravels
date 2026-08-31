@@ -1,6 +1,5 @@
 import React from 'react';
 import { PageLayout } from '../components/PageLayout';
-import { SEOHead } from '../components/SEOHead';
 import { 
   ShieldCheck, 
   Award, 
@@ -38,20 +37,7 @@ export const AboutUsPage: React.FC<AboutUsPageProps> = ({
 
   return (
     <>
-      <SEOHead
-        title="About Us - Visakhapatnam's Most Trusted Taxi Service"
-        description="Learn about Waltair Travels, Andhra Pradesh's premier cab aggregator and chauffeur rental service connecting Visakhapatnam, Bhogapuram ASI Airport, and outstation corridors."
-        keywords={[
-          'about Waltair Travels',
-          'Visakhapatnam cab company',
-          'Vizag taxi provider',
-          'best car rental Andhra Pradesh',
-          'trusted airport cabs Bhogapuram',
-        ]}
-        canonicalPath="/about-us"
-        structuredData={structuredData}
-      />
-
+      
       <PageLayout
         title="About Waltair Travels"
         subtitle="Empowering seamless, punctual, and transparent travel across Visakhapatnam, Bhogapuram International Airport, and South India."

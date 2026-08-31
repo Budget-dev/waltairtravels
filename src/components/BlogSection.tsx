@@ -336,7 +336,7 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ currentUser, onOpenAut
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-xs font-bold uppercase tracking-wider mb-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-xs font-bold uppercase tracking-wider mb-3">
               <BookOpen className="w-3.5 h-3.5" />
               <span>Travel Insights & Guides</span>
             </div>
@@ -435,7 +435,7 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ currentUser, onOpenAut
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   <div className="absolute top-3 left-3">
-                    <span className="px-2.5 py-1 rounded-full bg-slate-950/80 backdrop-blur-xs text-cyan-300 text-[11px] font-semibold uppercase tracking-wider border border-white/10">
+                    <span className="px-2.5 py-1 rounded-md bg-slate-950/80 backdrop-blur-xs text-cyan-300 text-[11px] font-semibold uppercase tracking-wider border border-white/10">
                       {post.category || 'Travel Guide'}
                     </span>
                   </div>
@@ -518,7 +518,7 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ currentUser, onOpenAut
             {/* Modal Header Bar */}
             <div className="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950/70">
               <div className="flex items-center gap-2">
-                <span className="px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-300 text-xs font-bold uppercase">
+                <span className="px-3 py-1 rounded-md bg-cyan-500/20 text-cyan-300 text-xs font-bold uppercase">
                   {activeReadingPost.category || 'Travel Article'}
                 </span>
                 <span className="text-xs text-slate-400">• {activeReadingPost.readTime || '4 min read'}</span>

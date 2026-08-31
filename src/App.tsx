@@ -3,12 +3,6 @@ import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { ServicesSection } from './components/ServicesSection';
 import { FleetSection } from './components/FleetSection';
-import { PopularRoutesAndPackages } from './components/PopularRoutesAndPackages';
-import { FareCalculatorSection } from './components/FareCalculatorSection';
-import { AboutSection } from './components/AboutSection';
-import { BlogSection } from './components/BlogSection';
-import { CustomerReviewsSection } from './components/CustomerReviewsSection';
-import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
 import { WhatsAppButton } from './components/WhatsAppButton';
 import { BookingModal } from './components/BookingModal';
@@ -16,6 +10,8 @@ import { LiveTrackingModal } from './components/LiveTrackingModal';
 import { ManageBookingModal } from './components/ManageBookingModal';
 import { AdminDashboardModal } from './components/AdminDashboardModal';
 import { AuthModal } from './components/AuthModal';
+import { Toast } from './components/Toast';
+import { SEOHead } from './components/SEOHead';
 import { BackendTelemetryModal } from './components/BackendTelemetryModal';
 import { AiTripPlannerModal } from './components/AiTripPlannerModal';
 
@@ -41,8 +37,13 @@ import { ServiceCategory, TripSubType, Booking, TourPackage, AppUser } from './t
 import { db, auth, onAuthStateChanged, signOut, collection, getDocs, onSnapshot, query, orderBy } from './firebase';
 
 export default function App() {
+  const [toastMessage, setToastMessage] = useState('');
+  const [isToastOpen, setIsToastOpen] = useState(false);
   const [currentCity, setCurrentCity] = useState<string>('Visakhapatnam, IN');
   const [allBookings, setAllBookings] = useState<Booking[]>([]);
+
+
+
 
   // Page Routing State (e.g., 'home', 'about-us', 'airport-taxi', etc.)
   const getInitialPage = (): string => {
@@ -60,6 +61,84 @@ export default function App() {
   };
 
   const [currentPage, setCurrentPage] = useState<string>(getInitialPage);
+
+  const PAGE_METADATA: Record<string, { title: string; description: string; keywords?: string[] }> = {
+    "home": {
+        "title": "Waltair Travels – Taxi & Cab Service in Visakhapatnam (Vizag) – Airport, Outstation & Local",
+        "description": "Waltair Travels provides reliable 24/7 taxi services in Visakhapatnam (Vizag). Book airport transfers, city cabs, and outstation journeys with fixed fares. Trusted local drivers and transparent pricing – call us now.",
+        "keywords": ["taxi Vizag", "Visakhapatnam taxi service", "cab service Vizag", "taxi in Visakhapatnam", "Vizag cab", "taxi near me Vizag", "best taxi in Visakhapatnam", "cheap taxi service Vizag"]
+    },
+    "about-us": {
+        "title": "About Waltair Travels | Our Journey in Vizag",
+        "description": "Learn about our 25-year history of providing reliable transport, outstation, and airport taxi services in Visakhapatnam."
+    },
+    "services": {
+        "title": "Our Premium Transport Services in Visakhapatnam",
+        "description": "Explore our range of services including airport transfers, corporate rentals, and outstation trips from Vizag."
+    },
+    "outstation": {
+        "title": "Outstation Taxi from Visakhapatnam – Trips to Hyderabad, Chennai… – Waltair Travels",
+        "description": "Book one-way or round-trip outstation cabs from Vizag to Hyderabad, Chennai, Vijayawada and more. Waltair Travels offers comfortable cars at ₹10–12/km, no hidden charges. Reserve your Vizag to outstation taxi now.",
+        "keywords": ["Outstation taxi Vizag", "outstation cabs in Visakhapatnam", "Vizag to Araku Valley taxi", "Visakhapatnam outstation taxi"]
+    },
+    "packages": {
+        "title": "Tour Packages | Araku, Lambasingi & More",
+        "description": "Discover beautiful destinations with our curated tour packages from Visakhapatnam."
+    },
+    "travel-blog": {
+        "title": "Travel Blog | Tips & Destinations in Andhra Pradesh",
+        "description": "Read our travel guides, tips, and insights for visiting Andhra Pradesh and exploring Vizag by cab."
+    },
+    "contact-us": {
+        "title": "Contact Us | 24/7 Taxi Support Vizag",
+        "description": "Get in touch with Waltair Travels for bookings, inquiries, and customer support for all your Visakhapatnam cab needs."
+    },
+    "airport-taxi": {
+        "title": "Visakhapatnam Airport Taxi – Waltair Travels (VTZ Transfers)",
+        "description": "Need a cab to VTZ Airport? Waltair Travels offers punctual Visakhapatnam airport pick-up and drop services. Fixed rates, 24/7 availability, experienced drivers – book your Vizag airport taxi online.",
+        "keywords": ["Visakhapatnam airport taxi", "Vizag airport cab", "airport transfers Vizag"]
+    },
+    "outstation-cabs": {
+        "title": "Outstation Cabs from Visakhapatnam – Round Trips & One Way Drops",
+        "description": "Book one-way or round-trip outstation cabs from Vizag to Hyderabad, Chennai, Vijayawada and more. Waltair Travels offers comfortable cars at ₹10–12/km, no hidden charges. Reserve your Vizag to outstation taxi now.",
+        "keywords": ["Outstation taxi Vizag", "outstation cabs in Visakhapatnam", "Vizag to Araku Valley taxi", "Visakhapatnam outstation taxi"]
+    },
+    "local-rentals": {
+        "title": "Visakhapatnam Local Taxi & Hourly Hire – City Tours – Waltair Travels",
+        "description": "Explore Vizag your way with Waltair’s local cab services. Hire a taxi by the hour for city sightseeing, airport shuttles, or daily errands. Professional drivers, easy booking – get around Visakhapatnam hassle-free.",
+        "keywords": ["hourly cab hire Vizag", "Visakhapatnam local taxi", "hourly taxi hire Visakhapatnam", "Vizag local cab"]
+    },
+    "one-way-trips": {
+        "title": "One-Way Taxi Drops from Visakhapatnam",
+        "description": "Affordable one-way taxi drops to major cities and towns from Vizag."
+    },
+    "round-trips": {
+        "title": "Round Trip Cab Services from Vizag",
+        "description": "Comfortable round-trip taxi services for family and corporate travel out of Visakhapatnam."
+    },
+    "help-center": {
+        "title": "Help Center & Support | Waltair Travels",
+        "description": "Find answers to common questions and get support for your Vizag taxi bookings."
+    },
+    "faqs": {
+        "title": "Frequently Asked Questions | Visakhapatnam Cab Rates",
+        "description": "Answers to frequently asked questions about our cab services, including Visakhapatnam taxi fares, airport rates, and outstation policies.",
+        "keywords": ["Visakhapatnam taxi fares", "Visakhapatnam cab rates", "taxi price in vizag"]
+    },
+    "cancellation-policy": {
+        "title": "Cancellation & Refund Policy",
+        "description": "Read our flexible cancellation and refund policies."
+    },
+    "privacy-policy": {
+        "title": "Privacy Policy",
+        "description": "How we protect your personal information and data."
+    },
+    "terms-and-conditions": {
+        "title": "Terms and Conditions",
+        "description": "Terms of service for using Waltair Travels."
+    }
+};
+  const currentMetadata = PAGE_METADATA[currentPage] || PAGE_METADATA['home'];
 
   const navigateToPage = (page: string) => {
     setCurrentPage(page);
@@ -195,6 +274,7 @@ export default function App() {
       }
 
       setAllBookings(combined);
+      localStorage.setItem('waltair_user_bookings', JSON.stringify(combined));
     } catch (err) {
       console.warn('Firestore fetch fallback:', err);
       const local = JSON.parse(localStorage.getItem('waltair_user_bookings') || '[]');
@@ -216,6 +296,7 @@ export default function App() {
         const combined = [...items, ...local.filter((l: Booking) => !items.some(i => i.bookingRef === l.bookingRef))];
         if (combined.length > 0) {
           setAllBookings(combined);
+          localStorage.setItem('waltair_user_bookings', JSON.stringify(combined));
         }
       }, (err) => {
         console.warn('Snapshot listener info:', err);
@@ -286,29 +367,14 @@ export default function App() {
     setIsBookingOpen(true);
   };
 
-  // Quick book from Fare calculator
-  const handleQuickBookCalculator = (calcData: {
-    pickup: string;
-    dropoff: string;
-    vehicleId: string;
-    distance: number;
-    estimatedFare: number;
-  }) => {
-    setBookingInitialData({
-      serviceType: calcData.pickup.toLowerCase().includes('airport') ? 'airport' : 'outstation',
-      subType: 'oneway',
-      pickupLocation: calcData.pickup,
-      dropoffLocation: calcData.dropoff,
-      travelDate: new Date().toISOString().split('T')[0],
-      pickupTime: '10:30',
-      preSelectedVehicleId: calcData.vehicleId,
-      phone: user?.phone
-    });
-    setIsBookingOpen(true);
-  };
-
   const handleBookingSuccess = (newBooking: Booking) => {
-    setAllBookings(prev => [newBooking, ...prev.filter(b => b.bookingRef !== newBooking.bookingRef)]);
+    setAllBookings(prev => {
+      const updated = [newBooking, ...prev.filter(b => b.bookingRef !== newBooking.bookingRef)];
+      localStorage.setItem('waltair_user_bookings', JSON.stringify(updated));
+      return updated;
+    });
+    setToastMessage(`Your booking (${newBooking.bookingRef}) has been confirmed successfully!`);
+    setIsToastOpen(true);
   };
 
   const handleOpenLiveTrack = (bookingRef: string) => {
@@ -328,6 +394,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen w-full max-w-[100vw] overflow-x-hidden relative bg-slate-950 text-slate-900 font-sans selection:bg-cyan-500 selection:text-white">
+      <SEOHead title={currentMetadata.title} description={currentMetadata.description} keywords={currentMetadata.keywords} />
       
       {/* 1. Sticky Navigation Bar */}
       <Navbar
@@ -395,22 +462,7 @@ export default function App() {
                   }}
                 />
 
-                <FleetSection onBookVehicle={handleBookVehicle} />
-
-                <PopularRoutesAndPackages
-                  onBookRoute={handleBookRoute}
-                  onBookPackage={handleBookPackage}
-                />
-
-                <FareCalculatorSection onQuickBook={handleQuickBookCalculator} />
-
-                <AboutSection />
-
-                <BlogSection currentUser={user} onOpenAuth={() => setIsAuthOpen(true)} />
-
-                <CustomerReviewsSection />
-
-                <ContactSection />
+                <FleetSection onBookVehicle={handleBookVehicle} condensed={true} />
               </>
             )}
 
@@ -650,6 +702,11 @@ export default function App() {
         }}
       />
 
+      <Toast 
+        isVisible={isToastOpen} 
+        message={toastMessage} 
+        onClose={() => setIsToastOpen(false)} 
+      />
     </div>
   );
 }

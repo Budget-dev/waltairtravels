@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { PageLayout } from '../components/PageLayout';
-import { SEOHead } from '../components/SEOHead';
 import { 
   Phone, 
   Mail, 
@@ -74,19 +73,7 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
 
   return (
     <>
-      <SEOHead
-        title="Contact Us - 24x7 Taxi Support & Corporate Booking Desk"
-        description="Get in touch with Waltair Travels Visakhapatnam. Call +91 91234 56789 for instant cab dispatch, airport transfers, corporate contracts, or trip assistance."
-        keywords={[
-          'contact Waltair Travels',
-          'Vizag cab customer care number',
-          'Bhogapuram taxi contact number',
-          'Visakhapatnam taxi booking phone',
-        ]}
-        canonicalPath="/contact-us"
-        structuredData={structuredData}
-      />
-
+      
       <PageLayout
         title="Contact Waltair Travels"
         subtitle="24/7 Operations Desk, Airport Transit Dispatch, and Dedicated Corporate Mobility Support."

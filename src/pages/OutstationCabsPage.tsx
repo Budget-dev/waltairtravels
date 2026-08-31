@@ -1,6 +1,5 @@
 import React from 'react';
 import { PageLayout } from '../components/PageLayout';
-import { SEOHead } from '../components/SEOHead';
 import { 
   Compass, 
   MapPin, 
@@ -39,20 +38,7 @@ export const OutstationCabsPage: React.FC<OutstationCabsPageProps> = ({
 
   return (
     <>
-      <SEOHead
-        title="Outstation Cabs from Visakhapatnam - Reliable Intercity Car Rental"
-        description="Hire outstation cabs from Visakhapatnam with verified highway drivers. Affordable one-way and round-trip taxi service to Vijayawada, Rajahmundry, Hyderabad, and Srikakulam."
-        keywords={[
-          'outstation cabs Vizag',
-          'intercity taxi Visakhapatnam',
-          'one way cab Visakhapatnam to Rajahmundry',
-          'Vizag to Hyderabad car rental',
-          'round trip taxi Andhra Pradesh',
-        ]}
-        canonicalPath="/outstation-cabs"
-        structuredData={structuredData}
-      />
-
+      
       <PageLayout
         title="Outstation Cabs & Intercity Travel"
         subtitle="Travel outside Visakhapatnam with total peace of mind. Choose one-way drops or multi-day family round trips with verified highway chauffeurs."

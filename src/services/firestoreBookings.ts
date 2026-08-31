@@ -159,7 +159,7 @@ export class FirestoreBookingService {
           driver: data.driver,
           createdAt: data.createdAt || new Date().toISOString(),
           notes: data.notes,
-        } as Booking);
+        } as unknown as Booking);
       });
 
       // 8. Client-side Search refinement if query keyword provided

@@ -1,6 +1,5 @@
 import React from 'react';
 import { PageLayout } from '../components/PageLayout';
-import { SEOHead } from '../components/SEOHead';
 import { 
   Plane, 
   MapPin, 
@@ -64,20 +63,7 @@ export const AirportTaxiPage: React.FC<AirportTaxiPageProps> = ({
 
   return (
     <>
-      <SEOHead
-        title="Airport Taxi Bhogapuram & Vizag - 24/7 ASI Airport Cabs"
-        description="Book punctual airport taxi transfers to and from Bhogapuram International Airport (ASI) and Visakhapatnam Airport (VTZ). Real-time flight tracking, zero surge pricing, and verified chauffeurs."
-        keywords={[
-          'Bhogapuram airport taxi',
-          'ASI airport cab Vizag',
-          'Visakhapatnam airport taxi booking',
-          'Bhogapuram to Vizag cab fare',
-          'airport drop taxi Visakhapatnam',
-        ]}
-        canonicalPath="/airport-taxi"
-        structuredData={structuredData}
-      />
-
+      
       <PageLayout
         title="Airport Taxi Service (Bhogapuram ASI & VTZ)"
         subtitle="Guaranteed punctual airport pickups and drops with flight delay tracking, meet & greet terminal service, and fixed transparent fares."

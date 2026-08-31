@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   X, 
   Mail, 
@@ -22,6 +23,7 @@ import {
   sendPasswordResetEmail
 } from '../firebase';
 import { AppUser } from '../types';
+import { GlassCard, GlassCardHeader, GlassCardTitle, GlassCardDescription, GlassCardAction, GlassCardContent, GlassCardFooter } from './ui/glass-card';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -48,7 +50,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [error, setError] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
 
-  if (!isOpen) return null;
+  
 
   const getCleanErrorMessage = (err: any): string => {
     const code = err?.code || '';
@@ -140,6 +142,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
     if (password.length < 6) {
       setError('Password must be at least 6 characters long.');
+      return;
+    }
+    if (!phone || phone.length !== 10) {
+      setError('Please enter a valid 10-digit phone number.');
       return;
     }
 
@@ -237,38 +243,54 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
-      <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl border border-slate-200 overflow-hidden relative">
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div 
+          initial={{ opacity: 0 }} 
+          animate={{ opacity: 1 }} 
+          exit={{ opacity: 0 }} 
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4"
+        >
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0, y: 10 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.95, opacity: 0, y: 10 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            className="w-full max-w-md flex justify-center"
+          >
+            <GlassCard className="w-full">
         
-        {/* Header */}
-        <div className="bg-gradient-to-r from-slate-900 via-[#005a66] to-slate-900 text-white p-5 flex items-center justify-between">
+        <GlassCardHeader className="flex flex-row items-center justify-between pb-4">
           <div>
-            <div className="flex items-center gap-1.5 text-cyan-300 text-xs font-bold uppercase tracking-wider mb-0.5">
+            <div className="flex items-center gap-1.5 text-cyan-400 text-xs font-bold uppercase tracking-wider mb-0.5">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Waltair Rider Portal</span>
             </div>
-            <h3 className="font-bold text-lg text-white">
+            <GlassCardTitle className="text-lg">
               {authMode === 'signin' && 'Sign In to Your Account'}
               {authMode === 'signup' && 'Create New Rider Account'}
               {authMode === 'forgot' && 'Reset Your Password'}
-              {authMode === 'phone' && 'Quick Mobile Login'}
-            </h3>
+              
+            </GlassCardTitle>
           </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+          <GlassCardAction>
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </GlassCardAction>
+        </GlassCardHeader>
 
         {/* Tab switchers */}
-        <div className="flex border-b border-slate-200 bg-slate-50 text-xs font-semibold">
+        <div className="flex border-y border-white/10 bg-white/5 text-xs font-semibold mx-1">
           <button
             type="button"
             onClick={() => { setAuthMode('signin'); setError(''); setSuccessMessage(''); }}
-            className={`flex-1 py-3 text-center transition-colors border-b-2 ${
-              authMode === 'signin' ? 'border-[#005a66] text-[#005a66] bg-white font-bold' : 'border-transparent text-slate-500 hover:text-slate-800'
+            className={`flex-1 py-3 text-center transition-colors border-b-2 cursor-pointer ${
+              authMode === 'signin' ? 'border-cyan-400 text-cyan-400 bg-white/10 font-bold' : 'border-transparent text-white/60 hover:text-white'
             }`}
           >
             Sign In
@@ -276,29 +298,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <button
             type="button"
             onClick={() => { setAuthMode('signup'); setError(''); setSuccessMessage(''); }}
-            className={`flex-1 py-3 text-center transition-colors border-b-2 ${
-              authMode === 'signup' ? 'border-[#005a66] text-[#005a66] bg-white font-bold' : 'border-transparent text-slate-500 hover:text-slate-800'
+            className={`flex-1 py-3 text-center transition-colors border-b-2 cursor-pointer ${
+              authMode === 'signup' ? 'border-cyan-400 text-cyan-400 bg-white/10 font-bold' : 'border-transparent text-white/60 hover:text-white'
             }`}
           >
             Sign Up
           </button>
-          <button
-            type="button"
-            onClick={() => { setAuthMode('phone'); setError(''); setSuccessMessage(''); }}
-            className={`flex-1 py-3 text-center transition-colors border-b-2 ${
-              authMode === 'phone' ? 'border-[#005a66] text-[#005a66] bg-white font-bold' : 'border-transparent text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            Mobile OTP
-          </button>
+          
         </div>
 
-        {/* Content Body */}
-        <div className="p-6 space-y-4">
+        <GlassCardContent className="pt-6 space-y-4">
           
           {/* Error Alert */}
           {error && (
-            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-start gap-2 animate-in fade-in">
+            <div className="p-3 rounded-xl bg-rose-500/20 border border-rose-500/50 text-rose-200 text-xs flex items-start gap-2 animate-in fade-in">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
               <span>{error}</span>
             </div>
@@ -306,20 +319,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
           {/* Success Alert */}
           {successMessage && (
-            <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs flex items-start gap-2 animate-in fade-in">
+            <div className="p-3 rounded-xl bg-emerald-500/20 border border-emerald-500/50 text-emerald-200 text-xs flex items-start gap-2 animate-in fade-in">
               <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
               <span>{successMessage}</span>
             </div>
           )}
 
           {/* 1. Google Sign-In One-Click Button */}
-          {authMode !== 'phone' && (
+          {(true) && (
             <div>
               <button
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={isLoading}
-                className="w-full py-3 px-4 rounded-xl border border-slate-300 hover:bg-slate-50 bg-white text-slate-700 font-semibold text-xs sm:text-sm flex items-center justify-center gap-3 shadow-xs hover:shadow-md transition-all cursor-pointer disabled:opacity-60"
+                className="w-full py-3 px-4 rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-3 transition-all cursor-pointer disabled:opacity-60"
               >
                 <svg className="w-4 h-4" viewBox="0 0 24 24">
                   <path
@@ -343,8 +356,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </button>
 
               <div className="relative my-4 flex items-center justify-center">
-                <div className="border-t border-slate-200 w-full"></div>
-                <span className="bg-white px-3 text-[11px] font-semibold uppercase text-slate-400">or with email</span>
+                <div className="border-t border-white/20 w-full"></div>
+                <span className="bg-transparent px-3 text-[11px] font-semibold uppercase text-white/50 absolute">or with email</span>
               </div>
             </div>
           )}
@@ -353,15 +366,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           {authMode === 'signin' && (
             <form onSubmit={handleEmailSignIn} className="space-y-3.5">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Email Address</label>
-                <div className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 focus-within:border-cyan-600 bg-slate-50">
-                  <Mail className="w-4 h-4 text-slate-400 shrink-0" />
+                <label className="block text-xs font-semibold text-white/80 mb-1">Email Address</label>
+                <div className="flex items-center gap-2 p-2.5 rounded-xl border border-white/20 focus-within:border-cyan-400 bg-white/5">
+                  <Mail className="w-4 h-4 text-white/50 shrink-0" />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@example.com"
-                    className="w-full bg-transparent text-xs sm:text-sm text-slate-900 outline-none"
+                    className="w-full bg-transparent text-xs sm:text-sm text-white placeholder:text-white/30 outline-none"
                     required
                   />
                 </div>
@@ -369,23 +382,23 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
               <div>
                 <div className="flex justify-between items-center mb-1">
-                  <label className="text-xs font-semibold text-slate-700">Password</label>
+                  <label className="text-xs font-semibold text-white/80">Password</label>
                   <button
                     type="button"
                     onClick={() => { setAuthMode('forgot'); setError(''); }}
-                    className="text-[11px] text-cyan-700 hover:underline font-medium"
+                    className="text-[11px] text-cyan-400 hover:underline font-medium cursor-pointer"
                   >
                     Forgot password?
                   </button>
                 </div>
-                <div className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 focus-within:border-cyan-600 bg-slate-50">
-                  <Lock className="w-4 h-4 text-slate-400 shrink-0" />
+                <div className="flex items-center gap-2 p-2.5 rounded-xl border border-white/20 focus-within:border-cyan-400 bg-white/5">
+                  <Lock className="w-4 h-4 text-white/50 shrink-0" />
                   <input
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full bg-transparent text-xs sm:text-sm text-slate-900 outline-none"
+                    className="w-full bg-transparent text-xs sm:text-sm text-white placeholder:text-white/30 outline-none"
                     required
                   />
                 </div>
@@ -394,18 +407,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 rounded-xl bg-[#005a66] hover:bg-[#004751] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all cursor-pointer disabled:opacity-50 mt-2"
+                className="w-full py-3 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all cursor-pointer disabled:opacity-50 mt-2"
               >
                 <span>{isLoading ? 'Signing In...' : 'SIGN IN'}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
 
-              <div className="text-center text-xs text-slate-500 pt-1">
+              <div className="text-center text-xs text-white/60 pt-1">
                 Don't have an account?{' '}
                 <button
                   type="button"
                   onClick={() => { setAuthMode('signup'); setError(''); }}
-                  className="text-cyan-700 font-bold hover:underline"
+                  className="text-cyan-400 font-bold hover:underline cursor-pointer"
                 >
                   Create one now
                 </button>
@@ -417,45 +430,45 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           {authMode === 'signup' && (
             <form onSubmit={handleEmailSignUp} className="space-y-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Full Name</label>
-                <div className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 focus-within:border-cyan-600 bg-slate-50">
-                  <User className="w-4 h-4 text-slate-400 shrink-0" />
+                <label className="block text-xs font-semibold text-white/80 mb-1">Full Name</label>
+                <div className="flex items-center gap-2 p-2.5 rounded-xl border border-white/20 focus-within:border-cyan-400 bg-white/5">
+                  <User className="w-4 h-4 text-white/50 shrink-0" />
                   <input
                     type="text"
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                     placeholder="e.g. Ramesh Varma"
-                    className="w-full bg-transparent text-xs sm:text-sm text-slate-900 outline-none"
+                    className="w-full bg-transparent text-xs sm:text-sm text-white placeholder:text-white/30 outline-none"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Email Address</label>
-                <div className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 focus-within:border-cyan-600 bg-slate-50">
-                  <Mail className="w-4 h-4 text-slate-400 shrink-0" />
+                <label className="block text-xs font-semibold text-white/80 mb-1">Email Address</label>
+                <div className="flex items-center gap-2 p-2.5 rounded-xl border border-white/20 focus-within:border-cyan-400 bg-white/5">
+                  <Mail className="w-4 h-4 text-white/50 shrink-0" />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@example.com"
-                    className="w-full bg-transparent text-xs sm:text-sm text-slate-900 outline-none"
+                    className="w-full bg-transparent text-xs sm:text-sm text-white placeholder:text-white/30 outline-none"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Password (min 6 characters)</label>
-                <div className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 focus-within:border-cyan-600 bg-slate-50">
-                  <Lock className="w-4 h-4 text-slate-400 shrink-0" />
+                <label className="block text-xs font-semibold text-white/80 mb-1">Password (min 6 characters)</label>
+                <div className="flex items-center gap-2 p-2.5 rounded-xl border border-white/20 focus-within:border-cyan-400 bg-white/5">
+                  <Lock className="w-4 h-4 text-white/50 shrink-0" />
                   <input
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full bg-transparent text-xs sm:text-sm text-slate-900 outline-none"
+                    className="w-full bg-transparent text-xs sm:text-sm text-white placeholder:text-white/30 outline-none"
                     required
                     minLength={6}
                   />
@@ -463,17 +476,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Phone Number (Optional)</label>
-                <div className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 focus-within:border-cyan-600 bg-slate-50">
-                  <Phone className="w-4 h-4 text-slate-400 shrink-0" />
-                  <span className="text-xs font-bold text-slate-500">+91</span>
+                <label className="block text-xs font-semibold text-white/80 mb-1">Phone Number</label>
+                <div className="flex items-center gap-2 p-2.5 rounded-xl border border-white/20 focus-within:border-cyan-400 bg-white/5">
+                  <Phone className="w-4 h-4 text-white/50 shrink-0" />
+                  <span className="text-xs font-bold text-white/40">+91</span>
                   <input
                     type="tel"
                     maxLength={10}
                     value={phone}
                     onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
                     placeholder="9876543210"
-                    className="w-full bg-transparent text-xs sm:text-sm text-slate-900 outline-none"
+                    className="w-full bg-transparent text-xs sm:text-sm text-white placeholder:text-white/30 outline-none"
+                    required
                   />
                 </div>
               </div>
@@ -481,18 +495,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 rounded-xl bg-[#005a66] hover:bg-[#004751] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all cursor-pointer disabled:opacity-50 mt-1"
+                className="w-full py-3 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all cursor-pointer disabled:opacity-50 mt-1"
               >
                 <span>{isLoading ? 'Creating Account...' : 'REGISTER ACCOUNT'}</span>
                 <CheckCircle2 className="w-4 h-4" />
               </button>
 
-              <div className="text-center text-xs text-slate-500 pt-1">
+              <div className="text-center text-xs text-white/60 pt-1">
                 Already have an account?{' '}
                 <button
                   type="button"
                   onClick={() => { setAuthMode('signin'); setError(''); }}
-                  className="text-cyan-700 font-bold hover:underline"
+                  className="text-cyan-400 font-bold hover:underline cursor-pointer"
                 >
                   Sign in here
                 </button>
@@ -503,19 +517,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           {/* 4. FORGOT PASSWORD */}
           {authMode === 'forgot' && (
             <form onSubmit={handleForgotPassword} className="space-y-4">
-              <p className="text-xs text-slate-600">
+              <GlassCardDescription>
                 Enter your email address below. We'll send you a password reset link to regain access.
-              </p>
+              </GlassCardDescription>
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Registered Email</label>
-                <div className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 focus-within:border-cyan-600 bg-slate-50">
-                  <Mail className="w-4 h-4 text-slate-400 shrink-0" />
+                <label className="block text-xs font-semibold text-white/80 mb-1">Registered Email</label>
+                <div className="flex items-center gap-2 p-2.5 rounded-xl border border-white/20 focus-within:border-cyan-400 bg-white/5">
+                  <Mail className="w-4 h-4 text-white/50 shrink-0" />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@example.com"
-                    className="w-full bg-transparent text-xs sm:text-sm text-slate-900 outline-none"
+                    className="w-full bg-transparent text-xs sm:text-sm text-white placeholder:text-white/30 outline-none"
                     required
                   />
                 </div>
@@ -524,17 +538,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 rounded-xl bg-[#005a66] hover:bg-[#004751] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer disabled:opacity-50"
+                className="w-full py-3 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer disabled:opacity-50"
               >
                 <span>{isLoading ? 'Sending Link...' : 'SEND RESET LINK'}</span>
                 <KeyRound className="w-4 h-4" />
               </button>
 
-              <div className="text-center text-xs text-slate-500 pt-1">
+              <div className="text-center text-xs text-white/60 pt-1">
                 <button
                   type="button"
                   onClick={() => { setAuthMode('signin'); setError(''); }}
-                  className="text-cyan-700 font-bold hover:underline"
+                  className="text-cyan-400 font-bold hover:underline cursor-pointer"
                 >
                   Back to Sign In
                 </button>
@@ -543,109 +557,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           )}
 
           {/* 5. PHONE OTP TAB */}
-          {authMode === 'phone' && (
-            <form onSubmit={handleQuickPhoneLogin} className="space-y-4">
-              {!otpSent ? (
-                <>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">Your Name</label>
-                    <div className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 focus-within:border-cyan-600 bg-slate-50">
-                      <User className="w-4 h-4 text-slate-400" />
-                      <input
-                        type="text"
-                        value={displayName}
-                        onChange={(e) => setDisplayName(e.target.value)}
-                        placeholder="e.g. Anand"
-                        className="w-full bg-transparent text-xs sm:text-sm text-slate-900 outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">10-Digit Mobile Number</label>
-                    <div className="flex items-center gap-1.5 p-2.5 rounded-xl border border-slate-200 focus-within:border-cyan-600 bg-slate-50">
-                      <Phone className="w-4 h-4 text-slate-400" />
-                      <span className="text-xs font-bold text-slate-500">+91</span>
-                      <input
-                        type="tel"
-                        maxLength={10}
-                        value={phone}
-                        onChange={(e) => {
-                          setPhone(e.target.value.replace(/\D/g, ''));
-                          setError('');
-                        }}
-                        placeholder="9876543210"
-                        className="w-full bg-transparent text-xs sm:text-sm text-slate-900 outline-none"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full py-3 rounded-xl bg-[#005a66] hover:bg-[#004751] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer disabled:opacity-50"
-                  >
-                    <span>{isLoading ? 'Sending Code...' : 'GET OTP & CONTINUE'}</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </>
-              ) : (
-                <>
-                  <div className="p-3 bg-cyan-50 rounded-xl text-xs text-cyan-900 flex items-center justify-between">
-                    <span>Code sent to <strong>+91 {phone}</strong></span>
-                    <button
-                      type="button"
-                      onClick={() => setOtpSent(false)}
-                      className="text-cyan-700 font-bold hover:underline"
-                    >
-                      Change
-                    </button>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">Enter 4-Digit OTP</label>
-                    <div className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 focus-within:border-cyan-600 bg-slate-50">
-                      <Lock className="w-4 h-4 text-slate-400" />
-                      <input
-                        type="text"
-                        maxLength={6}
-                        value={otp}
-                        onChange={(e) => {
-                          setOtp(e.target.value.replace(/\D/g, ''));
-                          setError('');
-                        }}
-                        placeholder="e.g. 1234"
-                        className="w-full bg-transparent font-mono text-base font-bold text-slate-900 tracking-widest outline-none"
-                        autoFocus
-                        required
-                      />
-                    </div>
-                    <span className="text-[10px] text-slate-400 mt-1 block">For instant verification, enter any 4 digits (e.g. 1234)</span>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full py-3 rounded-xl bg-[#005a66] hover:bg-[#004751] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer disabled:opacity-50"
-                  >
-                    <span>{isLoading ? 'Verifying...' : 'VERIFY & SIGN IN'}</span>
-                    <CheckCircle2 className="w-4 h-4" />
-                  </button>
-                </>
-              )}
-            </form>
-          )}
-
+          </GlassCardContent>
+        <GlassCardFooter className="justify-center">
           {/* Footer security note */}
-          <div className="pt-2 text-[11px] text-slate-400 text-center flex items-center justify-center gap-1.5">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+          <div className="text-[11px] text-white/40 text-center flex items-center justify-center gap-1.5">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
             <span>256-bit SSL Protected Firebase Authentication</span>
           </div>
-
-        </div>
-
-      </div>
-    </div>
+        </GlassCardFooter>
+      </GlassCard>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };

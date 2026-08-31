@@ -1,6 +1,5 @@
 import React from 'react';
 import { PageLayout } from '../components/PageLayout';
-import { SEOHead } from '../components/SEOHead';
 import { Shield, Lock, Eye, Server, UserCheck, FileText } from 'lucide-react';
 
 interface PrivacyPolicyPageProps {
@@ -27,19 +26,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
 
   return (
     <>
-      <SEOHead
-        title="Privacy Policy - Data Protection & Rider Privacy"
-        description="Learn how Waltair Travels protects your personal data, trip histories, payment security, and GPS tracking information in compliance with Indian IT laws."
-        keywords={[
-          'Waltair Travels privacy policy',
-          'passenger data protection',
-          'GPS tracking privacy Vizag cab',
-          'user terms Waltair Travels',
-        ]}
-        canonicalPath="/privacy-policy"
-        structuredData={structuredData}
-      />
-
+      
       <PageLayout
         title="Privacy Policy"
         subtitle="Your privacy and data safety are foundational to our operations. Learn how we safeguard your personal information and trip history."

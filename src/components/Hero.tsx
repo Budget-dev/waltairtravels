@@ -447,7 +447,7 @@ export const Hero: React.FC<HeroProps> = ({
           <div className="lg:col-span-7 text-white space-y-6 lg:pl-6">
             
             {/* Tagline / Airport notice */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-cyan-300 text-xs font-semibold">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10 backdrop-blur-md border border-white/20 text-cyan-300 text-xs font-semibold">
               <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
               <span>Official Airport Taxi & City Cabs in Visakhapatnam</span>
             </div>

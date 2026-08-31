@@ -60,7 +60,7 @@ export const ContactSection: React.FC = () => {
           
           {/* Left Column: Direct Info & 24x7 Desk */}
           <div className="lg:col-span-5 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-300 text-xs font-bold uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-cyan-500/20 text-cyan-300 text-xs font-bold uppercase tracking-wider">
               <Headphones className="w-3.5 h-3.5" />
               <span>24x7 Customer Helpdesk</span>
             </div>

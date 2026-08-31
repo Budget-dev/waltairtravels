@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { PageLayout } from '../components/PageLayout';
-import { SEOHead } from '../components/SEOHead';
 import { ChevronDown, HelpCircle, Sparkles, Phone } from 'lucide-react';
 import { FAQS } from '../data/mockData';
 
@@ -67,19 +66,7 @@ export const FaqsPage: React.FC<FaqsPageProps> = ({
 
   return (
     <>
-      <SEOHead
-        title="Frequently Asked Questions (FAQs) - Waltair Travels Visakhapatnam"
-        description="Got questions about booking cabs, Bhogapuram airport transit, outstation per-km rates, GST invoicing, or payment methods? Browse our comprehensive FAQ guide."
-        keywords={[
-          'Waltair Travels FAQs',
-          'Vizag taxi booking questions',
-          'Bhogapuram cab fare questions',
-          'outstation taxi policies Visakhapatnam',
-        ]}
-        canonicalPath="/faqs"
-        structuredData={structuredData}
-      />
-
+      
       <PageLayout
         title="Frequently Asked Questions"
         subtitle="Everything you need to know about our fleet, rates, airport pickups, cancellation rules, and safety standards."

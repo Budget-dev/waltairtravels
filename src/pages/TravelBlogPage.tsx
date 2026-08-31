@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { PageLayout } from '../components/PageLayout';
-import { SEOHead } from '../components/SEOHead';
 import { 
   BookOpen, 
   Calendar, 
@@ -57,21 +56,7 @@ export const TravelBlogPage: React.FC<TravelBlogPageProps> = ({
 
   return (
     <>
-      <SEOHead
-        title="Travel Blog & Local Guides - Vizag, Bhogapuram & Araku Travel Tips"
-        description="Read comprehensive travel guides, Bhogapuram ASI Airport connectivity updates, top tourist spots in Visakhapatnam, and cab booking tips."
-        keywords={[
-          'Vizag travel blog',
-          'Bhogapuram airport travel guide',
-          'Araku road trip advice',
-          'Visakhapatnam sightseeing guide',
-          'Andhra Pradesh road trips',
-        ]}
-        canonicalPath="/travel-blog"
-        ogType="article"
-        structuredData={structuredData}
-      />
-
+      
       <PageLayout
         title="Travel Guides & Road Trip Insights"
         subtitle="Expert local travel advice, Bhogapuram airport transit news, seasonal travel itineraries, and scenic route recommendations."
@@ -141,7 +126,7 @@ export const TravelBlogPage: React.FC<TravelBlogPageProps> = ({
                 {selectedPost.tags.map((tag, idx) => (
                   <span
                     key={idx}
-                    className="text-xs px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700"
+                    className="text-xs px-3 py-1 rounded-md bg-slate-800 text-slate-300 border border-slate-700"
                   >
                     #{tag}
                   </span>

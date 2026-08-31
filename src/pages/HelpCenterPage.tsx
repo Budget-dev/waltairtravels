@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { PageLayout } from '../components/PageLayout';
-import { SEOHead } from '../components/SEOHead';
 import { 
   HelpCircle, 
   Phone, 
@@ -80,19 +79,7 @@ export const HelpCenterPage: React.FC<HelpCenterPageProps> = ({
 
   return (
     <>
-      <SEOHead
-        title="Help Center & Customer Support - Waltair Travels Visakhapatnam"
-        description="Find answers to booking questions, airport transit queries, payment methods, cancellation procedures, and safety measures at Waltair Travels Help Desk."
-        keywords={[
-          'Waltair Travels help center',
-          'Vizag taxi support',
-          'cab booking assistance Visakhapatnam',
-          'customer care Waltair Travels',
-        ]}
-        canonicalPath="/help-center"
-        structuredData={structuredData}
-      />
-
+      
       <PageLayout
         title="Help Center & Support Desk"
         subtitle="Quick assistance, step-by-step guides, and 24x7 customer helpline for all your travel needs in Visakhapatnam."

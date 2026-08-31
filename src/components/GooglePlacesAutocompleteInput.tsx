@@ -64,6 +64,7 @@ export const GooglePlacesAutocompleteInput: React.FC<GooglePlacesAutocompleteInp
   const [predictions, setPredictions] = useState<PlaceResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
+  const [locationDebugInfo, setLocationDebugInfo] = useState<string | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number>(-1);
   const [isGoogleMapsReady, setIsGoogleMapsReady] = useState(false);
 
@@ -248,42 +249,51 @@ export const GooglePlacesAutocompleteInput: React.FC<GooglePlacesAutocompleteInp
     });
   };
 
-  // Use Current Geolocation Location with OpenStreetMap / Google Reverse Geocoding
-  const handleUseCurrentLocation = () => {
+    // Use Current Geolocation Location with OpenStreetMap Reverse Geocoding
+  const handleUseCurrentLocation = (isRetry = false) => {
     if (!navigator.geolocation) {
-      alert('Geolocation is not supported by your browser.');
+      alert('Geolocation is not supported by your browser or device.');
       return;
     }
 
     setIsLocating(true);
+    setLocationDebugInfo(null); // Clear previous debug info
+
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
-        const { latitude, longitude } = pos.coords;
+        const { latitude, longitude, accuracy } = pos.coords;
+        const timestamp = new Date(pos.timestamp).toLocaleString();
+
+        // 1. Accuracy Check
+        if (accuracy > 150 && !isRetry) {
+          const wantRetry = window.confirm(
+            `Low GPS accuracy detected (${Math.round(accuracy)} meters).\nThis might give you the wrong city or approximate IP location.\n\nDo you want to RETRY for a more precise GPS signal? (Recommended)`
+          );
+          if (wantRetry) {
+            setIsLocating(false);
+            setTimeout(() => handleUseCurrentLocation(true), 500); // Retry
+            return;
+          }
+        }
+
         let formatted = `Current Location (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`;
         let placeName = 'My Current Location';
 
-        // 1. Try reverse geocoding with OpenStreetMap Nominatim
-        const osmReverse = await reverseGeocodeCoords(latitude, longitude);
-        if (osmReverse && osmReverse.address) {
-          formatted = osmReverse.address;
-          placeName = osmReverse.name;
-        } else if (window.google?.maps?.Geocoder) {
-          // 2. Try Google Geocoder
-          try {
-            const geocoder = new window.google.maps.Geocoder();
-            const res = await new Promise<any>((resolve) => {
-              geocoder.geocode({ location: { lat: latitude, lng: longitude } }, (results, status) => {
-                if (status === 'OK' && results && results[0]) resolve(results[0]);
-                else resolve(null);
-              });
-            });
-            if (res?.formatted_address) {
-              formatted = res.formatted_address;
-            }
-          } catch (e) {
-            // keep osm formatted
+        try {
+          // 2. Reverse geocode
+          const osmReverse = await reverseGeocodeCoords(latitude, longitude);
+          if (osmReverse && osmReverse.address) {
+            formatted = osmReverse.address;
+            placeName = osmReverse.name;
           }
+        } catch (error) {
+          console.warn('Reverse geocoding failed, using coordinates instead.', error);
         }
+
+        // 3. Set Debug Info
+        setLocationDebugInfo(
+          `--- LOCATION DEBUG ---\nLat: ${latitude}\nLng: ${longitude}\nAccuracy: ${Math.round(accuracy)}m\nTime: ${timestamp}\nAddress: ${formatted}`
+        );
 
         setIsLocating(false);
         onChange(formatted);
@@ -292,24 +302,28 @@ export const GooglePlacesAutocompleteInput: React.FC<GooglePlacesAutocompleteInp
           name: placeName,
           lat: latitude,
           lng: longitude,
-          category: 'village',
+          category: 'geolocation',
         });
         setIsOpen(false);
       },
-      (err) => {
+      (error) => {
         setIsLocating(false);
-        console.warn('Geolocation error:', err);
-        const fallback = 'Siripuram Circle & Waltair Uplands, Visakhapatnam, Andhra Pradesh';
-        onChange(fallback);
-        onPlaceSelect?.({
-          address: fallback,
-          name: 'Siripuram Circle',
-          lat: 17.7208,
-          lng: 83.3184,
-          category: 'city',
-        });
+        switch(error.code) {
+          case error.PERMISSION_DENIED:
+            alert('Location permission was denied. Please allow location access in your browser/device settings.');
+            break;
+          case error.POSITION_UNAVAILABLE:
+            alert('Location information is unavailable. Check if device GPS is turned on.');
+            break;
+          case error.TIMEOUT:
+            alert('Location request timed out. Please try again outside or check your connection.');
+            break;
+          default:
+            alert('An unknown error occurred while detecting your location.');
+            break;
+        }
       },
-      { timeout: 8000, enableHighAccuracy: true }
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
     );
   };
 
@@ -497,9 +511,26 @@ export const GooglePlacesAutocompleteInput: React.FC<GooglePlacesAutocompleteInp
           ) : (
             <Navigation className="w-3.5 h-3.5" />
           )}
-          <span className="hidden sm:inline">GPS</span>
+          <span className="hidden sm:inline">{isLocating ? 'Detecting your location...' : '📍 Use My Current Location'}</span>
         </button>
       </div>
+
+      {/* Temporary Debug Overlay */}
+      {locationDebugInfo && (
+        <div className="mt-2 p-2.5 bg-slate-900 border border-slate-700 rounded-xl shadow-lg relative animate-in fade-in zoom-in-95">
+          <button 
+            type="button"
+            onClick={() => setLocationDebugInfo(null)}
+            className="absolute top-1.5 right-1.5 p-1 text-slate-400 hover:text-white bg-slate-800 rounded-md cursor-pointer"
+            title="Dismiss"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+          <pre className="text-emerald-400 text-[10px] font-mono leading-relaxed overflow-x-auto whitespace-pre-wrap pr-6">
+            {locationDebugInfo}
+          </pre>
+        </div>
+      )}
 
       {/* Autocomplete Dropdown List */}
       {isOpen && (
@@ -514,6 +545,26 @@ export const GooglePlacesAutocompleteInput: React.FC<GooglePlacesAutocompleteInp
             <span className="text-[10px] text-slate-400 font-medium">
               {predictions.length} places
             </span>
+          </div>
+
+          {/* Current Location Option */}
+          <div
+            onClick={handleUseCurrentLocation}
+            className="px-3.5 py-3 cursor-pointer flex items-center gap-2.5 transition-colors text-left border-b border-slate-100 hover:bg-cyan-50/50"
+          >
+            <div className="w-8 h-8 rounded-full bg-cyan-100 flex items-center justify-center shrink-0">
+              {isLocating ? (
+                <Loader2 className="w-4 h-4 text-cyan-600 animate-spin" />
+              ) : (
+                <Navigation className="w-4 h-4 text-cyan-600" />
+              )}
+            </div>
+            <div className="flex-1">
+              <div className="font-bold text-sm text-cyan-800">
+                {isLocating ? 'Detecting your location...' : '📍 Use My Current Location'}
+              </div>
+              <div className="text-[10px] text-slate-500">Using device GPS</div>
+            </div>
           </div>
 
           {/* Location Items List */}

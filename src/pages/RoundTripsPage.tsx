@@ -1,6 +1,5 @@
 import React from 'react';
 import { PageLayout } from '../components/PageLayout';
-import { SEOHead } from '../components/SEOHead';
 import { 
   Compass, 
   MapPin, 
@@ -39,20 +38,7 @@ export const RoundTripsPage: React.FC<RoundTripsPageProps> = ({
 
   return (
     <>
-      <SEOHead
-        title="Round-Trip Outstation Cabs from Visakhapatnam - Multi-Day Family Tours"
-        description="Book round-trip outstation cabs from Visakhapatnam for family vacations, temple circuits, and business tours. Dedicated car & chauffeur at your disposal throughout."
-        keywords={[
-          'round trip cab Vizag',
-          'multi day outstation car rental Visakhapatnam',
-          'family cab rental Vizag',
-          'Innova Crysta round trip rental',
-          'temple tour cab package Vizag',
-        ]}
-        canonicalPath="/round-trips"
-        structuredData={structuredData}
-      />
-
+      
       <PageLayout
         title="Round-Trip Outstation Cabs"
         subtitle="Enjoy seamless multi-day or same-day return trips with the same dedicated vehicle and chauffeur throughout your entire itinerary."

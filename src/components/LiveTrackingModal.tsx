@@ -1,3 +1,4 @@
+import { motion, AnimatePresence } from 'motion/react';
 import React, { useState, useEffect } from 'react';
 import { 
   X, 
@@ -91,11 +92,25 @@ export const LiveTrackingModal: React.FC<LiveTrackingModalProps> = ({
     }
   };
 
-  if (!isOpen) return null;
+  
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
-      <div className="bg-white w-full max-w-3xl rounded-3xl shadow-2xl border border-slate-200 overflow-hidden relative">
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div 
+          initial={{ opacity: 0 }} 
+          animate={{ opacity: 1 }} 
+          exit={{ opacity: 0 }} 
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4"
+        >
+      <motion.div 
+          initial={{ scale: 0.95, opacity: 0, y: 10 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.95, opacity: 0, y: 10 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+          className="bg-white w-full max-w-3xl rounded-3xl shadow-2xl border border-slate-200 overflow-hidden relative"
+        >
         
         {/* Header */}
         <div className="bg-gradient-to-r from-slate-900 via-[#005a66] to-slate-900 text-white p-4 sm:p-5 flex items-center justify-between">
@@ -219,7 +234,7 @@ export const LiveTrackingModal: React.FC<LiveTrackingModalProps> = ({
                   transform: 'translate(-50%, -50%)'
                 }}
               >
-                <div className="bg-slate-900 text-cyan-400 border border-cyan-500/50 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg whitespace-nowrap mb-1 flex items-center gap-1">
+                <div className="bg-slate-900 text-cyan-400 border border-cyan-500/50 text-[10px] font-bold px-2 py-0.5 rounded-md shadow-lg whitespace-nowrap mb-1 flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
                   {activeBooking.driver?.name?.split(' ')[0] || 'Driver'} (~{etaMinutes}m ETA)
                 </div>
@@ -374,7 +389,9 @@ export const LiveTrackingModal: React.FC<LiveTrackingModalProps> = ({
           </div>
         )}
 
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
+      )}
+    </AnimatePresence>
   );
 };

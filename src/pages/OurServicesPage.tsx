@@ -1,6 +1,5 @@
 import React from 'react';
 import { PageLayout } from '../components/PageLayout';
-import { SEOHead } from '../components/SEOHead';
 import { 
   Plane, 
   Compass, 
@@ -147,20 +146,7 @@ export const OurServicesPage: React.FC<OurServicesPageProps> = ({
 
   return (
     <>
-      <SEOHead
-        title="Our Services - Airport, Outstation & Local Cabs in Visakhapatnam"
-        description="Explore Waltair Travels complete suite of taxi services: Bhogapuram Airport transfers, one-way outstation cabs, hourly city rentals, and Araku holiday packages."
-        keywords={[
-          'Waltair Travels services',
-          'Vizag taxi booking',
-          'Bhogapuram cab service',
-          'outstation taxi Andhra Pradesh',
-          'hourly car rental Visakhapatnam',
-        ]}
-        canonicalPath="/services"
-        structuredData={structuredData}
-      />
-
+      
       <PageLayout
         title="Our Cab & Chauffeur Services"
         subtitle="Comprehensive transportation solutions designed for business travelers, families, tourists, and daily commuters across Coastal Andhra Pradesh."
@@ -186,7 +172,7 @@ export const OurServicesPage: React.FC<OurServicesPageProps> = ({
                       <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${srv.color} flex items-center justify-center border shadow-md`}>
                         <Icon className="w-7 h-7" />
                       </div>
-                      <span className="text-[11px] px-3 py-1 rounded-full bg-slate-800 text-slate-300 font-bold border border-slate-700">
+                      <span className="text-[11px] px-3 py-1 rounded-md bg-slate-800 text-slate-300 font-bold border border-slate-700">
                         {srv.badge}
                       </span>
                     </div>
