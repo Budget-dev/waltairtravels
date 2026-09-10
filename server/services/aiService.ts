@@ -70,14 +70,20 @@ Format your response strictly as JSON with this exact schema:
 }
 `;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.7-flash',
+      const generatePromise = ai.models.generateContent({
+        model: 'gemini-3.8-flash',
         contents: prompt,
         config: {
           responseMimeType: 'application/json',
           temperature: 0.3,
         },
       });
+
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('AI generation timed out')), 6000)
+      );
+
+      const response = await Promise.race([generatePromise, timeoutPromise]);
 
       const text = response.text || '{}';
       const parsed = JSON.parse(text);
