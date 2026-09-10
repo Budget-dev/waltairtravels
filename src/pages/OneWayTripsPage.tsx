@@ -8,7 +8,7 @@ import {
   ShieldCheck, 
   BadgePercent, 
   Coins,
-  Sparkles
+  
 } from 'lucide-react';
 import { POPULAR_ROUTES } from '../data/mockData';
 

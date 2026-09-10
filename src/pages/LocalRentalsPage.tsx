@@ -8,7 +8,7 @@ import {
   ShieldCheck, 
   Building2, 
   ShoppingBag,
-  Sparkles,
+
   ArrowRight
 } from 'lucide-react';
 

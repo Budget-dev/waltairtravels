@@ -7,7 +7,7 @@ import {
   ShieldCheck, 
   Check, 
   AlertCircle, 
-  Sparkles, 
+  
   Car, 
   Navigation,
   ArrowRight

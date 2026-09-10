@@ -5,8 +5,8 @@ import {
   MapPin, 
   Clock, 
   Send, 
-  CheckCircle2, 
-  Sparkles,
+  CheckCircle2,
+
   Building,
   Headphones
 } from 'lucide-react';

@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'motion/react';
 import React, { useState } from 'react';
 import { 
-  Sparkles, 
+  
   Send, 
   MapPin, 
   Calendar, 
@@ -86,8 +86,7 @@ export const AiTripPlannerModal: React.FC<AiTripPlannerModalProps> = ({
         <div className="px-6 py-4.5 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-cyan-900 to-[#005a66] text-white">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-cyan-200">
-              <Sparkles className="w-5 h-5" />
-            </div>
+                          </div>
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-base sm:text-lg font-bold tracking-tight">AI Travel Concierge & Trip Planner</h2>
@@ -205,8 +204,7 @@ export const AiTripPlannerModal: React.FC<AiTripPlannerModalProps> = ({
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4" />
-                    <span>Generate AI Itinerary & Quote</span>
+                                        <span>Generate AI Itinerary & Quote</span>
                   </>
                 )}
               </button>

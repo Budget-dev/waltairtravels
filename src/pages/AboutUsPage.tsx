@@ -11,7 +11,7 @@ import {
   HeartHandshake, 
   Star,
   Phone,
-  Sparkles
+  
 } from 'lucide-react';
 
 interface AboutUsPageProps {
@@ -88,8 +88,7 @@ export const AboutUsPage: React.FC<AboutUsPageProps> = ({
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
                 <div className="absolute bottom-4 left-4 right-4 p-4 rounded-2xl bg-slate-900/90 backdrop-blur-md border border-slate-700/80">
                   <div className="flex items-center gap-2 text-cyan-400 text-xs font-bold uppercase tracking-wider mb-1">
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span>Commercial Fleet Certified</span>
+                                        <span>Commercial Fleet Certified</span>
                   </div>
                   <p className="text-xs text-slate-300">GPS-monitored, sanitized Hatchbacks, Sedans, Innova Crystas & Tempo Travellers.</p>
                 </div>

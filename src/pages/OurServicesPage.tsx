@@ -8,8 +8,8 @@ import {
   Shield, 
   Car, 
   ArrowRight, 
-  CheckCircle2, 
-  Sparkles,
+  CheckCircle2,
+
   PhoneCall
 } from 'lucide-react';
 import { ServiceCategory, TripSubType } from '../types';

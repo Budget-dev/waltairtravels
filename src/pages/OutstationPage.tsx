@@ -7,8 +7,8 @@ import {
   CheckCircle2, 
   ArrowRight, 
   ShieldCheck, 
-  Fuel, 
-  Sparkles,
+  Fuel,
+
   Calendar,
   AlertCircle
 } from 'lucide-react';

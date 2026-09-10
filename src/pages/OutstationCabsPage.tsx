@@ -9,7 +9,7 @@ import {
   Fuel, 
   Clock,
   ArrowRight,
-  Sparkles
+  
 } from 'lucide-react';
 import { POPULAR_ROUTES, VEHICLES } from '../data/mockData';
 

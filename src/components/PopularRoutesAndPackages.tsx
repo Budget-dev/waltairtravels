@@ -5,7 +5,7 @@ import {
   IndianRupee, 
   Star, 
   ArrowRight, 
-  Sparkles, 
+  
   Calendar, 
   Check, 
   ChevronRight,
@@ -34,9 +34,8 @@ export const PopularRoutesAndPackages: React.FC<PopularRoutesAndPackagesProps> =
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-cyan-50 text-cyan-800 text-xs font-bold uppercase tracking-wider mb-2">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Direct Fixed Fares & Sightseeing</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-50 text-cyan-800 text-xs font-bold uppercase tracking-wider mb-2">
+                            <span>Direct Fixed Fares & Sightseeing</span>
             </div>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
               Popular Outstation Routes & Holiday Tours
@@ -91,7 +90,7 @@ export const PopularRoutesAndPackages: React.FC<PopularRoutesAndPackagesProps> =
                     referrerPolicy="no-referrer"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
-                  <div className="absolute top-3 left-3 bg-cyan-900/90 text-cyan-200 text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-md">
+                  <div className="absolute top-3 left-3 bg-cyan-900/90 text-cyan-200 text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-full">
                     {route.category}
                   </div>
                   <div className="absolute bottom-3 left-3 text-white font-bold text-base flex items-center gap-1.5">
@@ -158,7 +157,7 @@ export const PopularRoutesAndPackages: React.FC<PopularRoutesAndPackagesProps> =
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     referrerPolicy="no-referrer"
                   />
-                  <div className="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md text-amber-400 text-xs font-bold px-2.5 py-1 rounded-md flex items-center gap-1">
+                  <div className="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md text-amber-400 text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
                     <Star className="w-3.5 h-3.5 fill-amber-400" />
                     <span>{pkg.rating} ({pkg.reviewsCount})</span>
                   </div>

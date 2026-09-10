@@ -6,8 +6,8 @@ import {
   Clock, 
   Star, 
   Check, 
-  ArrowRight, 
-  Sparkles,
+  ArrowRight,
+
   Mountain,
   Landmark,
   Compass
@@ -142,8 +142,7 @@ export const PackagesPage: React.FC<PackagesPageProps> = ({
                     </div>
 
                     <div className="text-[11px] text-cyan-400 font-semibold flex items-center gap-1">
-                      <Sparkles className="w-3.5 h-3.5" />
-                      <span>Includes: {pkg.vehicleIncluded}</span>
+                                            <span>Includes: {pkg.vehicleIncluded}</span>
                     </div>
                   </div>
                 </div>

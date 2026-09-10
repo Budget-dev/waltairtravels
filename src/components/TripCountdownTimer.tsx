@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, Timer, Sparkles, CheckCircle2, Calendar, Radio, ArrowRight, Zap } from 'lucide-react';
+import { Clock, Timer, CheckCircle2, Calendar, Radio, ArrowRight, Zap } from 'lucide-react';
 
 interface TripCountdownTimerProps {
   travelDate: string;
@@ -172,8 +172,7 @@ export const TripCountdownTimer: React.FC<TripCountdownTimerProps> = ({
           isTripTimeArrived ? (
             <div className="bg-emerald-950/60 border border-emerald-500/40 rounded-xl p-3.5 text-center space-y-1">
               <div className="inline-flex items-center gap-1.5 text-emerald-300 font-bold text-xs">
-                <Sparkles className="w-4 h-4 text-emerald-400" />
-                <span>Scheduled Pickup Time Reached!</span>
+                                <span>Scheduled Pickup Time Reached!</span>
               </div>
               <p className="text-[11px] text-slate-300">
                 Your chauffeur {driverName ? <strong>{driverName}</strong> : ''} is on standby at your pickup point with OTP verification.

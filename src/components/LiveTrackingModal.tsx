@@ -10,8 +10,8 @@ import {
   Clock, 
   CheckCircle2, 
   Car, 
-  Search, 
-  Sparkles,
+  Search,
+
   AlertTriangle,
   RotateCw
 } from 'lucide-react';

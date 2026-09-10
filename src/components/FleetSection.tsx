@@ -6,28 +6,24 @@ import {
   Check, 
   IndianRupee, 
   ShieldCheck, 
-  Sparkles, 
+  
   ArrowRight, 
   Car 
 } from 'lucide-react';
-import { VEHICLE_FLEET } from '../data/mockData';
+import { useVehicles } from '../hooks/useVehicles';
 import { Vehicle, ServiceCategory, TripSubType } from '../types';
 
 interface FleetSectionProps {
   onBookVehicle: (vehicleId: string) => void;
-  condensed?: boolean;
 }
 
-export const FleetSection: React.FC<FleetSectionProps> = ({ onBookVehicle, condensed = false }) => {
+export const FleetSection: React.FC<FleetSectionProps> = ({ onBookVehicle }) => {
+  const { vehicles, loading } = useVehicles();
   const [filterCategory, setFilterCategory] = useState<string>('all');
 
-  let filteredVehicles = filterCategory === 'all' 
-    ? VEHICLE_FLEET 
-    : VEHICLE_FLEET.filter(v => v.category === filterCategory);
-
-  if (condensed) {
-    filteredVehicles = VEHICLE_FLEET.slice(0, 3);
-  }
+  const filteredVehicles = filterCategory === 'all' 
+    ? vehicles 
+    : vehicles.filter(v => v.category === filterCategory);
 
   return (
     <section id="fleet" className="py-14 md:py-20 bg-white border-b border-slate-200">
@@ -36,9 +32,8 @@ export const FleetSection: React.FC<FleetSectionProps> = ({ onBookVehicle, conde
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-cyan-50 text-cyan-800 text-xs font-bold uppercase tracking-wider mb-2">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Premium Sanitized Fleet</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-50 text-cyan-800 text-xs font-bold uppercase tracking-wider mb-2">
+                            <span>Premium Sanitized Fleet</span>
             </div>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
               Transparent Fares for Every Group Size
@@ -49,24 +44,22 @@ export const FleetSection: React.FC<FleetSectionProps> = ({ onBookVehicle, conde
           </div>
 
           {/* Filter Pills */}
-          {!condensed && (
-            <div className="flex items-center gap-1.5 overflow-x-auto max-w-full pb-1 bg-slate-100 p-1 rounded-2xl shrink-0 scrollbar-none">
-              {['all', 'Hatchback', 'Sedan', 'SUV', 'Innova Crysta', 'Tempo Traveller'].map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => setFilterCategory(cat)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all capitalize whitespace-nowrap cursor-pointer ${
-                    filterCategory === cat
-                      ? 'bg-white text-cyan-800 shadow-sm'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  {cat === 'all' ? 'All Cabs' : cat}
-                </button>
-              ))}
-            </div>
-          )}
+          <div className="flex items-center gap-1.5 overflow-x-auto max-w-full pb-1 bg-slate-100 p-1 rounded-2xl shrink-0 scrollbar-none">
+            {['all', 'Hatchback', 'Sedan', 'SUV', 'Innova Crysta', 'Tempo Traveller'].map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setFilterCategory(cat)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all capitalize whitespace-nowrap cursor-pointer ${
+                  filterCategory === cat
+                    ? 'bg-white text-cyan-800 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                {cat === 'all' ? 'All Cabs' : cat}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Fleet Cards Grid */}
@@ -84,7 +77,7 @@ export const FleetSection: React.FC<FleetSectionProps> = ({ onBookVehicle, conde
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   referrerPolicy="no-referrer"
                 />
-                <div className="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md text-white text-[11px] font-bold px-3 py-1 rounded-md flex items-center gap-1.5">
+                <div className="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md text-white text-[11px] font-bold px-3 py-1 rounded-full flex items-center gap-1.5">
                   <Car className="w-3 h-3 text-cyan-400" />
                   <span>{vehicle.category}</span>
                 </div>

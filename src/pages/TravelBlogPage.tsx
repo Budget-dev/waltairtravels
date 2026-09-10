@@ -6,7 +6,7 @@ import {
   User, 
   Tag, 
   ArrowRight, 
-  Sparkles, 
+  
   ThumbsUp, 
   MessageSquare,
   Search,

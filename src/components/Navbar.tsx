@@ -15,7 +15,8 @@ import {
   LogOut, 
   CheckCircle,
   Plane,
-  Sparkles,
+  Briefcase,
+  Map,
   ChevronRight,
   Shield,
   HelpCircle,
@@ -251,8 +252,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="px-2.5 py-1.5 bg-cyan-50 hover:bg-cyan-100 text-cyan-800 border border-cyan-200/80 rounded-lg flex items-center gap-1.5 transition-all text-xs font-bold cursor-pointer"
               title="AI Trip Itinerary & Quote Generator"
             >
-              <Sparkles className="w-3.5 h-3.5 text-cyan-600 animate-pulse" />
-              <span>AI Planner</span>
+                            <span>AI Planner</span>
             </button>
           )}
 
@@ -275,7 +275,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               id="city-selector-btn"
               onClick={() => setIsCityMenuOpen(!isCityMenuOpen)}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/80 hover:bg-slate-100 text-slate-700 text-xs sm:text-sm font-medium transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-full border border-slate-200 bg-slate-50/80 hover:bg-slate-100 text-slate-700 text-xs sm:text-sm font-medium transition-all cursor-pointer"
             >
               <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-700" />
               <span className="truncate max-w-[120px] sm:max-w-none">{currentCity}</span>
@@ -323,7 +323,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
 
             {isNotifOpen && (
-              <div className="fixed top-[60px] left-1/2 -translate-x-1/2 w-[calc(100vw-1rem)] sm:absolute sm:top-auto sm:left-auto sm:translate-x-0 sm:right-0 mt-1 sm:mt-2 sm:w-96 origin-top bg-white rounded-2xl shadow-2xl border border-slate-100 p-4 z-50">
+              <div className="fixed left-4 right-4 top-[72px] sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-100 p-4 z-50 animate-in slide-in-from-top-2 fade-in duration-200">
                 <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                   <div className="font-bold text-slate-900 text-sm flex items-center gap-2">
                     <Bell className="w-4 h-4 text-cyan-700" />
@@ -375,7 +375,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
 
               {isProfileMenuOpen && (
-                <div className="absolute right-0 mt-2 w-60 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 z-50 animate-in fade-in duration-150">
+                <div className="fixed left-4 right-4 top-[72px] sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-60 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 z-50 animate-in slide-in-from-top-2 fade-in duration-150">
                   <div className="px-3 py-2.5 border-b border-slate-100">
                     <div className="font-bold text-slate-900 text-sm">{user.name}</div>
                     <div className="text-xs text-slate-400 truncate">{user.email || user.phone || 'Verified Rider'}</div>
@@ -466,8 +466,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="p-4 bg-gradient-to-r from-slate-900 via-[#005a66] to-slate-900 text-white flex items-center justify-between border-b border-teal-800/40 shrink-0">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-teal-500/20 border border-teal-400/30 flex items-center justify-center text-teal-300">
-                <Sparkles className="w-4 h-4" />
-              </div>
+                              </div>
               <div>
                 <div className="font-bold text-sm text-white">Waltair Travels</div>
                 <div className="text-[10px] text-teal-200">Visakhapatnam & Coastal AP</div>
@@ -521,11 +520,11 @@ export const Navbar: React.FC<NavbarProps> = ({
 
               {[
                 { id: 'home', label: 'Home', icon: Car },
-                { id: 'services', label: 'Our Services', icon: Sparkles },
+                { id: 'services', label: 'Our Services', icon: Briefcase },
                 { id: 'airport-taxi', label: 'Airport Taxi (ASI Bhogapuram)', icon: Plane },
                 { id: 'outstation', label: 'Outstation Cabs', icon: Compass },
                 { id: 'local-rentals', label: 'Local Hourly Rentals', icon: Clock },
-                { id: 'packages', label: 'Holiday Packages (Araku & Lambasingi)', icon: Sparkles },
+                { id: 'packages', label: 'Holiday Packages (Araku & Lambasingi)', icon: Map },
                 { id: 'travel-blog', label: 'Travel Blog & Guides', icon: BookOpen },
                 { id: 'about-us', label: 'About Us', icon: Shield },
                 { id: 'contact-us', label: 'Contact Us & Help', icon: HelpCircle }
@@ -579,8 +578,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     }}
                     className="px-2 py-2.5 rounded-xl bg-cyan-50 hover:bg-cyan-100 text-cyan-900 font-semibold text-[11px] flex flex-col items-center justify-center gap-1.5 transition-colors cursor-pointer active:scale-95 border border-cyan-200"
                   >
-                    <Sparkles className="w-4 h-4 text-cyan-700" />
-                    <span>AI Planner</span>
+                                        <span>AI Planner</span>
                   </button>
                 )}
                 {onOpenTelemetry && (

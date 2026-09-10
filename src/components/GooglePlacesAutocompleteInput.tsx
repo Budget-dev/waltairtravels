@@ -6,7 +6,7 @@ import {
   Navigation, 
   Plane, 
   Building2, 
-  Sparkles, 
+  
   Check,
   Compass,
   Loader2,
@@ -448,8 +448,7 @@ export const GooglePlacesAutocompleteInput: React.FC<GooglePlacesAutocompleteInp
             {label}
           </label>
           <span className="inline-flex items-center gap-1 text-[10px] text-cyan-700 font-semibold">
-            <Sparkles className="w-2.5 h-2.5" />
-            <span>Search Any Village / City</span>
+                        <span>Search Any Village / City</span>
           </span>
         </div>
       )}
@@ -625,8 +624,7 @@ export const GooglePlacesAutocompleteInput: React.FC<GooglePlacesAutocompleteInp
           <div className="p-2 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400 px-3">
             <span>Use ↑ ↓ keys to navigate • Enter to pick</span>
             <span className="text-cyan-700 font-semibold flex items-center gap-1">
-              <Sparkles className="w-2.5 h-2.5" />
-              OpenStreetMap + GPS Enabled
+                            OpenStreetMap + GPS Enabled
             </span>
           </div>
         </div>

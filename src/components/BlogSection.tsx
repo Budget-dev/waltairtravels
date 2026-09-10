@@ -12,7 +12,7 @@ import {
   ArrowRight, 
   X, 
   CheckCircle2, 
-  Sparkles, 
+  
   Image as ImageIcon,
   Share2,
   Bookmark,
@@ -615,8 +615,7 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ currentUser, onOpenAut
             <div className="bg-gradient-to-r from-slate-950 via-[#005a66] to-slate-950 p-5 text-white flex items-center justify-between border-b border-slate-800">
               <div>
                 <div className="flex items-center gap-1.5 text-cyan-300 text-xs font-bold uppercase tracking-wider mb-0.5">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Waltair Editorial Desk</span>
+                                    <span>Waltair Editorial Desk</span>
                 </div>
                 <h3 className="text-lg font-bold text-white">
                   {editingPostId ? 'Edit Travel Blog Post' : 'Create New Travel Blog Post'}

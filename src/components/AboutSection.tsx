@@ -8,7 +8,7 @@ import {
   CheckCircle2, 
   ChevronDown, 
   ChevronUp,
-  Sparkles,
+
   PhoneCall
 } from 'lucide-react';
 import { FAQS } from '../data/mockData';
@@ -29,9 +29,8 @@ export const AboutSection: React.FC = () => {
           
           {/* Left Column: Visual Story & Highlights */}
           <div className="lg:col-span-6 space-y-5">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-cyan-50 text-cyan-800 text-xs font-bold uppercase tracking-wider">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Visakhapatnam's Premier Cab Network</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-50 text-cyan-800 text-xs font-bold uppercase tracking-wider">
+                            <span>Visakhapatnam's Premier Cab Network</span>
             </div>
 
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">

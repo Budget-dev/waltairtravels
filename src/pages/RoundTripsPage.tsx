@@ -6,8 +6,8 @@ import {
   Car, 
   CheckCircle2, 
   ShieldCheck, 
-  Calendar, 
-  Sparkles,
+  Calendar,
+
   Users,
   Luggage
 } from 'lucide-react';

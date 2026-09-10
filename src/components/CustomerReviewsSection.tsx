@@ -7,7 +7,7 @@ import {
   MapPin, 
   PlusCircle, 
   X,
-  Sparkles
+  
 } from 'lucide-react';
 import { INITIAL_REVIEWS } from '../data/mockData';
 import { CustomerReview } from '../types';
@@ -88,9 +88,8 @@ export const CustomerReviewsSection: React.FC = () => {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-cyan-50 text-cyan-800 text-xs font-bold uppercase tracking-wider mb-2">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Real Customer Stories</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-50 text-cyan-800 text-xs font-bold uppercase tracking-wider mb-2">
+                            <span>Real Customer Stories</span>
             </div>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
               Trusted by 50,000+ Happy Riders in Vizag
