@@ -4,14 +4,10 @@ import {
   Luggage, 
   Wind, 
   Check, 
-  IndianRupee, 
-  ShieldCheck, 
-  
   ArrowRight, 
   Car 
 } from 'lucide-react';
 import { useVehicles } from '../hooks/useVehicles';
-import { Vehicle, ServiceCategory, TripSubType } from '../types';
 
 interface FleetSectionProps {
   onBookVehicle: (vehicleId: string) => void;
@@ -21,9 +17,19 @@ export const FleetSection: React.FC<FleetSectionProps> = ({ onBookVehicle }) => 
   const { vehicles, loading } = useVehicles();
   const [filterCategory, setFilterCategory] = useState<string>('all');
 
+  const filterOptions = [
+    { id: 'all', label: 'All Available Cars' },
+    { id: 'dzire', label: 'Dzire' },
+    { id: 'ertiga', label: 'Ertiga' },
+    { id: 'aura', label: 'Hyundai Aura' },
+    { id: 'carens', label: 'Kia Carens' },
+    { id: 'fronx', label: 'Fronx' },
+    { id: 'crysta', label: 'Innova Crysta' },
+  ];
+
   const filteredVehicles = filterCategory === 'all' 
     ? vehicles 
-    : vehicles.filter(v => v.category === filterCategory);
+    : vehicles.filter(v => v.id === filterCategory);
 
   return (
     <section id="fleet" className="py-14 md:py-20 bg-white border-b border-slate-200">
@@ -33,30 +39,31 @@ export const FleetSection: React.FC<FleetSectionProps> = ({ onBookVehicle }) => 
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-50 text-cyan-800 text-xs font-bold uppercase tracking-wider mb-2">
-                            <span>Premium Sanitized Fleet</span>
+              <Car className="w-3.5 h-3.5" />
+              <span>Available Cars</span>
             </div>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
-              Transparent Fares for Every Group Size
+              Available Cars
             </h2>
             <p className="text-slate-600 text-sm sm:text-base mt-1.5 max-w-xl">
-              From solo airport transfers to 17-seater luxury family excursions, every vehicle is commercially insured and sanitized.
+              Explore our dedicated fleet: Maruti Dzire, Ertiga, Hyundai Aura, Kia Carens, Fronx, and Innova Crysta. All vehicles are sanitized, fully air-conditioned, and maintained with commercial permits.
             </p>
           </div>
 
           {/* Filter Pills */}
           <div className="flex items-center gap-1.5 overflow-x-auto max-w-full pb-1 bg-slate-100 p-1 rounded-2xl shrink-0 scrollbar-none">
-            {['all', 'Hatchback', 'Sedan', 'SUV', 'Innova Crysta', 'Tempo Traveller'].map((cat) => (
+            {filterOptions.map((opt) => (
               <button
-                key={cat}
+                key={opt.id}
                 type="button"
-                onClick={() => setFilterCategory(cat)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all capitalize whitespace-nowrap cursor-pointer ${
-                  filterCategory === cat
+                onClick={() => setFilterCategory(opt.id)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                  filterCategory === opt.id
                     ? 'bg-white text-cyan-800 shadow-sm'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                {cat === 'all' ? 'All Cabs' : cat}
+                {opt.label}
               </button>
             ))}
           </div>
@@ -69,7 +76,7 @@ export const FleetSection: React.FC<FleetSectionProps> = ({ onBookVehicle }) => 
               key={vehicle.id}
               className="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-cyan-600 hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col group"
             >
-              {/* Image Container */}
+              {/* Image Container (No price badges) */}
               <div className="relative h-48 sm:h-52 bg-slate-100 overflow-hidden">
                 <img
                   src={vehicle.image}
@@ -80,12 +87,6 @@ export const FleetSection: React.FC<FleetSectionProps> = ({ onBookVehicle }) => 
                 <div className="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md text-white text-[11px] font-bold px-3 py-1 rounded-full flex items-center gap-1.5">
                   <Car className="w-3 h-3 text-cyan-400" />
                   <span>{vehicle.category}</span>
-                </div>
-
-                <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-md text-slate-900 text-xs font-extrabold px-3 py-1 rounded-xl shadow-md flex items-center">
-                  <IndianRupee className="w-3.5 h-3.5 text-cyan-700" />
-                  <span className="text-base">{vehicle.ratePerKm}</span>
-                  <span className="text-[10px] text-slate-500 font-normal ml-0.5">/km</span>
                 </div>
               </div>
 
@@ -116,35 +117,31 @@ export const FleetSection: React.FC<FleetSectionProps> = ({ onBookVehicle }) => 
                   </div>
 
                   {/* Features checklist */}
-                  <ul className="space-y-1.5 mb-5 text-xs text-slate-600">
-                    {vehicle.features.slice(0, 3).map((feat, i) => (
-                      <li key={i} className="flex items-center gap-2">
-                        <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                        <span>{feat}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="mb-5">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
+                      Features & Amenities
+                    </span>
+                    <ul className="space-y-2 text-xs text-slate-600">
+                      {vehicle.features.map((feat, i) => (
+                        <li key={i} className="flex items-center gap-2">
+                          <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          <span className="text-slate-700">{feat}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
 
-                {/* Pricing & CTA */}
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] uppercase font-bold text-slate-400">Starting From</span>
-                    <div className="text-base font-extrabold text-slate-900 flex items-center">
-                      <IndianRupee className="w-3.5 h-3.5 text-slate-600" />
-                      <span>{vehicle.baseFare}</span>
-                      <span className="text-[10px] text-slate-400 font-normal ml-1">({vehicle.baseKm}km inc.)</span>
-                    </div>
-                  </div>
-
+                {/* Bottom CTA: Book Now only (No prices shown) */}
+                <div className="pt-3 border-t border-slate-100">
                   <button
                     type="button"
                     id={`book-vehicle-${vehicle.id}-btn`}
                     onClick={() => onBookVehicle(vehicle.id)}
-                    className="px-4 py-2.5 rounded-xl bg-[#005a66] hover:bg-[#004751] text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-teal-900/10 hover:shadow-lg transition-all active:scale-95 cursor-pointer"
+                    className="w-full py-3 rounded-xl bg-[#005a66] hover:bg-[#004751] text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-md shadow-teal-900/10 hover:shadow-lg transition-all active:scale-[0.98] cursor-pointer"
                   >
                     <span>Book Now</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
               </div>

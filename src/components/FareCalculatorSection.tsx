@@ -34,7 +34,7 @@ export const FareCalculatorSection: React.FC<FareCalculatorProps> = ({ onQuickBo
   // Set default vehicle when vehicles load
   React.useEffect(() => {
     if (vehicles.length > 0 && !selectedVehicle) {
-      setSelectedVehicle(vehicles.find(v => v.id === 'sedan') || vehicles[0]);
+      setSelectedVehicle(vehicles.find(v => v.id === 'dzire') || vehicles[0]);
     }
   }, [vehicles, selectedVehicle]);
 
@@ -145,26 +145,35 @@ export const FareCalculatorSection: React.FC<FareCalculatorProps> = ({ onQuickBo
               {/* Vehicle Selection Chips */}
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-2">
-                  Select Cab Category:
+                  Select Available Car:
                 </label>
-                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
                   {loading ? (
-                    <div className="col-span-5 text-center text-xs text-slate-400 py-4">Loading vehicles...</div>
-                  ) : vehicles.map((v) => (
-                    <button
-                      key={v.id}
-                      type="button"
-                      onClick={() => setSelectedVehicle(v)}
-                      className={`p-2.5 rounded-xl text-xs font-semibold border transition-all text-center ${
-                        selectedVehicle?.id === v.id
-                          ? 'bg-cyan-600 border-cyan-400 text-white shadow-lg'
-                          : 'bg-slate-800/70 border-slate-700 text-slate-300 hover:bg-slate-800'
-                      }`}
-                    >
-                      <div className="font-bold truncate">{v.name.split(' ')[0]}</div>
-                      <div className="text-[10px] opacity-80">₹{v.ratePerKm}/km</div>
-                    </button>
-                  ))}
+                    <div className="col-span-6 text-center text-xs text-slate-400 py-4">Loading vehicles...</div>
+                  ) : vehicles.map((v) => {
+                    const carLabel = v.id === 'dzire' ? 'Dzire'
+                      : v.id === 'ertiga' ? 'Ertiga'
+                      : v.id === 'aura' ? 'Hyundai Aura'
+                      : v.id === 'carens' ? 'Kia Carens'
+                      : v.id === 'fronx' ? 'Fronx'
+                      : v.id === 'crysta' ? 'Innova Crysta'
+                      : v.name;
+                    return (
+                      <button
+                        key={v.id}
+                        type="button"
+                        onClick={() => setSelectedVehicle(v)}
+                        className={`p-2.5 rounded-xl text-xs font-semibold border transition-all text-center ${
+                          selectedVehicle?.id === v.id
+                            ? 'bg-cyan-600 border-cyan-400 text-white shadow-lg'
+                            : 'bg-slate-800/70 border-slate-700 text-slate-300 hover:bg-slate-800'
+                        }`}
+                      >
+                        <div className="font-bold truncate text-[11px] sm:text-xs">{carLabel}</div>
+                        <div className="text-[10px] opacity-80 mt-0.5">{v.seats} Seater</div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -232,7 +241,7 @@ export const FareCalculatorSection: React.FC<FareCalculatorProps> = ({ onQuickBo
                     onClick={() => onQuickBook({
                       pickup,
                       dropoff,
-                      vehicleId: selectedVehicle?.id || 'sedan',
+                      vehicleId: selectedVehicle?.id || 'dzire',
                       distance: distanceKm,
                       estimatedFare: total
                     })}

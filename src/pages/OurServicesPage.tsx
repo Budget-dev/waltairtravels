@@ -226,7 +226,7 @@ export const OurServicesPage: React.FC<OurServicesPageProps> = ({
                 <Car className="w-5 h-5" />
               </div>
               <h3 className="font-bold text-white text-base">Fleet Variety</h3>
-              <p className="text-xs text-slate-400">Hatchbacks, Sedans, Ertiga 7-seaters, Innova Crysta, and 12-26 seaters Tempo Travellers.</p>
+              <p className="text-xs text-slate-400">Maruti Dzire, Ertiga, Hyundai Aura, Kia Carens, Fronx, and Innova Crysta.</p>
             </div>
 
             <div className="space-y-2">

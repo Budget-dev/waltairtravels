@@ -1355,6 +1355,46 @@ export async function reverseGeocodeCoords(lat: number, lng: number): Promise<{ 
 /**
  * Haversine road distance estimator between two coordinates
  */
+export async function fetchLocationByIp(): Promise<{ address: string; name: string; lat?: number; lng?: number } | null> {
+  try {
+    const res = await fetch('https://ipapi.co/json/');
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.city) {
+        const address = `${data.city}, ${data.region || 'Andhra Pradesh'}, ${data.country_name || 'India'}`;
+        return {
+          name: data.city,
+          address,
+          lat: typeof data.latitude === 'number' ? data.latitude : undefined,
+          lng: typeof data.longitude === 'number' ? data.longitude : undefined,
+        };
+      }
+    }
+  } catch (e) {
+    console.warn('Primary IP location lookup failed, trying backup:', e);
+  }
+
+  try {
+    const res2 = await fetch('https://ipwho.is/');
+    if (res2.ok) {
+      const data2 = await res2.json();
+      if (data2 && data2.success && data2.city) {
+        const address = `${data2.city}, ${data2.region || 'Andhra Pradesh'}, ${data2.country || 'India'}`;
+        return {
+          name: data2.city,
+          address,
+          lat: typeof data2.latitude === 'number' ? data2.latitude : undefined,
+          lng: typeof data2.longitude === 'number' ? data2.longitude : undefined,
+        };
+      }
+    }
+  } catch (err) {
+    console.warn('Backup IP location lookup notice:', err);
+  }
+
+  return null;
+}
+
 export function calculateEstimatedRoadDistanceKm(
   lat1?: number,
   lng1?: number,

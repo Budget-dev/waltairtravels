@@ -57,12 +57,12 @@ service cloud.firestore {
     // Vehicles and packages
     match /vehicles/{vehicleId} {
       allow read: if true;
-      allow write: if isSignedIn();
+      allow write: if true;
     }
 
     match /packages/{packageId} {
       allow read: if true;
-      allow write: if isSignedIn();
+      allow write: if true;
     }
   }
 }

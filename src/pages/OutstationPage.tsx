@@ -124,11 +124,11 @@ export const OutstationPage: React.FC<OutstationPageProps> = ({
 
                     <div className="pt-2 flex items-baseline justify-between border-t border-slate-800/80">
                       <div>
-                        <div className="text-[10px] uppercase text-slate-400 font-bold">Starting From</div>
-                        <div className="text-xl font-extrabold text-cyan-400">₹{route.startingPrice.toLocaleString('en-IN')}</div>
+                        <div className="text-[10px] uppercase text-slate-400 font-bold">Service Category</div>
+                        <div className="text-sm font-bold text-cyan-400">One-Way & Round Trip</div>
                       </div>
                       <div className="text-right text-[11px] text-slate-400">
-                        Sedan / Ertiga / SUV
+                        Dzire / Ertiga / Crysta
                       </div>
                     </div>
                   </div>

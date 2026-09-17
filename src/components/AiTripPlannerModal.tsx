@@ -173,9 +173,9 @@ export const AiTripPlannerModal: React.FC<AiTripPlannerModalProps> = ({
                   onChange={(e) => setBudgetTier(e.target.value)}
                   className="w-full pl-9 pr-3 py-2 text-xs font-semibold bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-cyan-600 focus:outline-none"
                 >
-                  <option value="comfortable">Comfortable (Innova / Ertiga SUV)</option>
-                  <option value="budget">Economy (Dzire / Etios Sedan)</option>
-                  <option value="luxury">Premium Luxury (Innova Crysta)</option>
+                  <option value="comfortable">Comfortable (Ertiga / Kia Carens / Fronx)</option>
+                  <option value="budget">Economy (Maruti Dzire / Hyundai Aura)</option>
+                  <option value="luxury">Premium Luxury (Toyota Innova Crysta)</option>
                 </select>
               </div>
             </div>

@@ -106,14 +106,14 @@ export const OutstationCabsPage: React.FC<OutstationCabsPageProps> = ({
 
                   <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
                     <div>
-                      <div className="text-[10px] text-slate-400 uppercase">Starting at</div>
-                      <div className="text-lg font-bold text-cyan-400">₹{route.startingPrice.toLocaleString('en-IN')}</div>
+                      <div className="text-[10px] text-slate-400 uppercase">Trip Type</div>
+                      <div className="text-xs font-bold text-cyan-400">One-Way / Round-Trip</div>
                     </div>
                     <button
                       onClick={onOpenBooking}
                       className="px-3 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-bold text-[11px] uppercase tracking-wider transition-colors cursor-pointer"
                     >
-                      Book
+                      Book Cab
                     </button>
                   </div>
                 </div>
@@ -134,7 +134,7 @@ export const OutstationCabsPage: React.FC<OutstationCabsPageProps> = ({
                   </div>
                   <div className="flex items-center justify-between text-xs text-slate-300">
                     <span>{veh.seats} Passengers</span>
-                    <span className="font-bold text-cyan-400">₹{veh.ratePerKm}/KM</span>
+                    <span className="font-bold text-cyan-400">AC & Commercial Permit</span>
                   </div>
                 </div>
               ))}

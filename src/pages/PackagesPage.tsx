@@ -150,9 +150,9 @@ export const PackagesPage: React.FC<PackagesPageProps> = ({
                 {/* Footer and CTA */}
                 <div className="p-6 pt-0 border-t border-slate-800/80 mt-4 flex items-center justify-between gap-4">
                   <div>
-                    <div className="text-[10px] uppercase text-slate-400 font-bold">Package Fare</div>
-                    <div className="text-2xl font-black text-cyan-400">
-                      ₹{pkg.price.toLocaleString('en-IN')}
+                    <div className="text-[10px] uppercase text-slate-400 font-bold">Service Type</div>
+                    <div className="text-sm font-bold text-cyan-400">
+                      All-Inclusive Cab
                     </div>
                   </div>
 

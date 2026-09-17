@@ -144,7 +144,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
         const found = vehicles.find(v => v.id === initialData.preSelectedVehicleId);
         if (found) setSelectedVehicle(found);
       } else if (vehicles.length > 0 && !selectedVehicle) {
-        setSelectedVehicle(vehicles.find(v => v.id === 'sedan') || vehicles[0]);
+        setSelectedVehicle(vehicles.find(v => v.id === 'dzire') || vehicles[0]);
       }
       setStep(1);
       setConfirmedBooking(null);
@@ -154,7 +154,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
   // Handle case where initialData doesn't have a pre-selected vehicle but vehicles just loaded
   useEffect(() => {
     if (vehicles.length > 0 && !selectedVehicle) {
-      setSelectedVehicle(vehicles.find(v => v.id === 'sedan') || vehicles[0]);
+      setSelectedVehicle(vehicles.find(v => v.id === 'dzire') || vehicles[0]);
     }
   }, [vehicles, selectedVehicle]);
 
@@ -236,7 +236,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
       travelDate: travelDate || initialData.travelDate,
       pickupTime: pickupTime || initialData.pickupTime,
       vehicleCategory: selectedVehicle?.category || 'Sedan',
-      vehicleName: selectedVehicle?.name || 'Prime Sedan',
+      vehicleName: selectedVehicle?.name || 'Maruti Suzuki Dzire',
       estimatedDistanceKm: estimatedKm,
       baseFare: baseRate,
       distanceFare,
@@ -631,7 +631,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
           {step === 2 && (
             <div className="space-y-4">
               <div className="text-sm font-bold text-slate-900">
-                Choose Cab Category ({vehicles.length} options available)
+                Choose Available Car ({vehicles.length} cars available)
               </div>
 
               <div className="space-y-3">

@@ -90,7 +90,7 @@ export const AboutUsPage: React.FC<AboutUsPageProps> = ({
                   <div className="flex items-center gap-2 text-cyan-400 text-xs font-bold uppercase tracking-wider mb-1">
                                         <span>Commercial Fleet Certified</span>
                   </div>
-                  <p className="text-xs text-slate-300">GPS-monitored, sanitized Hatchbacks, Sedans, Innova Crystas & Tempo Travellers.</p>
+                  <p className="text-xs text-slate-300">GPS-monitored, sanitized Dzire, Ertiga, Hyundai Aura, Kia Carens, Fronx & Innova Crysta.</p>
                 </div>
               </div>
             </div>

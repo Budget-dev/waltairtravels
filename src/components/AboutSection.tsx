@@ -118,7 +118,7 @@ export const AboutSection: React.FC = () => {
             <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs text-center space-y-2">
               <div className="text-3xl sm:text-4xl font-extrabold text-purple-600">220+</div>
               <div className="text-xs sm:text-sm font-bold text-slate-800">Active Commercial Cabs</div>
-              <p className="text-[11px] text-slate-500">Sedans, SUVs, Innovas & Tempo Travellers</p>
+              <p className="text-[11px] text-slate-500">Dzire, Ertiga, Aura, Carens, Fronx & Crysta</p>
             </div>
 
             <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs text-center space-y-2">

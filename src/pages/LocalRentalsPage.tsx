@@ -106,11 +106,11 @@ export const LocalRentalsPage: React.FC<LocalRentalsPageProps> = ({
                   <div className="space-y-2 pt-2 border-t border-slate-800">
                     <div className="text-xs font-bold text-slate-300 uppercase tracking-wider">Starting Rates:</div>
                     <div className="flex items-center justify-between text-xs py-1">
-                      <span className="text-slate-400">Prime Sedan (Etios / Dzire)</span>
+                      <span className="text-slate-400">Dzire / Hyundai Aura</span>
                       <span className="font-bold text-white">{pkg.sedanPrice}</span>
                     </div>
                     <div className="flex items-center justify-between text-xs py-1">
-                      <span className="text-slate-400">Prime SUV (Ertiga 6-Seater)</span>
+                      <span className="text-slate-400">Ertiga / Kia Carens</span>
                       <span className="font-bold text-white">{pkg.suvPrice}</span>
                     </div>
                     <div className="flex items-center justify-between text-xs py-1">

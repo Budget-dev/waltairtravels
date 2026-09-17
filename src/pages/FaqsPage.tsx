@@ -36,8 +36,8 @@ export const FaqsPage: React.FC<FaqsPageProps> = ({
       category: 'fares',
     },
     {
-      question: 'Can I choose between a Sedan, SUV, or Innova Crysta?',
-      answer: 'Absolutely. We offer Prime Sedans (Dzire, Etios), Prime SUVs (Ertiga 6-seater), Innova Crysta luxury captains, and 12-26 seaters Tempo Travellers. You can select your preferred vehicle during the online booking step.',
+      question: 'Which specific cars are available in your fleet?',
+      answer: 'Our fleet exclusively features 6 popular models: Maruti Suzuki Dzire, Maruti Suzuki Ertiga, Hyundai Aura, Kia Carens, Maruti Suzuki Fronx, and Toyota Innova Crysta. You can choose your preferred car model directly during booking.',
       category: 'fleet',
     },
     {

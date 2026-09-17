@@ -46,7 +46,7 @@ export interface Booking {
   dropoffLocation: string;
   travelDate: string;
   pickupTime: string;
-  vehicleCategory: 'Hatchback' | 'Sedan' | 'SUV' | 'Innova Crysta' | 'Tempo Traveller';
+  vehicleCategory: string;
   vehicleName: string;
   estimatedDistanceKm: number;
   baseFare: number;
@@ -69,7 +69,7 @@ export interface Vehicle {
   id: string;
   name: string;
   modelExamples: string;
-  category: 'Hatchback' | 'Sedan' | 'SUV' | 'Innova Crysta' | 'Tempo Traveller';
+  category: string;
   image: string;
   seats: number;
   luggageCount: number;

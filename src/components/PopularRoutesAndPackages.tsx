@@ -2,15 +2,14 @@ import React, { useState } from 'react';
 import { 
   MapPin, 
   Clock, 
-  IndianRupee, 
   Star, 
   ArrowRight, 
-  
   Calendar, 
   Check, 
   ChevronRight,
   Send,
-  Plane
+  Plane,
+  ShieldCheck
 } from 'lucide-react';
 import { POPULAR_ROUTES, TOUR_PACKAGES } from '../data/mockData';
 import { TourPackage, PopularRoute } from '../types';
@@ -35,13 +34,14 @@ export const PopularRoutesAndPackages: React.FC<PopularRoutesAndPackagesProps> =
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-50 text-cyan-800 text-xs font-bold uppercase tracking-wider mb-2">
-                            <span>Direct Fixed Fares & Sightseeing</span>
+              <ShieldCheck className="w-3.5 h-3.5 text-cyan-700" />
+              <span>Direct Routes & Sightseeing</span>
             </div>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
               Popular Outstation Routes & Holiday Tours
             </h2>
             <p className="text-slate-600 text-sm sm:text-base mt-1.5 max-w-xl">
-              Transparent fixed fares with zero return-fare penalty for one-way trips, plus customized Vizag & Araku sightseeing tours.
+              Reliable cabs with zero return-fare penalty for one-way trips, plus customized Vizag & Araku sightseeing tours.
             </p>
           </div>
 
@@ -120,17 +120,16 @@ export const PopularRoutesAndPackages: React.FC<PopularRoutesAndPackagesProps> =
 
                   <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                     <div>
-                      <span className="text-[10px] uppercase font-bold text-slate-400">All-Inclusive One-Way</span>
-                      <div className="text-lg font-extrabold text-slate-900 flex items-center">
-                        <IndianRupee className="w-4 h-4 text-cyan-700" />
-                        <span>{route.startingPrice}</span>
-                      </div>
+                      <span className="text-[10px] uppercase font-bold text-cyan-800 bg-cyan-50 px-2 py-0.5 rounded-md block w-fit mb-0.5">
+                        One-Way & Round Trip
+                      </span>
+                      <span className="text-xs text-slate-500 font-medium">All-Inclusive Cab Service</span>
                     </div>
 
                     <button
                       type="button"
                       onClick={() => onBookRoute(route.from, route.to)}
-                      className="px-4 py-2.5 rounded-xl bg-[#005a66] hover:bg-[#004751] text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm"
+                      className="px-4 py-2.5 rounded-xl bg-[#005a66] hover:bg-[#004751] text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm hover:shadow-md cursor-pointer"
                     >
                       <span>Book Route</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -187,26 +186,24 @@ export const PopularRoutesAndPackages: React.FC<PopularRoutesAndPackagesProps> =
 
                   <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                     <div>
-                      <span className="text-[10px] uppercase font-bold text-slate-400">Package Fare</span>
-                      <div className="text-lg font-extrabold text-slate-900 flex items-center">
-                        <IndianRupee className="w-4 h-4 text-cyan-700" />
-                        <span>{pkg.price}</span>
-                        <span className="text-[10px] text-slate-400 font-normal ml-1">/cab</span>
-                      </div>
+                      <span className="text-[10px] uppercase font-bold text-cyan-800 bg-cyan-50 px-2 py-0.5 rounded-md block w-fit mb-0.5">
+                        Holiday Special
+                      </span>
+                      <span className="text-xs text-slate-500 font-medium">Customizable Tour</span>
                     </div>
 
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
                         onClick={() => setSelectedPackageForDetail(pkg)}
-                        className="px-3 py-2 rounded-xl border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50"
+                        className="px-3 py-2 rounded-xl border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 cursor-pointer"
                       >
                         Itinerary
                       </button>
                       <button
                         type="button"
                         onClick={() => onBookPackage(pkg)}
-                        className="px-4 py-2 rounded-xl bg-[#005a66] hover:bg-[#004751] text-white text-xs font-bold flex items-center gap-1 shadow-sm"
+                        className="px-4 py-2 rounded-xl bg-[#005a66] hover:bg-[#004751] text-white text-xs font-bold flex items-center gap-1 shadow-sm hover:shadow-md cursor-pointer"
                       >
                         <span>Book Tour</span>
                         <ArrowRight className="w-3.5 h-3.5" />
@@ -260,8 +257,8 @@ export const PopularRoutesAndPackages: React.FC<PopularRoutesAndPackagesProps> =
               </div>
 
               <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-                <div className="text-base font-extrabold text-slate-900">
-                  ₹{selectedPackageForDetail.price} All-Inclusive
+                <div className="text-xs font-semibold text-slate-700">
+                  All-Inclusive Cab Service (Doorstep Pickup & Sightseeing)
                 </div>
                 <button
                   onClick={() => {

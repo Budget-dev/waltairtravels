@@ -19,6 +19,7 @@ import { loadGoogleMaps } from '../utils/googleMapsLoader';
 import { 
   searchAnyLocation, 
   reverseGeocodeCoords, 
+  fetchLocationByIp,
   PlaceResult,
   CURATED_AP_LOCATIONS 
 } from '../utils/placesService';
@@ -249,38 +250,47 @@ export const GooglePlacesAutocompleteInput: React.FC<GooglePlacesAutocompleteInp
     });
   };
 
-    // Use Current Geolocation Location with OpenStreetMap Reverse Geocoding
+  // Use Current Device Geolocation with IP address fallback
   const handleUseCurrentLocation = (isRetry = false) => {
+    setIsLocating(true);
+    setLocationDebugInfo(null);
+
+    const fallbackToIpLocation = async () => {
+      try {
+        const ipLocation = await fetchLocationByIp();
+        if (ipLocation && ipLocation.address) {
+          setIsLocating(false);
+          onChange(ipLocation.address);
+          onPlaceSelect?.({
+            address: ipLocation.address,
+            name: ipLocation.name,
+            lat: ipLocation.lat,
+            lng: ipLocation.lng,
+            category: 'ip_location',
+          });
+          setIsOpen(false);
+          return;
+        }
+      } catch (e) {
+        console.warn('IP location detection error:', e);
+      }
+      setIsLocating(false);
+    };
+
     if (!navigator.geolocation) {
-      alert('Geolocation is not supported by your browser or device.');
+      fallbackToIpLocation();
       return;
     }
-
-    setIsLocating(true);
-    setLocationDebugInfo(null); // Clear previous debug info
 
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const { latitude, longitude, accuracy } = pos.coords;
         const timestamp = new Date(pos.timestamp).toLocaleString();
 
-        // 1. Accuracy Check
-        if (accuracy > 150 && !isRetry) {
-          const wantRetry = window.confirm(
-            `Low GPS accuracy detected (${Math.round(accuracy)} meters).\nThis might give you the wrong city or approximate IP location.\n\nDo you want to RETRY for a more precise GPS signal? (Recommended)`
-          );
-          if (wantRetry) {
-            setIsLocating(false);
-            setTimeout(() => handleUseCurrentLocation(true), 500); // Retry
-            return;
-          }
-        }
-
         let formatted = `Current Location (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`;
         let placeName = 'My Current Location';
 
         try {
-          // 2. Reverse geocode
           const osmReverse = await reverseGeocodeCoords(latitude, longitude);
           if (osmReverse && osmReverse.address) {
             formatted = osmReverse.address;
@@ -290,9 +300,8 @@ export const GooglePlacesAutocompleteInput: React.FC<GooglePlacesAutocompleteInp
           console.warn('Reverse geocoding failed, using coordinates instead.', error);
         }
 
-        // 3. Set Debug Info
         setLocationDebugInfo(
-          `--- LOCATION DEBUG ---\nLat: ${latitude}\nLng: ${longitude}\nAccuracy: ${Math.round(accuracy)}m\nTime: ${timestamp}\nAddress: ${formatted}`
+          `Lat: ${latitude.toFixed(4)}, Lng: ${longitude.toFixed(4)} (Accuracy: ${Math.round(accuracy)}m)`
         );
 
         setIsLocating(false);
@@ -306,24 +315,11 @@ export const GooglePlacesAutocompleteInput: React.FC<GooglePlacesAutocompleteInp
         });
         setIsOpen(false);
       },
-      (error) => {
-        setIsLocating(false);
-        switch(error.code) {
-          case error.PERMISSION_DENIED:
-            alert('Location permission was denied. Please allow location access in your browser/device settings.');
-            break;
-          case error.POSITION_UNAVAILABLE:
-            alert('Location information is unavailable. Check if device GPS is turned on.');
-            break;
-          case error.TIMEOUT:
-            alert('Location request timed out. Please try again outside or check your connection.');
-            break;
-          default:
-            alert('An unknown error occurred while detecting your location.');
-            break;
-        }
+      async (error) => {
+        console.warn('Device GPS unavailable, falling back to IP location:', error.message);
+        await fallbackToIpLocation();
       },
-      { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
     );
   };
 
