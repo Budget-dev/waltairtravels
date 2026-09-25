@@ -28,6 +28,7 @@ import confetti from 'canvas-confetti';
 import { ServiceCategory, TripSubType, Vehicle, Booking, DriverInfo } from '../types';
 import { db, collection, addDoc, serverTimestamp } from '../firebase';
 import { GooglePlacesAutocompleteInput, SelectedPlaceData } from './GooglePlacesAutocompleteInput';
+import { LeafletRouteMap, LocationCoord } from './LeafletRouteMap';
 import { TripCountdownTimer } from './TripCountdownTimer';
 import { useVehicles } from '../hooks/useVehicles';
 
@@ -66,6 +67,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
   const [dropoffLocation, setDropoffLocation] = useState<string>('');
   const [pickupCoords, setPickupCoords] = useState<{ lat?: number; lng?: number } | null>(null);
   const [dropoffCoords, setDropoffCoords] = useState<{ lat?: number; lng?: number } | null>(null);
+  const [showRouteMap, setShowRouteMap] = useState<boolean>(true);
   const [travelDate, setTravelDate] = useState<string>('');
   const [pickupTime, setPickupTime] = useState<string>('');
   const [serviceType, setServiceType] = useState<ServiceCategory>('airport');
@@ -536,6 +538,41 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                       </button>
                     ))}
                   </div>
+                </div>
+
+                {/* Leaflet Interactive Route Map */}
+                <div className="pt-2 border-t border-slate-200/80">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="text-[11px] font-bold text-slate-700 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-cyan-600 animate-pulse"></span>
+                      <span>Leaflet Live Route & Hubs Map</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowRouteMap(!showRouteMap)}
+                      className="text-[11px] font-semibold text-cyan-700 hover:text-cyan-800 transition-colors cursor-pointer"
+                    >
+                      {showRouteMap ? 'Hide Map' : '🗺️ Show Leaflet Map'}
+                    </button>
+                  </div>
+
+                  {showRouteMap && (
+                    <LeafletRouteMap
+                      height="230px"
+                      pickup={pickupCoords?.lat && pickupCoords?.lng ? { lat: pickupCoords.lat, lng: pickupCoords.lng, label: pickupLocation } : null}
+                      dropoff={dropoffCoords?.lat && dropoffCoords?.lng ? { lat: dropoffCoords.lat, lng: dropoffCoords.lng, label: dropoffLocation } : null}
+                      onSelectPickup={(coord) => {
+                        setPickupCoords({ lat: coord.lat, lng: coord.lng });
+                        setPickupLocation(coord.label || coord.name || `${coord.lat.toFixed(4)}, ${coord.lng.toFixed(4)}`);
+                      }}
+                      onSelectDropoff={(coord) => {
+                        setDropoffCoords({ lat: coord.lat, lng: coord.lng });
+                        setDropoffLocation(coord.label || coord.name || `${coord.lat.toFixed(4)}, ${coord.lng.toFixed(4)}`);
+                      }}
+                      interactiveSelection={true}
+                      showTransitHubs={true}
+                    />
+                  )}
                 </div>
 
                 {/* Date & Time Selectors */}

@@ -6,7 +6,6 @@ import {
   Navigation, 
   Plane, 
   Building2, 
-  
   Check,
   Compass,
   Loader2,
@@ -15,7 +14,6 @@ import {
   Palmtree,
   Factory
 } from 'lucide-react';
-import { loadGoogleMaps } from '../utils/googleMapsLoader';
 import { 
   searchAnyLocation, 
   reverseGeocodeCoords, 
@@ -67,41 +65,12 @@ export const GooglePlacesAutocompleteInput: React.FC<GooglePlacesAutocompleteInp
   const [isLocating, setIsLocating] = useState(false);
   const [locationDebugInfo, setLocationDebugInfo] = useState<string | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number>(-1);
-  const [isGoogleMapsReady, setIsGoogleMapsReady] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceTimerRef = useRef<any>(null);
-  const autocompleteServiceRef = useRef<google.maps.places.AutocompleteService | null>(null);
-  const placesServiceRef = useRef<google.maps.places.PlacesService | null>(null);
-  const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null);
 
-  // Initialize Google Maps Places Autocomplete Service if available
-  useEffect(() => {
-    let isMounted = true;
-    loadGoogleMaps()
-      .then((g) => {
-        if (!isMounted || !g?.maps?.places) return;
-        try {
-          autocompleteServiceRef.current = new g.maps.places.AutocompleteService();
-          const dummyDiv = document.createElement('div');
-          placesServiceRef.current = new g.maps.places.PlacesService(dummyDiv);
-          sessionTokenRef.current = new g.maps.places.AutocompleteSessionToken();
-          setIsGoogleMapsReady(true);
-        } catch (err) {
-          console.warn('Google Places service init notice:', err);
-        }
-      })
-      .catch(() => {
-        // OpenStreetMap & regional database work seamlessly without external API
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  // Universal Search Handler: OpenStreetMap (Villages, Mandals, Towns, Cities) + Curated AP DB + Google Places
+  // Universal Search Handler: OpenStreetMap (Villages, Mandals, Towns, Cities) + Curated AP DB
   const fetchPredictions = useCallback((query: string) => {
     const trimmed = query.trim();
 
@@ -120,56 +89,10 @@ export const GooglePlacesAutocompleteInput: React.FC<GooglePlacesAutocompleteInp
 
     debounceTimerRef.current = setTimeout(async () => {
       try {
-        // 1. Fetch from multi-source OpenStreetMap + Curated AP Village/City Geocoder
+        // Fetch from multi-source OpenStreetMap + Curated AP Village/City Geocoder
         const osmResults = await searchAnyLocation(trimmed, cityBias);
-
-        // 2. If Google Places is ready, also fetch Google predictions to merge
-        if (autocompleteServiceRef.current && trimmed.length >= 2) {
-          const request: google.maps.places.AutocompletionRequest = {
-            input: trimmed,
-            componentRestrictions: { country: 'in' },
-            sessionToken: sessionTokenRef.current || undefined,
-            locationBias: new google.maps.Circle({
-              center: { lat: 17.6868, lng: 83.2185 },
-              radius: 120000,
-            }),
-          };
-
-          autocompleteServiceRef.current.getPlacePredictions(
-            request,
-            (googleResults, status) => {
-              setIsLoading(false);
-              if (status === google.maps.places.PlacesServiceStatus.OK && googleResults && googleResults.length > 0) {
-                const googleMapped: PlaceResult[] = googleResults.map((res) => ({
-                  id: `google-${res.place_id}`,
-                  name: res.structured_formatting?.main_text || res.description,
-                  address: res.description,
-                  category: res.description.toLowerCase().includes('airport') ? 'airport' : 'landmark',
-                  categoryLabel: 'Google Verified',
-                  source: 'google' as const,
-                }));
-
-                // Combine OpenStreetMap villages/cities with Google Places results
-                const combined = [...osmResults, ...googleMapped];
-                const seen = new Set<string>();
-                const deduped: PlaceResult[] = [];
-                for (const item of combined) {
-                  const key = item.name.toLowerCase().trim();
-                  if (!seen.has(key)) {
-                    seen.add(key);
-                    deduped.push(item);
-                  }
-                }
-                setPredictions(deduped.slice(0, 12));
-              } else {
-                setPredictions(osmResults);
-              }
-            }
-          );
-        } else {
-          setIsLoading(false);
-          setPredictions(osmResults);
-        }
+        setIsLoading(false);
+        setPredictions(osmResults);
       } catch (err) {
         setIsLoading(false);
         setPredictions(CURATED_AP_LOCATIONS.slice(0, 6));
@@ -192,52 +115,6 @@ export const GooglePlacesAutocompleteInput: React.FC<GooglePlacesAutocompleteInp
     onChange(finalAddress);
     setIsOpen(false);
     setSelectedIndex(-1);
-
-    // If Google Places detail can be fetched for geometry
-    if (item.source === 'google' && item.id.startsWith('google-') && placesServiceRef.current) {
-      const placeId = item.id.replace('google-', '');
-      try {
-        placesServiceRef.current.getDetails(
-          {
-            placeId,
-            fields: ['formatted_address', 'geometry', 'name', 'place_id'],
-            sessionToken: sessionTokenRef.current || undefined,
-          },
-          (placeDetails, status) => {
-            if (window.google?.maps?.places?.AutocompleteSessionToken) {
-              sessionTokenRef.current = new window.google.maps.places.AutocompleteSessionToken();
-            }
-
-            if (status === google.maps.places.PlacesServiceStatus.OK && placeDetails) {
-              const lat = placeDetails.geometry?.location?.lat();
-              const lng = placeDetails.geometry?.location?.lng();
-              onPlaceSelect?.({
-                address: placeDetails.formatted_address || finalAddress,
-                name: placeDetails.name || item.name,
-                placeId: placeDetails.place_id,
-                lat,
-                lng,
-                category: item.category,
-                district: item.district,
-              });
-            } else {
-              onPlaceSelect?.({
-                address: finalAddress,
-                name: item.name,
-                placeId: item.id,
-                lat: item.lat,
-                lng: item.lng,
-                category: item.category,
-                district: item.district,
-              });
-            }
-          }
-        );
-        return;
-      } catch (err) {
-        console.warn('Place details fetch handled gracefully:', err);
-      }
-    }
 
     onPlaceSelect?.({
       address: finalAddress,
@@ -628,3 +505,5 @@ export const GooglePlacesAutocompleteInput: React.FC<GooglePlacesAutocompleteInp
     </div>
   );
 };
+
+export const PlacesAutocompleteInput = GooglePlacesAutocompleteInput;

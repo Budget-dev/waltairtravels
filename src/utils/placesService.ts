@@ -1,9 +1,9 @@
 /**
- * Open-Source Geocoding & Google Places Service for Waltair Travels
+ * Open-Source Geocoding & Leaflet Map Service for Waltair Travels
  * Integrates:
- * 1. OpenStreetMap Photon Geocoder (Open-source, no key required, covers all Indian villages, towns, mandals, cities)
+ * 1. OpenStreetMap Photon Geocoder (Open-source, covers all Indian villages, towns, mandals, cities)
  * 2. OpenStreetMap Nominatim Geocoder (Open-source, detailed administrative village/district breakdown)
- * 3. Google Maps Places Autocomplete (when Google Maps API key is present)
+ * 3. Leaflet.js Interactive GPS Mapping & Routing Engine
  * 4. Curated high-precision Regional Cache of Andhra Pradesh villages, mandals, airports & transit hubs
  */
 
@@ -17,7 +17,7 @@ export interface PlaceResult {
   lng?: number;
   district?: string;
   state?: string;
-  source: 'openstreetmap' | 'google' | 'curated';
+  source: 'openstreetmap' | 'leaflet' | 'curated';
 }
 
 // 200+ Curated high-precision regional locations across Visakhapatnam, Vizianagaram, Srikakulam, Anakapalle, ASR, Godavari & AP
