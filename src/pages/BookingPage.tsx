@@ -11,7 +11,6 @@ import {
   Mail, 
   IndianRupee, 
   ShieldCheck, 
-  
   ChevronRight, 
   ArrowLeft, 
   AlertCircle,
@@ -21,7 +20,10 @@ import {
   ArrowUpDown,
   Navigation,
   Edit3,
-  ArrowRight
+  ArrowRight,
+  Copy,
+  Sparkles,
+  Share2
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { ServiceCategory, TripSubType, Vehicle, Booking, DriverInfo } from '../types';
@@ -30,6 +32,7 @@ import { GooglePlacesAutocompleteInput, SelectedPlaceData } from '../components/
 import { LeafletRouteMap } from '../components/LeafletRouteMap';
 import { TripCountdownTimer } from '../components/TripCountdownTimer';
 import { useVehicles } from '../hooks/useVehicles';
+import { CURATED_AP_LOCATIONS } from '../utils/placesService';
 
 interface BookingPageProps {
   onNavigateHome: () => void;
@@ -42,6 +45,8 @@ interface BookingPageProps {
     pickupTime: string;
     phone?: string;
     preSelectedVehicleId?: string;
+    pickupCoords?: { lat?: number; lng?: number } | null;
+    dropoffCoords?: { lat?: number; lng?: number } | null;
   } | null;
   currentCity: string;
   onBookingSuccess: (booking: Booking) => void;
@@ -78,6 +83,8 @@ export const BookingPage: React.FC<BookingPageProps> = ({
   const [paymentOption, setPaymentOption] = useState<'cash_to_driver' | 'online_advance' | 'full_prepaid'>('cash_to_driver');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [confirmedBooking, setConfirmedBooking] = useState<Booking | null>(null);
+  const [showSuccessPopup, setShowSuccessPopup] = useState<boolean>(false);
+  const [copiedRef, setCopiedRef] = useState<boolean>(false);
   const [formError, setFormError] = useState<string>('');
 
   // Calculate estimated distance based on coordinates or place names
@@ -139,6 +146,22 @@ export const BookingPage: React.FC<BookingPageProps> = ({
       if (initialData.phone) {
         setCustomerPhone(initialData.phone);
       }
+      if (initialData.pickupCoords) {
+        setPickupCoords(initialData.pickupCoords);
+      } else {
+        const foundPickup = CURATED_AP_LOCATIONS.find(c => (initialData.pickupLocation || '').toLowerCase().includes(c.name.toLowerCase()));
+        if (foundPickup?.lat && foundPickup?.lng) {
+          setPickupCoords({ lat: foundPickup.lat, lng: foundPickup.lng });
+        }
+      }
+      if (initialData.dropoffCoords) {
+        setDropoffCoords(initialData.dropoffCoords);
+      } else {
+        const foundDrop = CURATED_AP_LOCATIONS.find(c => (initialData.dropoffLocation || '').toLowerCase().includes(c.name.toLowerCase()));
+        if (foundDrop?.lat && foundDrop?.lng) {
+          setDropoffCoords({ lat: foundDrop.lat, lng: foundDrop.lng });
+        }
+      }
       if (initialData.preSelectedVehicleId && vehicles.length > 0) {
         const found = vehicles.find(v => v.id === initialData.preSelectedVehicleId);
         if (found) setSelectedVehicle(found);
@@ -147,6 +170,7 @@ export const BookingPage: React.FC<BookingPageProps> = ({
       }
       setStep(1);
       setConfirmedBooking(null);
+      setShowSuccessPopup(false);
     }
   }, [initialData, vehicles]);
 
@@ -283,14 +307,15 @@ export const BookingPage: React.FC<BookingPageProps> = ({
 
       setConfirmedBooking(newBooking);
       setStep(4);
+      setShowSuccessPopup(true);
       onBookingSuccess(newBooking);
 
-      // Trigger Confetti!
+      // Trigger Celebration Confetti!
       try {
         confetti({
-          particleCount: 80,
-          spread: 70,
-          origin: { y: 0.6 }
+          particleCount: 120,
+          spread: 80,
+          origin: { y: 0.55 }
         });
       } catch (ce) {
         // ignore confetti failures
@@ -305,9 +330,18 @@ export const BookingPage: React.FC<BookingPageProps> = ({
       } catch (err) {}
       setConfirmedBooking(newBooking);
       setStep(4);
+      setShowSuccessPopup(true);
       onBookingSuccess(newBooking);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleCopyBookingRef = (refText: string) => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(refText);
+      setCopiedRef(true);
+      setTimeout(() => setCopiedRef(false), 2000);
     }
   };
 
@@ -315,48 +349,69 @@ export const BookingPage: React.FC<BookingPageProps> = ({
     
 <div className="animate-in fade-in duration-200 bg-slate-50 min-h-screen pb-12">
   {/* Page Header */}
-  <div className="bg-slate-900 text-white border-b border-cyan-900">
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+  <div className="bg-slate-900 text-white border-b border-teal-900">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-cyan-400 text-sm font-bold uppercase tracking-wider mb-2">
-            <Car className="w-5 h-5" />
+          <div className="flex items-center gap-2 text-teal-400 text-xs font-bold uppercase tracking-wider mb-1">
+            <Car className="w-4 h-4" />
             <span>Waltair Express Booking</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white">
+          <h1 className="text-xl sm:text-3xl font-extrabold text-white">
             {step === 4 ? '🎉 Booking Confirmed!' : 'Complete Your Reservation'}
           </h1>
         </div>
         
-        {/* Stepper indicator */}
+        {/* Stepper indicator: Responsive Desktop Pills & Mobile Progress Bar */}
         {step < 4 && (
-          <div className="flex items-center gap-2 text-xs font-medium text-slate-300 bg-slate-800/50 p-2 rounded-xl backdrop-blur-sm border border-slate-700">
-            <span className={`px-3 py-1.5 rounded-lg transition-colors ${step >= 1 ? 'bg-cyan-500 text-slate-950 font-bold shadow-md shadow-cyan-500/20' : ''}`}>
-              1. Trip & Route
-            </span>
-            <ChevronRight className="w-4 h-4 text-slate-600" />
-            <span className={`px-3 py-1.5 rounded-lg transition-colors ${step >= 2 ? 'bg-cyan-500 text-slate-950 font-bold shadow-md shadow-cyan-500/20' : ''}`}>
-              2. Select Cab
-            </span>
-            <ChevronRight className="w-4 h-4 text-slate-600" />
-            <span className={`px-3 py-1.5 rounded-lg transition-colors ${step >= 3 ? 'bg-cyan-500 text-slate-950 font-bold shadow-md shadow-cyan-500/20' : ''}`}>
-              3. Passenger & Fare
-            </span>
+          <div className="w-full md:w-auto">
+            {/* Desktop Stepper */}
+            <div className="hidden sm:flex items-center gap-2 text-xs font-medium text-slate-300 bg-slate-800/60 p-1.5 rounded-xl backdrop-blur-sm border border-slate-700">
+              <span className={`px-3 py-1.5 rounded-lg transition-colors ${step >= 1 ? 'bg-teal-500 text-slate-950 font-bold shadow-md shadow-teal-500/20' : ''}`}>
+                1. Trip & Route
+              </span>
+              <ChevronRight className="w-4 h-4 text-slate-600" />
+              <span className={`px-3 py-1.5 rounded-lg transition-colors ${step >= 2 ? 'bg-teal-500 text-slate-950 font-bold shadow-md shadow-teal-500/20' : ''}`}>
+                2. Select Cab
+              </span>
+              <ChevronRight className="w-4 h-4 text-slate-600" />
+              <span className={`px-3 py-1.5 rounded-lg transition-colors ${step >= 3 ? 'bg-teal-500 text-slate-950 font-bold shadow-md shadow-teal-500/20' : ''}`}>
+                3. Passenger & Fare
+              </span>
+            </div>
+
+            {/* Mobile Progress Bar with Step Indicator */}
+            <div className="sm:hidden bg-slate-800/80 p-2.5 rounded-xl border border-slate-700/80 space-y-1.5">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-bold text-teal-300">
+                  Step {step} of 3: {step === 1 ? 'Trip & Route' : step === 2 ? 'Choose Your Cab' : 'Passenger & Payment'}
+                </span>
+                <span className="text-[11px] font-semibold text-slate-400">
+                  {step === 1 ? '33%' : step === 2 ? '66%' : '100%'}
+                </span>
+              </div>
+              <div className="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                <div 
+                  className="bg-gradient-to-r from-teal-400 to-emerald-400 h-full rounded-full transition-all duration-300"
+                  style={{ width: step === 1 ? '33%' : step === 2 ? '66%' : '100%' }}
+                />
+              </div>
+            </div>
           </div>
         )}
       </div>
     </div>
   </div>
 
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
       {/* Left Column: Form Content */}
       <div className="lg:col-span-8 flex flex-col gap-6">
-{/* Pinned Summary Card at Top (Always visible without scrolling) */}
+        {/* Pinned Summary Card at Top on Mobile (Always visible without scrolling) */}
         {step < 4 && (
           <div 
             id="booking-summary-mobile" 
-            className="bg-white shadow-sm border border-slate-200 rounded-2xl p-4 mb-4 lg:hidden"
+            className="bg-white shadow-sm border border-slate-200 rounded-2xl p-3.5 mb-2 lg:hidden"
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               
@@ -387,7 +442,7 @@ export const BookingPage: React.FC<BookingPageProps> = ({
                 {/* Sub-meta: Date, Time & Estimated Distance */}
                 <div className="flex items-center gap-2 text-[10px] text-slate-500">
                   <div className="flex items-center gap-1">
-                    <Calendar className="w-3 h-3 text-cyan-700" />
+                    <Calendar className="w-3 h-3 text-teal-700" />
                     <span>{travelDate || 'Today'}, {pickupTime || 'Now'}</span>
                   </div>
                   <span>•</span>
@@ -400,7 +455,7 @@ export const BookingPage: React.FC<BookingPageProps> = ({
                       type="button"
                       id="summary-edit-route-btn"
                       onClick={() => setStep(1)}
-                      className="ml-auto sm:ml-1 text-[10px] text-cyan-700 hover:text-cyan-900 font-bold hover:underline flex items-center gap-0.5 cursor-pointer"
+                      className="ml-auto sm:ml-1 text-[10px] text-teal-800 hover:text-teal-950 font-bold hover:underline flex items-center gap-0.5 cursor-pointer"
                     >
                       <Edit3 className="w-2.5 h-2.5" />
                       <span>Edit Route</span>
@@ -417,13 +472,19 @@ export const BookingPage: React.FC<BookingPageProps> = ({
                   </div>
                   <div className="text-left">
                     <div className="text-[11px] font-bold text-slate-900 flex items-center gap-1">
-                      <span>{selectedVehicle?.name}</span>
-                      <span className="text-[9px] px-1.5 py-0.2 bg-slate-200 text-slate-700 rounded font-medium">
-                        {selectedVehicle?.seats} Seat
-                      </span>
+                      <span>{selectedVehicle?.name || 'Cab Selection'}</span>
+                      {selectedVehicle && (
+                        <span className="text-[9px] px-1.5 py-0.2 bg-slate-200 text-slate-700 rounded font-medium">
+                          {selectedVehicle.seats} Seat
+                        </span>
+                      )}
                     </div>
                     <div className="text-[10px] text-slate-500 font-medium">
-                      Est. <strong className="text-teal-900 font-bold">₹{totalFare}</strong> (All-in)
+                      {step === 1 ? (
+                        <span className="text-teal-800 font-semibold">Fares on Step 2</span>
+                      ) : (
+                        <>Est. <strong className="text-teal-900 font-bold">₹{totalFare}</strong> (All-in)</>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -433,7 +494,7 @@ export const BookingPage: React.FC<BookingPageProps> = ({
                     type="button"
                     id="summary-edit-vehicle-btn"
                     onClick={() => setStep(2)}
-                    className="text-[10px] text-cyan-700 hover:text-cyan-900 font-bold hover:underline px-1.5 py-0.5 rounded bg-cyan-50 border border-cyan-200 flex items-center gap-0.5 cursor-pointer"
+                    className="text-[10px] text-teal-800 hover:text-teal-950 font-bold hover:underline px-1.5 py-0.5 rounded bg-teal-50 border border-teal-200 flex items-center gap-0.5 cursor-pointer"
                   >
                     <Edit3 className="w-2.5 h-2.5" />
                     <span>Change Cab</span>
@@ -513,12 +574,12 @@ export const BookingPage: React.FC<BookingPageProps> = ({
                   <div className="text-[11px] font-bold text-slate-500 mb-1.5">Quick Vizag & Transit Hubs:</div>
                   <div className="flex flex-wrap gap-1.5">
                     {[
-                      { label: '✈️ Bhogapuram Airport (ASI)', loc: 'Alluri Sitharama Raju International Airport (ASI), Bhogapuram' },
-                      { label: '✈️ Vizag Airport (VTZ)', loc: 'Visakhapatnam International Airport (VTZ), NAD Junction' },
-                      { label: '🚆 Visakhapatnam Junction', loc: 'Visakhapatnam Junction Railway Station (VSKP)' },
-                      { label: '🏖️ Rushikonda Beach & IT SEZ', loc: 'Rushikonda Beach & IT SEZ Hill, Visakhapatnam' },
-                      { label: '🏢 Siripuram / Waltair Uplands', loc: 'Siripuram Circle & Waltair Uplands, Visakhapatnam' },
-                      { label: '⛰️ Araku Valley', loc: 'Araku Valley Hill Station & Tribal Museum' },
+                      { label: '✈️ Bhogapuram Airport (ASI)', loc: 'Alluri Sitharama Raju International Airport (ASI), Bhogapuram', coords: { lat: 18.0267, lng: 83.4984 } },
+                      { label: '✈️ Vizag Airport (VTZ)', loc: 'Visakhapatnam International Airport (VTZ), NAD Junction', coords: { lat: 17.7215, lng: 83.2245 } },
+                      { label: '🚆 Visakhapatnam Junction', loc: 'Visakhapatnam Junction Railway Station (VSKP)', coords: { lat: 17.7217, lng: 83.2929 } },
+                      { label: '🏖️ Rushikonda Beach & IT SEZ', loc: 'Rushikonda Beach & IT SEZ Hill, Visakhapatnam', coords: { lat: 17.7819, lng: 83.3853 } },
+                      { label: '🏢 Siripuram / Waltair Uplands', loc: 'Siripuram Circle & Waltair Uplands, Visakhapatnam', coords: { lat: 17.7217, lng: 83.3150 } },
+                      { label: '⛰️ Araku Valley', loc: 'Araku Valley Hill Station & Tribal Museum', coords: { lat: 18.3273, lng: 82.8775 } },
                     ].map((hub) => (
                       <button
                         key={hub.label}
@@ -526,11 +587,13 @@ export const BookingPage: React.FC<BookingPageProps> = ({
                         onClick={() => {
                           if (!pickupLocation || pickupLocation.includes('Airport')) {
                             setDropoffLocation(hub.loc);
+                            setDropoffCoords(hub.coords);
                           } else {
                             setPickupLocation(hub.loc);
+                            setPickupCoords(hub.coords);
                           }
                         }}
-                        className="text-[11px] px-2.5 py-1 rounded-lg bg-white hover:bg-cyan-50 border border-slate-200 hover:border-cyan-300 text-slate-700 transition-colors cursor-pointer"
+                        className="text-[11px] px-2.5 py-1 rounded-lg bg-white hover:bg-teal-50 border border-slate-200 hover:border-teal-300 text-slate-700 transition-colors cursor-pointer"
                       >
                         {hub.label}
                       </button>
@@ -840,6 +903,7 @@ export const BookingPage: React.FC<BookingPageProps> = ({
                       <input
                         type="text"
                         id="passenger-name-input"
+                        autoComplete="name"
                         value={customerName}
                         onChange={(e) => setCustomerName(e.target.value)}
                         placeholder="e.g. Ramesh Varma"
@@ -858,12 +922,15 @@ export const BookingPage: React.FC<BookingPageProps> = ({
                       <span className="text-xs font-bold text-slate-500">+91</span>
                       <input
                         type="tel"
+                        inputMode="numeric"
+                        autoComplete="tel"
+                        pattern="[0-9]{10}"
                         id="passenger-phone-input"
                         maxLength={10}
                         value={customerPhone}
                         onChange={(e) => setCustomerPhone(e.target.value.replace(/\D/g, ''))}
                         placeholder="9876543210"
-                        className="w-full bg-transparent text-xs sm:text-sm text-slate-900 outline-none"
+                        className="w-full bg-transparent text-xs sm:text-sm text-slate-900 outline-none font-medium"
                         required
                       />
                     </div>
@@ -878,6 +945,8 @@ export const BookingPage: React.FC<BookingPageProps> = ({
                     <Mail className="w-4 h-4 text-slate-400" />
                     <input
                       type="email"
+                      inputMode="email"
+                      autoComplete="email"
                       id="passenger-email-input"
                       value={customerEmail}
                       onChange={(e) => setCustomerEmail(e.target.value)}
@@ -1061,23 +1130,21 @@ export const BookingPage: React.FC<BookingPageProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                 <button
                   type="button"
-                  id="modal-track-now-btn"
-                  onClick={() => {
-                    onNavigateHome();
-                    onOpenLiveTrack(confirmedBooking.bookingRef);
-                  }}
-                  className="w-full py-3 rounded-xl bg-[#005a66] hover:bg-[#004751] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md"
+                  id="modal-view-home-btn"
+                  onClick={onNavigateHome}
+                  className="w-full py-3.5 rounded-xl bg-teal-800 hover:bg-teal-900 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md cursor-pointer transition-colors"
                 >
-                  <Compass className="w-4 h-4" />
-                  <span>TRACK RIDE LIVE</span>
+                  <ArrowRight className="w-4 h-4" />
+                  <span>Return to Home</span>
                 </button>
 
                 <button
                   type="button"
-                  onClick={onNavigateHome}
-                  className="w-full py-3 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-800 font-bold text-xs sm:text-sm"
+                  onClick={() => setShowSuccessPopup(true)}
+                  className="w-full py-3.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-800 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer transition-colors"
                 >
-                  Done / Close
+                  <Sparkles className="w-4 h-4 text-teal-700" />
+                  <span>View Success Pop-up</span>
                 </button>
               </div>
 
@@ -1185,6 +1252,218 @@ export const BookingPage: React.FC<BookingPageProps> = ({
       
     </div>
   </div>
+
+  {/* ========================================================================= */}
+  {/* MOBILE-FIRST CELEBRATORY SUCCESS POP-UP MODAL                             */}
+  {/* ========================================================================= */}
+  {showSuccessPopup && confirmedBooking && (
+    <div 
+      id="booking-success-modal"
+      className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-slate-950/80 backdrop-blur-md p-0 sm:p-4 overflow-y-auto animate-in fade-in duration-300"
+      role="dialog"
+      aria-modal="true"
+    >
+      {/* Modal Container */}
+      <div className="bg-white w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl border border-slate-100 overflow-hidden max-h-[92vh] flex flex-col relative animate-in slide-in-from-bottom-6 duration-300">
+        
+        {/* Header / Celebration banner */}
+        <div className="relative bg-gradient-to-r from-emerald-600 via-teal-700 to-cyan-800 text-white p-6 pt-7 text-center overflow-hidden shrink-0">
+          {/* Decorative background glow */}
+          <div className="absolute -top-12 -right-12 w-36 h-36 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-emerald-400/20 rounded-full blur-xl pointer-events-none" />
+          
+          {/* Close button */}
+          <button
+            type="button"
+            id="close-success-popup-btn"
+            onClick={() => setShowSuccessPopup(false)}
+            className="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/20 hover:bg-black/40 text-white flex items-center justify-center transition-colors cursor-pointer"
+            aria-label="Close success pop-up"
+          >
+            <X className="w-4 h-4" />
+          </button>
+
+          {/* Glowing animated checkmark icon */}
+          <div className="relative mx-auto w-16 h-16 rounded-full bg-white text-emerald-600 flex items-center justify-center shadow-lg shadow-black/20 mb-3 animate-bounce">
+            <CheckCircle2 className="w-10 h-10 text-emerald-600" />
+          </div>
+
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/30 text-emerald-100 text-xs font-bold uppercase tracking-wider mb-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-yellow-300" />
+            <span>Ride Confirmed & Dispatched</span>
+          </div>
+
+          <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+            Your Cab is on the Way!
+          </h3>
+          <p className="text-xs text-teal-100/90 mt-1 max-w-sm mx-auto">
+            Chauffeur assigned. SMS & WhatsApp confirmation sent to <span className="font-semibold text-white">+91 {confirmedBooking.customerPhone}</span>
+          </p>
+        </div>
+
+        {/* Modal Body (Scrollable) */}
+        <div className="p-5 sm:p-6 overflow-y-auto space-y-4">
+          
+          {/* Booking Reference & Ride OTP Pills */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-3 text-left">
+              <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Booking ID</div>
+              <div className="flex items-center justify-between gap-1 mt-0.5">
+                <span className="font-extrabold text-sm sm:text-base text-slate-900 tracking-tight font-mono">
+                  {confirmedBooking.bookingRef}
+                </span>
+                <button
+                  type="button"
+                  id="modal-copy-ref-btn"
+                  onClick={() => handleCopyBookingRef(confirmedBooking.bookingRef)}
+                  className="p-1 rounded-md hover:bg-slate-200 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
+                  title="Copy Booking ID"
+                >
+                  {copiedRef ? (
+                    <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1 py-0.5 rounded">Copied!</span>
+                  ) : (
+                    <Copy className="w-3.5 h-3.5" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            <div className="bg-emerald-50/80 border border-emerald-200 rounded-2xl p-3 text-left">
+              <div className="text-[10px] uppercase font-bold text-emerald-700 tracking-wider">Ride Start OTP</div>
+              <div className="mt-0.5 flex items-baseline gap-1">
+                <span className="font-black text-base sm:text-lg text-emerald-700 font-mono tracking-widest">
+                  {confirmedBooking.otp}
+                </span>
+                <span className="text-[10px] text-emerald-600 font-medium hidden sm:inline">(Share with driver)</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Assigned Chauffeur & Vehicle Card */}
+          {confirmedBooking.driver && (
+            <div className="bg-white rounded-2xl border border-slate-200 p-3.5 shadow-sm">
+              <div className="flex items-center justify-between pb-2.5 border-b border-slate-100">
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <img
+                      src={confirmedBooking.driver.photoUrl}
+                      alt={confirmedBooking.driver.name}
+                      className="w-12 h-12 rounded-full object-cover border-2 border-emerald-500 shadow-sm"
+                    />
+                    <span className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-extrabold text-sm text-slate-900">{confirmedBooking.driver.name}</span>
+                      <span className="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full">
+                        ★ {confirmedBooking.driver.rating}
+                      </span>
+                    </div>
+                    <div className="text-xs text-slate-500 font-medium">
+                      {confirmedBooking.driver.vehicleModel}
+                    </div>
+                    <div className="text-[11px] font-mono font-bold text-slate-700 mt-0.5">
+                      {confirmedBooking.driver.vehicleNumber}
+                    </div>
+                  </div>
+                </div>
+
+                <a
+                  href={`tel:${confirmedBooking.driver.phone}`}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition-colors cursor-pointer"
+                >
+                  <Phone className="w-3.5 h-3.5 fill-current" />
+                  <span>Call</span>
+                </a>
+              </div>
+
+              <div className="pt-2 flex items-center justify-between text-[11px] text-slate-600">
+                <span className="flex items-center gap-1 text-emerald-700 font-semibold">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                  Driver en route • ETA ~12 mins
+                </span>
+                <span className="text-slate-400">{confirmedBooking.driver.totalTrips}+ trips completed</span>
+              </div>
+            </div>
+          )}
+
+          {/* Trip Route Details */}
+          <div className="bg-slate-50 rounded-2xl p-3.5 border border-slate-200/80 space-y-2 text-xs">
+            {/* Pickup */}
+            <div className="flex items-start gap-2.5">
+              <div className="mt-0.5 w-3 h-3 rounded-full bg-emerald-500 flex items-center justify-center shrink-0">
+                <div className="w-1.5 h-1.5 rounded-full bg-white" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-[10px] uppercase font-bold text-slate-400">Pickup Location</div>
+                <div className="font-semibold text-slate-900 truncate">{confirmedBooking.pickupLocation}</div>
+              </div>
+            </div>
+
+            {/* Connector line */}
+            <div className="ml-1.5 border-l-2 border-dashed border-slate-300 h-3" />
+
+            {/* Dropoff */}
+            <div className="flex items-start gap-2.5">
+              <div className="mt-0.5 w-3 h-3 rounded-full bg-rose-500 flex items-center justify-center shrink-0">
+                <div className="w-1.5 h-1.5 rounded-full bg-white" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-[10px] uppercase font-bold text-slate-400">Drop-off Location</div>
+                <div className="font-semibold text-slate-900 truncate">{confirmedBooking.dropoffLocation}</div>
+              </div>
+            </div>
+
+            {/* Meta details */}
+            <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-600">
+              <div className="flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5 text-cyan-700" />
+                <span>{confirmedBooking.travelDate} at {confirmedBooking.pickupTime}</span>
+              </div>
+              <div className="font-black text-slate-900 text-sm">
+                ₹{confirmedBooking.totalFare} <span className="text-[10px] font-normal text-slate-500">(All-inclusive)</span>
+              </div>
+            </div>
+          </div>
+
+          {/* WhatsApp & SMS Dispatch Confirmation Banner */}
+          <div className="p-3 rounded-xl bg-teal-50 border border-teal-200/80 flex items-center gap-2.5 text-teal-900 text-xs">
+            <span className="text-base shrink-0">📱</span>
+            <div className="min-w-0 flex-1 text-[11px]">
+              <strong>Official Confirmation Sent:</strong> Complete trip invoice and chauffeur live location link have been dispatched to WhatsApp & SMS.
+            </div>
+          </div>
+
+        </div>
+
+        {/* Modal Footer Actions */}
+        <div className="p-4 sm:p-5 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row gap-2.5 shrink-0">
+          <button
+            type="button"
+            id="modal-view-tracker-btn"
+            onClick={() => setShowSuccessPopup(false)}
+            className="flex-1 py-3 px-4 rounded-xl bg-teal-800 hover:bg-teal-900 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all cursor-pointer"
+          >
+            <span>View Trip Ticket & Countdown</span>
+            <ChevronRight className="w-4 h-4" />
+          </button>
+
+          <button
+            type="button"
+            id="modal-return-home-btn"
+            onClick={() => {
+              setShowSuccessPopup(false);
+              onNavigateHome();
+            }}
+            className="py-3 px-4 rounded-xl border border-slate-300 hover:bg-slate-200/60 text-slate-700 font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+          >
+            <span>Home Page</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  )}
 </div>
   );
 }

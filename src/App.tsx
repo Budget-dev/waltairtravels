@@ -4,7 +4,6 @@ import { Hero } from './components/Hero';
 import { ServicesSection } from './components/ServicesSection';
 import { FleetSection } from './components/FleetSection';
 import { PopularRoutesAndPackages } from './components/PopularRoutesAndPackages';
-import { FareCalculatorSection } from './components/FareCalculatorSection';
 import { AboutSection } from './components/AboutSection';
 import { BlogSection } from './components/BlogSection';
 import { CustomerReviewsSection } from './components/CustomerReviewsSection';
@@ -84,7 +83,7 @@ export default function App() {
   }, []);
   
   // Modals state
-    const [bookingInitialData, setBookingInitialData] = useState<{
+  const [bookingInitialData, setBookingInitialData] = useState<{
     serviceType: ServiceCategory;
     subType: TripSubType;
     pickupLocation: string;
@@ -93,6 +92,8 @@ export default function App() {
     pickupTime: string;
     phone?: string;
     preSelectedVehicleId?: string;
+    pickupCoords?: { lat?: number; lng?: number } | null;
+    dropoffCoords?: { lat?: number; lng?: number } | null;
   } | null>(null);
 
   const [isTrackOpen, setIsTrackOpen] = useState<boolean>(false);
@@ -234,6 +235,8 @@ export default function App() {
     travelDate: string;
     pickupTime: string;
     phone: string;
+    pickupCoords?: { lat?: number; lng?: number } | null;
+    dropoffCoords?: { lat?: number; lng?: number } | null;
   }) => {
     setBookingInitialData({
       ...bookingData,
@@ -285,27 +288,6 @@ export default function App() {
     setCurrentPage('booking');
   };
 
-  // Quick book from Fare calculator
-  const handleQuickBookCalculator = (calcData: {
-    pickup: string;
-    dropoff: string;
-    vehicleId: string;
-    distance: number;
-    estimatedFare: number;
-  }) => {
-    setBookingInitialData({
-      serviceType: calcData.pickup.toLowerCase().includes('airport') ? 'airport' : 'outstation',
-      subType: 'oneway',
-      pickupLocation: calcData.pickup,
-      dropoffLocation: calcData.dropoff,
-      travelDate: new Date().toISOString().split('T')[0],
-      pickupTime: '10:30',
-      preSelectedVehicleId: calcData.vehicleId,
-      phone: user?.phone
-    });
-    setCurrentPage('booking');
-  };
-
   const handleBookingSuccess = (newBooking: Booking) => {
     setAllBookings(prev => [newBooking, ...prev.filter(b => b.bookingRef !== newBooking.bookingRef)]);
   };
@@ -326,7 +308,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen w-full max-w-[100vw] overflow-x-hidden relative bg-slate-950 text-slate-900 font-sans selection:bg-cyan-500 selection:text-white">
+    <div className="min-h-screen w-full max-w-[100vw] overflow-x-hidden relative bg-slate-50 text-slate-900 font-sans selection:bg-teal-700 selection:text-white">
       
       {/* 1. Sticky Navigation Bar */}
       <Navbar
@@ -400,8 +382,6 @@ export default function App() {
                   onBookRoute={handleBookRoute}
                   onBookPackage={handleBookPackage}
                 />
-
-                <FareCalculatorSection onQuickBook={handleQuickBookCalculator} />
 
                 <AboutSection />
 

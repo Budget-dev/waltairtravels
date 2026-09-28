@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   Plane, 
   Send, 
@@ -13,7 +14,8 @@ import {
   MapPin, 
   ArrowRight, 
   CheckCircle2,
-  
+  Sparkles,
+  ChevronRight
 } from 'lucide-react';
 import { ServiceCategory, TripSubType } from '../types';
 import { GooglePlacesAutocompleteInput } from './GooglePlacesAutocompleteInput';
@@ -29,6 +31,8 @@ interface HeroProps {
     travelDate: string;
     pickupTime: string;
     phone: string;
+    pickupCoords?: { lat?: number; lng?: number } | null;
+    dropoffCoords?: { lat?: number; lng?: number } | null;
   }) => void;
 }
 
@@ -40,11 +44,20 @@ export const Hero: React.FC<HeroProps> = ({
   const [serviceType, setServiceType] = useState<ServiceCategory>('airport');
   const [subType, setSubType] = useState<TripSubType>('pickup');
 
-  // Input states
+  // Input states with precise coordinates support
   const [pickupLocation, setPickupLocation] = useState<string>(
     'Alluri Sitharama Raju International Airport ASI , Bhogapuram'
   );
+  const [pickupCoords, setPickupCoords] = useState<{ lat?: number; lng?: number } | null>({
+    lat: 18.0267,
+    lng: 83.4984,
+  });
+
   const [dropoffLocation, setDropoffLocation] = useState<string>('Siripuram Circle & Waltair Uplands, Visakhapatnam');
+  const [dropoffCoords, setDropoffCoords] = useState<{ lat?: number; lng?: number } | null>({
+    lat: 17.7217,
+    lng: 83.3150,
+  });
   
   // Format today's date YYYY-MM-DD
   const today = new Date().toISOString().split('T')[0];
@@ -53,15 +66,14 @@ export const Hero: React.FC<HeroProps> = ({
   const [mobileNumber, setMobileNumber] = useState<string>('');
   const [phoneError, setPhoneError] = useState<string>('');
 
-  // Dropdown autocomplete helpers
-  const [showPickupList, setShowPickupList] = useState<boolean>(false);
-  const [showDropoffList, setShowDropoffList] = useState<boolean>(false);
-
   // Swap pickup & dropoff
   const handleSwapLocations = () => {
-    const temp = pickupLocation;
+    const tempLoc = pickupLocation;
+    const tempCoords = pickupCoords;
     setPickupLocation(dropoffLocation);
-    setDropoffLocation(temp);
+    setPickupCoords(dropoffCoords);
+    setDropoffLocation(tempLoc);
+    setDropoffCoords(tempCoords);
   };
 
   // Change Service Category
@@ -70,15 +82,21 @@ export const Hero: React.FC<HeroProps> = ({
     if (category === 'airport') {
       setSubType('pickup');
       setPickupLocation('Alluri Sitharama Raju International Airport ASI , Bhogapuram');
+      setPickupCoords({ lat: 18.0267, lng: 83.4984 });
       setDropoffLocation('Siripuram Circle & Waltair Uplands, Visakhapatnam');
+      setDropoffCoords({ lat: 17.7217, lng: 83.3150 });
     } else if (category === 'outstation') {
       setSubType('oneway');
       setPickupLocation('Visakhapatnam City Center');
+      setPickupCoords({ lat: 17.7217, lng: 83.2929 });
       setDropoffLocation('Araku Valley (Hill Station)');
+      setDropoffCoords({ lat: 18.3273, lng: 82.8775 });
     } else if (category === 'local') {
       setSubType('local_8hr');
       setPickupLocation('Visakhapatnam (Within City Limits)');
+      setPickupCoords({ lat: 17.7217, lng: 83.2929 });
       setDropoffLocation('City Sightseeing & Full Day Rental (80 km / 8 hrs)');
+      setDropoffCoords({ lat: 17.7819, lng: 83.3853 });
     }
   };
 
@@ -96,305 +114,318 @@ export const Hero: React.FC<HeroProps> = ({
       dropoffLocation: dropoffLocation || 'Visakhapatnam City',
       travelDate: travelDate || today,
       pickupTime: pickupTime || '10:30',
-      phone: mobileNumber || '9876543210'
+      phone: mobileNumber || '9876543210',
+      pickupCoords,
+      dropoffCoords,
     });
   };
 
   return (
-    <section id="home" className="relative min-h-[640px] bg-slate-900 overflow-hidden">
-      {/* Background Hero Visual: High-resolution Modern Airport Terminal / Highway */}
+    <section id="home" className="relative min-h-[660px] lg:min-h-[720px] bg-slate-950 overflow-hidden flex items-center">
+      {/* Background Hero Visual: Crystal-clear authentic Visakhapatnam Coastal Highway & Fleet */}
       <div className="absolute inset-0 z-0">
         <img
-          src="https://images.unsplash.com/photo-1542296332-2e4473faf563?auto=format&fit=crop&w=2000&q=85"
-          alt="Alluri Sitharama Raju International Airport Bhogapuram Terminal"
-          className="w-full h-full object-cover object-center brightness-75 scale-105 transition-transform duration-10000 hover:scale-100"
-          referrerPolicy="no-referrer"
+          src="/hero-banner.jpg"
+          alt="Waltair Travels Airport Express Fleet on Visakhapatnam Coastal Highway"
+          className="w-full h-full object-cover object-center scale-100"
         />
-        {/* Deep modern teal-tinted gradient overlays */}
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-900/80 to-slate-950/60"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-black/40"></div>
+        {/* Balanced contrast overlays: deep slate vignette on left for booking card, bright clear view of taxi & coastline */}
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/50 to-slate-950/20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-slate-950/40" />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8 lg:py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           
           {/* Left Column: The Floating Booking Widget Card */}
-          <div className="lg:col-span-5 w-full animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <div className="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 shadow-2xl border border-slate-100/90 text-slate-900 backdrop-blur-md">
+          <motion.div 
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="lg:col-span-6 xl:col-span-5 w-full"
+          >
+            <div className="bg-white/98 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-2xl shadow-slate-950/40 border border-white/80 ring-1 ring-slate-900/5 text-slate-900">
               
-              {/* Header inside Card */}
-              <div className="mb-2.5">
-                <div className="flex items-center gap-1.5 text-[11px] text-slate-500 mb-0.5">
-                  <MapPin className="w-3 h-3 text-cyan-600" />
-                  <span className="font-semibold text-slate-700">{currentCity}</span>
+              {/* Card Header: Clean city indicator & tagline */}
+              <div className="flex items-center justify-between gap-2 mb-3.5 pb-2.5 border-b border-slate-100">
+                <div className="flex items-center gap-1.5 text-xs text-slate-600">
+                  <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="font-semibold text-slate-800">{currentCity}</span>
                   <span className="text-slate-300">•</span>
                   <button 
                     type="button"
                     onClick={onOpenCitySelector} 
-                    className="text-cyan-700 hover:text-cyan-800 font-semibold hover:underline cursor-pointer"
+                    className="text-teal-700 hover:text-teal-900 font-medium underline underline-offset-2 transition-colors cursor-pointer"
                   >
-                    Change city
+                    Change
                   </button>
                 </div>
-                <h1 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight flex items-center gap-1.5">
-                  Go anywhere with <span className="text-cyan-700">Waltair</span>
-                </h1>
+
+                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-teal-50 border border-teal-100 text-[11px] font-semibold text-teal-800">
+                  <CheckCircle2 className="w-3 h-3 text-teal-600" />
+                  <span>Verified Fleet</span>
+                </div>
               </div>
 
-              {/* Main Service Category Tabs - Compact & clean */}
-              <div className="grid grid-cols-3 gap-1 p-1 bg-slate-100 rounded-xl mb-2.5">
-                <button
-                  type="button"
-                  id="tab-airport-taxi"
-                  onClick={() => handleServiceChange('airport')}
-                  className={`flex items-center justify-center gap-1 py-1.5 px-1 rounded-lg text-xs font-bold transition-all active:scale-95 cursor-pointer ${
-                    serviceType === 'airport'
-                      ? 'bg-white text-cyan-800 shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  <Plane className="w-3.5 h-3.5 text-cyan-600 shrink-0" />
-                  <span>Airport</span>
-                </button>
-
-                <button
-                  type="button"
-                  id="tab-outstation"
-                  onClick={() => handleServiceChange('outstation')}
-                  className={`flex items-center justify-center gap-1 py-1.5 px-1 rounded-lg text-xs font-bold transition-all active:scale-95 cursor-pointer ${
-                    serviceType === 'outstation'
-                      ? 'bg-white text-cyan-800 shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  <Send className="w-3.5 h-3.5 text-cyan-600 shrink-0" />
-                  <span>Outstation</span>
-                </button>
-
-                <button
-                  type="button"
-                  id="tab-local-packages"
-                  onClick={() => handleServiceChange('local')}
-                  className={`flex items-center justify-center gap-1 py-1.5 px-1 rounded-lg text-xs font-bold transition-all active:scale-95 cursor-pointer ${
-                    serviceType === 'local'
-                      ? 'bg-white text-cyan-800 shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  <Car className="w-3.5 h-3.5 text-cyan-600 shrink-0" />
-                  <span>Hourly</span>
-                </button>
+              {/* Service Category Segmented Control with Framer Motion Active Indicator */}
+              <div className="relative grid grid-cols-3 gap-1 p-1 bg-slate-100/90 rounded-xl sm:rounded-2xl mb-3">
+                {[
+                  { id: 'airport', label: 'Airport', icon: Plane },
+                  { id: 'outstation', label: 'Outstation', icon: Send },
+                  { id: 'local', label: 'Hourly', icon: Car },
+                ].map((item) => {
+                  const Icon = item.icon;
+                  const isActive = serviceType === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      id={`tab-${item.id}`}
+                      onClick={() => handleServiceChange(item.id as ServiceCategory)}
+                      className={`relative z-10 flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold transition-colors duration-200 cursor-pointer ${
+                        isActive ? 'text-teal-950 font-bold' : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      <Icon className={`w-4 h-4 shrink-0 transition-colors ${isActive ? 'text-teal-700' : 'text-slate-500'}`} />
+                      <span>{item.label}</span>
+                      {isActive && (
+                        <motion.div
+                          layoutId="activeServiceTab"
+                          transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+                          className="absolute inset-0 bg-white rounded-lg sm:rounded-xl shadow-xs -z-10"
+                        />
+                      )}
+                    </button>
+                  );
+                })}
               </div>
 
-              {/* Sub-Tabs Row - Flex wrap without horizontal scrollbar */}
-              <div className="flex flex-wrap items-center gap-1.5 mb-2.5">
+              {/* Sub-Tabs Row with Clean Pill Design */}
+              <div className="flex flex-wrap items-center gap-1.5 mb-3.5">
                 {serviceType === 'airport' && (
                   <>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSubType('pickup');
-                        setPickupLocation('Alluri Sitharama Raju International Airport ASI , Bhogapuram');
-                      }}
-                      className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all cursor-pointer ${
-                        subType === 'pickup'
-                          ? 'bg-[#005a66] text-white shadow-2xs'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
-                    >
-                      Airport Pickup
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSubType('drop');
-                        setDropoffLocation('Alluri Sitharama Raju International Airport ASI , Bhogapuram');
-                      }}
-                      className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all cursor-pointer ${
-                        subType === 'drop'
-                          ? 'bg-[#005a66] text-white shadow-2xs'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
-                    >
-                      Airport Drop
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setSubType('roundtrip')}
-                      className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all cursor-pointer ${
-                        subType === 'roundtrip'
-                          ? 'bg-[#005a66] text-white shadow-2xs'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
-                    >
-                      Round Trip
-                    </button>
+                    {[
+                      { id: 'pickup', label: 'Airport Pickup' },
+                      { id: 'drop', label: 'Airport Drop' },
+                      { id: 'roundtrip', label: 'Round Trip' },
+                    ].map((tab) => (
+                      <button
+                        key={tab.id}
+                        type="button"
+                        onClick={() => {
+                          setSubType(tab.id as TripSubType);
+                          if (tab.id === 'pickup') {
+                            setPickupLocation('Alluri Sitharama Raju International Airport ASI , Bhogapuram');
+                            setDropoffLocation('Siripuram Circle & Waltair Uplands, Visakhapatnam');
+                          } else if (tab.id === 'drop') {
+                            setPickupLocation('Siripuram Circle & Waltair Uplands, Visakhapatnam');
+                            setDropoffLocation('Alluri Sitharama Raju International Airport ASI , Bhogapuram');
+                          }
+                        }}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer active:scale-95 ${
+                          subType === tab.id
+                            ? 'bg-teal-800 text-white shadow-xs'
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
+                        }`}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
                   </>
                 )}
 
                 {serviceType === 'outstation' && (
                   <>
-                    <button
-                      type="button"
-                      onClick={() => setSubType('oneway')}
-                      className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all cursor-pointer ${
-                        subType === 'oneway'
-                          ? 'bg-[#005a66] text-white shadow-2xs'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
-                    >
-                      One-Way
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setSubType('roundtrip')}
-                      className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all cursor-pointer ${
-                        subType === 'roundtrip'
-                          ? 'bg-[#005a66] text-white shadow-2xs'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
-                    >
-                      Round Trip
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setSubType('multicity')}
-                      className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all cursor-pointer ${
-                        subType === 'multicity'
-                          ? 'bg-[#005a66] text-white shadow-2xs'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
-                    >
-                      Multi-City Tour
-                    </button>
+                    {[
+                      { id: 'oneway', label: 'One-Way' },
+                      { id: 'roundtrip', label: 'Round Trip' },
+                      { id: 'multicity', label: 'Multi-City Tour' },
+                    ].map((tab) => (
+                      <button
+                        key={tab.id}
+                        type="button"
+                        onClick={() => setSubType(tab.id as TripSubType)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer active:scale-95 ${
+                          subType === tab.id
+                            ? 'bg-teal-800 text-white shadow-xs'
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
+                        }`}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
                   </>
                 )}
 
                 {serviceType === 'local' && (
                   <>
-                    <button
-                      type="button"
-                      onClick={() => setSubType('local_4hr')}
-                      className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all cursor-pointer ${
-                        subType === 'local_4hr'
-                          ? 'bg-[#005a66] text-white shadow-2xs'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
-                    >
-                      4 hrs / 40 km
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setSubType('local_8hr')}
-                      className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all cursor-pointer ${
-                        subType === 'local_8hr'
-                          ? 'bg-[#005a66] text-white shadow-2xs'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
-                    >
-                      8 hrs / 80 km
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setSubType('local_12hr')}
-                      className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all cursor-pointer ${
-                        subType === 'local_12hr'
-                          ? 'bg-[#005a66] text-white shadow-2xs'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
-                    >
-                      12 hrs / 120 km
-                    </button>
+                    {[
+                      { id: 'local_4hr', label: '4 hrs / 40 km' },
+                      { id: 'local_8hr', label: '8 hrs / 80 km' },
+                      { id: 'local_12hr', label: '12 hrs / 120 km' },
+                    ].map((tab) => (
+                      <button
+                        key={tab.id}
+                        type="button"
+                        onClick={() => setSubType(tab.id as TripSubType)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer active:scale-95 ${
+                          subType === tab.id
+                            ? 'bg-teal-800 text-white shadow-xs'
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
+                        }`}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
                   </>
                 )}
               </div>
 
               {/* Booking Inputs Form */}
-              <form onSubmit={handleFormSubmit} className="space-y-2">
+              <form onSubmit={handleFormSubmit} className="space-y-2.5">
                 
-                {/* Pickup Location with Google Places Autocomplete */}
-                <div className="flex items-end gap-1.5">
-                  <div className="flex-1">
-                    <GooglePlacesAutocompleteInput
-                      id="hero-pickup-input"
-                      label="Pickup Location"
-                      value={pickupLocation}
-                      onChange={setPickupLocation}
-                      placeholder="Enter pickup address, airport, hotel..."
-                      iconType="pickup"
-                      cityBias={currentCity}
-                      compact={true}
-                      required
-                    />
+                {/* Pickup and Dropoff Container with Connected Line & Modern Swap */}
+                <div className="relative space-y-2 rounded-2xl bg-slate-50/80 p-2.5 border border-slate-200/80">
+                  {/* Subtle connecting dotted line between locations */}
+                  <div className="absolute left-[26px] top-[30px] bottom-[30px] w-0.5 border-l border-dashed border-slate-300 pointer-events-none" />
+
+                  {/* Pickup Location */}
+                  <div className="relative flex items-center gap-2 z-30">
+                    <div className="w-5 h-5 rounded-full bg-emerald-100 border border-emerald-400 flex items-center justify-center shrink-0 z-10">
+                      <div className="w-2 h-2 rounded-full bg-emerald-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <GooglePlacesAutocompleteInput
+                        id="hero-pickup-input"
+                        label="Pickup Location"
+                        value={pickupLocation}
+                        onChange={setPickupLocation}
+                        onPlaceSelect={(place) => {
+                          setPickupLocation(place.address);
+                          if (place.lat && place.lng) {
+                            setPickupCoords({ lat: place.lat, lng: place.lng });
+                          }
+                        }}
+                        placeholder="Enter pickup address, airport or hotel..."
+                        iconType="pickup"
+                        cityBias={currentCity}
+                        compact={true}
+                        required
+                      />
+                    </div>
                   </div>
-                  <button
+
+                  {/* Drop-off Location */}
+                  <div className="relative flex items-center gap-2 z-20">
+                    <div className="w-5 h-5 rounded-md bg-rose-100 border border-rose-400 flex items-center justify-center shrink-0 z-10">
+                      <div className="w-2 h-2 rounded-xs bg-rose-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <GooglePlacesAutocompleteInput
+                        id="hero-dropoff-input"
+                        label="Drop-off Destination"
+                        value={dropoffLocation}
+                        onChange={setDropoffLocation}
+                        onPlaceSelect={(place) => {
+                          setDropoffLocation(place.address);
+                          if (place.lat && place.lng) {
+                            setDropoffCoords({ lat: place.lat, lng: place.lng });
+                          }
+                        }}
+                        placeholder="Enter destination or landmark..."
+                        iconType="dropoff"
+                        cityBias={currentCity}
+                        compact={true}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* Quick Hub Pills on Mobile for Instant Precise Locations */}
+                  <div className="pt-1.5 flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider shrink-0">Popular:</span>
+                    {[
+                      { name: '✈️ Bhogapuram ASI', loc: 'Alluri Sitharama Raju International Airport (ASI), Bhogapuram', coords: { lat: 18.0267, lng: 83.4984 } },
+                      { name: '✈️ Vizag VTZ', loc: 'Visakhapatnam International Airport (VTZ), NAD Junction', coords: { lat: 17.7215, lng: 83.2245 } },
+                      { name: '🚆 VSKP Station', loc: 'Visakhapatnam Junction Railway Station (VSKP)', coords: { lat: 17.7217, lng: 83.2929 } },
+                      { name: '🏖️ Rushikonda', loc: 'Rushikonda Beach & IT SEZ, Visakhapatnam', coords: { lat: 17.7819, lng: 83.3853 } },
+                      { name: '⛰️ Araku Valley', loc: 'Araku Valley Hill Station & Tribal Museum', coords: { lat: 18.3273, lng: 82.8775 } },
+                    ].map((hub) => (
+                      <button
+                        key={hub.name}
+                        type="button"
+                        onClick={() => {
+                          if (!pickupLocation || pickupLocation.includes('Airport')) {
+                            setDropoffLocation(hub.loc);
+                            setDropoffCoords(hub.coords);
+                          } else {
+                            setPickupLocation(hub.loc);
+                            setPickupCoords(hub.coords);
+                          }
+                        }}
+                        className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 hover:bg-teal-50 border border-slate-200 hover:border-teal-300 text-slate-700 whitespace-nowrap transition-colors cursor-pointer shrink-0"
+                      >
+                        {hub.name}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Swap Button Floating on Right */}
+                  <motion.button
+                    whileTap={{ rotate: 180, scale: 0.9 }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 25 }}
                     type="button"
                     id="hero-swap-locations-btn"
                     onClick={handleSwapLocations}
-                    title="Swap pickup and dropoff"
-                    className="p-2 mb-0.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 hover:text-cyan-700 hover:bg-cyan-50 shadow-2xs transition-colors shrink-0 cursor-pointer"
+                    title="Swap locations"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:text-teal-700 hover:border-teal-300 shadow-sm transition-colors shrink-0 z-20 cursor-pointer"
                   >
                     <ArrowUpDown className="w-3.5 h-3.5" />
-                  </button>
+                  </motion.button>
                 </div>
 
-                {/* Dropoff Location with Google Places Autocomplete */}
-                <div>
-                  <GooglePlacesAutocompleteInput
-                    id="hero-dropoff-input"
-                    label="Drop-off Destination"
-                    value={dropoffLocation}
-                    onChange={setDropoffLocation}
-                    placeholder="Enter destination, landmark or area..."
-                    iconType="dropoff"
-                    cityBias={currentCity}
-                    compact={true}
-                    required
-                  />
-                </div>
-
-                {/* Date & Time Row */}
+                {/* Date & Time Row - Flawless mobile & desktop alignment */}
                 <div className="grid grid-cols-2 gap-2">
-                  <div className="rounded-xl border border-slate-200 bg-slate-50/70 px-2.5 py-1.5 hover:border-cyan-500 focus-within:border-cyan-600 focus-within:bg-white transition-all">
-                    <div className="flex items-center gap-1 text-[10px] font-bold text-slate-500 mb-0.5">
-                      <Calendar className="w-2.5 h-2.5 text-slate-400" />
-                      <span>Travel date</span>
-                    </div>
+                  <div className="rounded-xl border border-slate-200/90 bg-slate-50/80 px-3 py-2 hover:border-teal-500 focus-within:border-teal-600 focus-within:bg-white transition-all">
+                    <label htmlFor="hero-date-input" className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 mb-0.5 cursor-pointer">
+                      <Calendar className="w-3.5 h-3.5 text-teal-700 shrink-0" />
+                      <span>Travel Date</span>
+                    </label>
                     <input
                       type="date"
                       id="hero-date-input"
                       min={today}
                       value={travelDate}
                       onChange={(e) => setTravelDate(e.target.value)}
-                      className="w-full bg-transparent text-xs sm:text-sm font-semibold text-slate-900 outline-none"
+                      className="w-full bg-transparent text-xs sm:text-sm font-semibold text-slate-900 outline-none cursor-pointer"
                       required
                     />
                   </div>
 
-                  <div className="rounded-xl border border-slate-200 bg-slate-50/70 px-2.5 py-1.5 hover:border-cyan-500 focus-within:border-cyan-600 focus-within:bg-white transition-all">
-                    <div className="flex items-center gap-1 text-[10px] font-bold text-slate-500 mb-0.5">
-                      <Clock className="w-2.5 h-2.5 text-slate-400" />
-                      <span>Pickup time</span>
-                    </div>
+                  <div className="rounded-xl border border-slate-200/90 bg-slate-50/80 px-3 py-2 hover:border-teal-500 focus-within:border-teal-600 focus-within:bg-white transition-all">
+                    <label htmlFor="hero-time-input" className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 mb-0.5 cursor-pointer">
+                      <Clock className="w-3.5 h-3.5 text-teal-700 shrink-0" />
+                      <span>Pickup Time</span>
+                    </label>
                     <input
                       type="time"
                       id="hero-time-input"
                       value={pickupTime}
                       onChange={(e) => setPickupTime(e.target.value)}
-                      className="w-full bg-transparent text-xs sm:text-sm font-semibold text-slate-900 outline-none"
+                      className="w-full bg-transparent text-xs sm:text-sm font-semibold text-slate-900 outline-none cursor-pointer"
                       required
                     />
                   </div>
                 </div>
 
-                {/* Mobile Number for Instant Booking */}
-                <div className="rounded-xl border border-slate-200 bg-slate-50/70 px-2.5 py-1.5 hover:border-cyan-500 focus-within:border-cyan-600 focus-within:bg-white transition-all">
-                  <div className="flex items-center gap-1 text-[10px] font-bold text-slate-500 mb-0.5">
-                    <Phone className="w-2.5 h-2.5 text-slate-400" />
-                    <span>Mobile number for instant booking</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-bold text-slate-500">+91</span>
+                {/* Mobile Number Input */}
+                <div className="rounded-xl border border-slate-200/90 bg-slate-50/80 px-3 py-2 hover:border-teal-500 focus-within:border-teal-600 focus-within:bg-white transition-all">
+                  <label htmlFor="hero-phone-input" className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 mb-0.5">
+                    <Phone className="w-3.5 h-3.5 text-teal-700 shrink-0" />
+                    <span>Mobile number for instant dispatch</span>
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-slate-500 bg-slate-200/60 px-1.5 py-0.5 rounded-md">+91</span>
                     <input
                       type="tel"
                       id="hero-phone-input"
@@ -409,93 +440,114 @@ export const Hero: React.FC<HeroProps> = ({
                     />
                   </div>
                   {phoneError && (
-                    <div className="text-[10px] text-rose-500 font-medium mt-0.5">{phoneError}</div>
+                    <p className="text-[11px] text-rose-600 font-medium mt-1">{phoneError}</p>
                   )}
                 </div>
 
-                {/* Submit Search & Book Taxi Button */}
-                <button
+                {/* Submit Action Button with Spring Physics */}
+                <motion.button
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.98 }}
                   type="submit"
                   id="hero-search-book-btn"
-                  className="w-full py-2.5 sm:py-3 px-4 rounded-xl bg-[#005a66] hover:bg-[#004751] text-white font-bold text-xs sm:text-sm tracking-wide flex items-center justify-center gap-2 shadow-md shadow-teal-900/20 hover:shadow-lg transition-all uppercase active:scale-98 cursor-pointer"
+                  className="w-full py-3.5 px-4 rounded-xl bg-teal-800 hover:bg-teal-900 text-white font-bold text-xs sm:text-sm tracking-wide flex items-center justify-center gap-2 shadow-lg shadow-teal-950/20 transition-all cursor-pointer group"
                 >
-                  <span>SEARCH & BOOK TAXI</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
+                  <span>Search & Book Cab</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </motion.button>
               </form>
 
-              {/* Bottom Guarantee and Phone Link */}
-              <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
-                <div className="flex items-center gap-1.5 text-emerald-700 font-semibold">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                  <span>Instant Confirmation</span>
+              {/* Bottom Guarantee */}
+              <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                <div className="flex items-center gap-1.5 text-emerald-700 font-medium">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>No cancellation fee • Guaranteed pickup</span>
                 </div>
                 <a
                   href="tel:+919123456789"
                   id="hero-call-link"
-                  className="text-cyan-700 hover:text-cyan-800 font-bold flex items-center gap-1 hover:underline"
+                  className="text-teal-800 hover:text-teal-950 font-semibold flex items-center gap-1 hover:underline"
                 >
-                  <span>Call Waltair Travels</span>
-                  <ArrowRight className="w-3 h-3" />
+                  <span>Call Us</span>
+                  <ChevronRight className="w-3 h-3" />
                 </a>
               </div>
 
             </div>
-          </div>
+          </motion.div>
 
-          {/* Right Column: Hero Headline & Feature Highlights */}
-          <div className="lg:col-span-7 text-white space-y-6 lg:pl-6">
+          {/* Right Column: Editorial Headline & Value Pillars */}
+          <div className="lg:col-span-6 xl:col-span-7 text-white space-y-6 lg:pl-4">
             
-            {/* Tagline / Airport notice */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-cyan-300 text-xs font-semibold">
-                            <span>Official Airport Taxi & City Cabs in Visakhapatnam</span>
-            </div>
+            {/* Tagline Badge */}
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-950/75 backdrop-blur-md border border-teal-400/40 text-teal-300 text-xs font-semibold shadow-lg"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+              <span>Official Airport & Intercity Taxi Partner in Visakhapatnam</span>
+            </motion.div>
 
-            {/* Big Headline */}
-            <div className="space-y-1">
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight">
-                Reliable Travel.
-              </h2>
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight">
-                Transparent Pricing.
-              </h2>
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight text-cyan-400">
-                Every Journey.
-              </h2>
-            </div>
+            {/* Editorial Headline */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="space-y-2"
+            >
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-[1.15] text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.7)]">
+                Premium, Reliable Travel. <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-300 via-cyan-200 to-emerald-300">
+                  Fixed Pricing. Zero Surges.
+                </span>
+              </h1>
+              <p className="text-slate-100 text-sm sm:text-base lg:text-lg max-w-xl leading-relaxed pt-1 drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)] font-medium">
+                Experience seamless rides across Visakhapatnam, express transfers to Bhogapuram International Airport (ASI), and serene tours to Araku Valley with vetted professional chauffeurs.
+              </p>
+            </motion.div>
 
-            {/* Paragraph Subtext */}
-            <p className="text-slate-200 text-base sm:text-lg max-w-xl leading-relaxed">
-              Transparent pricing, safe travel with professional drivers, and 24x7 support. Booking with Waltair is seamless and reliable.
-            </p>
+            {/* Value Proposition Cards - 4 items in clean responsive grid */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2"
+            >
+              {[
+                { label: '24/7 Helpline', desc: 'Direct Control Desk', icon: Headphones },
+                { label: 'Verified Drivers', desc: 'Commercial Licensed', icon: UserCheck },
+                { label: 'Sanitized Cabs', desc: 'Dual AC Cooling', icon: ShieldCheck },
+                { label: 'Live GPS', desc: 'Real-time Updates', icon: MapPin },
+              ].map((item, idx) => {
+                const Icon = item.icon;
+                return (
+                  <motion.div 
+                    key={idx}
+                    whileHover={{ y: -3, transition: { duration: 0.2 } }}
+                    className="bg-slate-900/80 backdrop-blur-md border border-white/20 p-3 sm:p-3.5 rounded-2xl text-left shadow-xl hover:border-teal-400/50 hover:bg-slate-900/90 transition-all"
+                  >
+                    <Icon className="w-5 h-5 text-teal-300 mb-1.5" />
+                    <div className="text-xs sm:text-sm font-bold text-white leading-snug drop-shadow-sm">{item.label}</div>
+                    <div className="text-[11px] text-slate-200 mt-0.5">{item.desc}</div>
+                  </motion.div>
+                );
+              })}
+            </motion.div>
 
-            {/* Feature Badges Grid (4 items from screenshot) */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/10 p-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-100">
-                <Headphones className="w-4 h-4 text-cyan-400 shrink-0" />
-                <span>24x7 Support</span>
-              </div>
-              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/10 p-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-100">
-                <UserCheck className="w-4 h-4 text-cyan-400 shrink-0" />
-                <span>Professional Drivers</span>
-              </div>
-              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/10 p-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-100">
-                <ShieldCheck className="w-4 h-4 text-cyan-400 shrink-0" />
-                <span>Safe & Secure</span>
-              </div>
-              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/10 p-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-100">
-                <MapPin className="w-4 h-4 text-cyan-400 shrink-0" />
-                <span>Live Tracking</span>
-              </div>
-            </div>
-
-            {/* Airport Terminal Badge */}
-            <div className="pt-4 border-t border-white/10 flex items-center gap-3 text-xs text-slate-300">
-              <span className="font-semibold uppercase tracking-wider text-cyan-300">
-                Direct Airport Terminal Service:
+            {/* Airport Terminal Status Pill */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="pt-2 flex flex-wrap items-center gap-2 text-xs text-slate-100"
+            >
+              <span className="font-semibold text-teal-200 uppercase tracking-wider text-[11px] bg-teal-950/80 px-2.5 py-1 rounded-md border border-teal-500/50 shadow-md">
+                Direct Airport Gate:
               </span>
-              <span>Alluri Sitharama Raju International Airport (ASI), Bhogapuram & VTZ Airport</span>
-            </div>
+              <span className="drop-shadow-sm font-medium">Bhogapuram International Airport (ASI) & VTZ Terminal Cabs on Standby</span>
+            </motion.div>
 
           </div>
 

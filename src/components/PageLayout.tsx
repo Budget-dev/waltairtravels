@@ -32,6 +32,14 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
     <div className="min-h-screen bg-slate-950 text-slate-100 pb-20">
       {/* Header Banner */}
       <div className="relative bg-gradient-to-b from-slate-900 via-slate-900/90 to-slate-950 border-b border-slate-800/80 pt-8 pb-12 sm:pb-16 overflow-hidden">
+        {/* Clear subtle background banner visual */}
+        <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
+          <img
+            src="/hero-banner.jpg"
+            alt="Waltair Travels Express Fleet"
+            className="w-full h-full object-cover object-center"
+          />
+        </div>
         {/* Background glow effects */}
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-cyan-600/10 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-teal-600/10 rounded-full blur-3xl pointer-events-none"></div>

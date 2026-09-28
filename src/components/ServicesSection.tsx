@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'motion/react';
 import { 
   Luggage, 
   Mountain, 
@@ -11,7 +12,8 @@ import {
   Zap, 
   MapPin, 
   Headphones,
-  ArrowRight
+  ArrowRight,
+  Sparkles
 } from 'lucide-react';
 import { ServiceCategory, TripSubType } from '../types';
 
@@ -25,179 +27,178 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ onSelectServic
       id: 'airport',
       subType: 'pickup' as TripSubType,
       title: 'Airport Taxi',
-      desc: 'Reliable airport pickups & drops',
-      btn: 'Book Taxi',
+      badge: 'ASI Bhogapuram & VTZ',
+      desc: 'Guaranteed flight-delay adjusted transfers',
+      btn: 'Book Airport',
       icon: Luggage,
-      bg: 'bg-cyan-50',
-      text: 'text-cyan-800'
+      color: 'teal'
     },
     {
       id: 'outstation',
       subType: 'oneway' as TripSubType,
       title: 'Outstation Cabs',
-      desc: 'Comfortable travel outside the city',
-      btn: 'Explore Cabs',
+      badge: 'Intercity Trips',
+      desc: 'Comfortable sedans & SUVs across AP',
+      btn: 'Explore Routes',
       icon: Mountain,
-      bg: 'bg-teal-50',
-      text: 'text-teal-800'
+      color: 'cyan'
     },
     {
       id: 'local',
       subType: 'local_8hr' as TripSubType,
-      title: 'Local Rentals',
-      desc: 'Hourly & full-day city travel',
+      title: 'Hourly Rentals',
+      badge: '4h / 8h / 12h Packages',
+      desc: 'Flexible multi-stop city travel & shopping',
       btn: 'Rent by Hour',
       icon: PhoneCall,
-      bg: 'bg-emerald-50',
-      text: 'text-emerald-800'
+      color: 'emerald'
     },
     {
       id: 'oneway',
       subType: 'oneway' as TripSubType,
       category: 'outstation' as ServiceCategory,
-      title: 'One-Way Trips',
-      desc: 'Convenient point-to-point travel',
-      btn: 'Pay One-Way',
+      title: 'One-Way Drops',
+      badge: 'Zero Return Fare',
+      desc: 'Pay only for one direction with no penalty',
+      btn: 'Book One-Way',
       icon: Send,
-      bg: 'bg-sky-50',
-      text: 'text-sky-800'
+      color: 'blue'
     },
     {
       id: 'roundtrip',
       subType: 'roundtrip' as TripSubType,
       category: 'outstation' as ServiceCategory,
       title: 'Round Trips',
-      desc: 'Return journeys made easy',
-      btn: 'Book Return',
+      badge: 'Dedicated Driver',
+      desc: 'Relaxing return trips with same chauffeur',
+      btn: 'Book Roundtrip',
       icon: Repeat,
-      bg: 'bg-indigo-50',
-      text: 'text-indigo-800'
+      color: 'indigo'
     },
     {
       id: 'packages',
       subType: 'package' as TripSubType,
       category: 'packages' as ServiceCategory,
-      title: 'Travel Packages',
-      desc: 'Custom packages for your journey',
+      title: 'Tour Packages',
+      badge: 'Araku & Lambasingi',
+      desc: 'All-inclusive curated holiday itineraries',
       btn: 'View Tours',
       icon: Briefcase,
-      bg: 'bg-teal-50',
-      text: 'text-teal-800'
+      color: 'teal'
+    },
+  ];
+
+  const valueProps = [
+    {
+      title: 'Transparent Pricing',
+      desc: 'Clear base fare & per-km charges with zero hidden toll surprises.',
+      icon: IndianRupee,
+    },
+    {
+      title: 'Verified Chauffeurs',
+      desc: 'Commercial licensed, police verified & courteous drivers.',
+      icon: ShieldCheck,
+    },
+    {
+      title: 'Instant Confirmation',
+      desc: 'Driver & cab details shared with live SMS & WhatsApp tracking.',
+      icon: Zap,
+    },
+    {
+      title: 'Live GPS Tracking',
+      desc: 'Real-time vehicle telemetry for complete passenger safety.',
+      icon: MapPin,
+    },
+    {
+      title: '24/7 Operations Desk',
+      desc: 'Always available human assistance for any trip modifications.',
+      icon: Headphones,
     },
   ];
 
   return (
-    <section id="services" className="py-12 md:py-16 bg-slate-50 border-b border-slate-200/80">
+    <section id="services" className="py-14 sm:py-18 bg-white border-b border-slate-200/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-10">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Our Services
+        <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 border border-teal-100 text-teal-800 text-xs font-semibold mb-3">
+            <Sparkles className="w-3 h-3 text-teal-600" />
+            <span>Tailored Mobility Solutions</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
+            Our Transportation Services
           </h2>
-          <p className="text-sm sm:text-base text-slate-600 mt-2">
-            Tailored mobility solutions for daily commutes, airport transfers, corporate travel, and scenic holidays.
+          <p className="text-sm sm:text-base text-slate-600 mt-2.5 leading-relaxed">
+            From seamless airport terminal pickups to scenic ghat journeys across Araku Valley, select the ride that fits your travel schedule.
           </p>
         </div>
 
-        {/* 6 Services Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 sm:gap-5 mb-12">
-          {serviceCards.map((card) => {
+        {/* 6 Services Grid - 2 cols on mobile, 3 cols on tablet, 6 cols on desktop for perfect balance */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5 sm:gap-4 mb-12 sm:mb-14">
+          {serviceCards.map((card, idx) => {
             const IconComponent = card.icon;
             const category = card.category || (card.id as ServiceCategory);
             return (
-              <div 
+              <motion.div 
                 key={card.id}
                 id={`service-card-${card.id}`}
                 onClick={() => onSelectService(category, card.subType)}
-                className="group bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs hover:shadow-xl hover:border-cyan-600 hover:-translate-y-1 active:scale-98 transition-all duration-300 flex flex-col items-center text-center cursor-pointer relative overflow-hidden"
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-20px' }}
+                transition={{ duration: 0.4, delay: idx * 0.05 }}
+                whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                whileTap={{ scale: 0.98 }}
+                className="group bg-slate-50/70 hover:bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 hover:border-teal-400/80 hover:shadow-lg hover:shadow-teal-900/5 transition-all duration-300 flex flex-col justify-between cursor-pointer relative overflow-hidden"
               >
-                <div className={`w-14 h-14 rounded-2xl ${card.bg} ${card.text} flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-cyan-700 group-hover:text-white transition-all`}>
-                  <IconComponent className="w-7 h-7" />
+                <div>
+                  {/* Icon & Mini Badge */}
+                  <div className="flex items-center justify-between gap-1 mb-3.5">
+                    <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-teal-50 text-teal-800 group-hover:bg-teal-800 group-hover:text-white flex items-center justify-center transition-colors shrink-0">
+                      <IconComponent className="w-5 h-5 sm:w-5.5 sm:h-5.5" />
+                    </div>
+                  </div>
+
+                  <h3 className="text-sm sm:text-base font-bold text-slate-900 mb-1 group-hover:text-teal-800 transition-colors">
+                    {card.title}
+                  </h3>
+                  
+                  <div className="text-[10px] sm:text-[11px] font-semibold text-teal-700 bg-teal-50/80 px-2 py-0.5 rounded-md inline-block mb-2">
+                    {card.badge}
+                  </div>
+
+                  <p className="text-xs text-slate-500 leading-relaxed line-clamp-2 sm:line-clamp-none">
+                    {card.desc}
+                  </p>
                 </div>
-                <h3 className="text-base font-bold text-slate-900 mb-1 group-hover:text-cyan-700 transition-colors">
-                  {card.title}
-                </h3>
-                <p className="text-xs text-slate-500 leading-relaxed mb-3">
-                  {card.desc}
-                </p>
-                <span className="mt-auto text-[11px] font-bold text-cyan-700 inline-flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
-                  {card.btn} <ArrowRight className="w-3 h-3" />
-                </span>
-              </div>
+
+                <div className="mt-4 pt-3 border-t border-slate-200/60 flex items-center justify-between text-xs font-bold text-teal-800 group-hover:text-teal-900">
+                  <span>{card.btn}</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </motion.div>
             );
           })}
         </div>
 
-        {/* Value Proposition Bar (Exact 5 items from screenshot) */}
-        <div className="bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-6 shadow-xs">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-6 divide-y sm:divide-y-0 lg:divide-x divide-slate-100">
-            
-            {/* Item 1: Transparent Pricing */}
-            <div className="flex items-start gap-3.5 pt-3 sm:pt-0 lg:px-3">
-              <div className="p-2.5 rounded-xl bg-cyan-50 text-cyan-800 shrink-0">
-                <IndianRupee className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-slate-900">Transparent Pricing</h4>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  No hidden charges, what you see is what you pay.
-                </p>
-              </div>
-            </div>
-
-            {/* Item 2: Safe & Secure */}
-            <div className="flex items-start gap-3.5 pt-3 sm:pt-0 lg:px-3">
-              <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-800 shrink-0">
-                <ShieldCheck className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-slate-900">Safe & Secure</h4>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Verified drivers, sanitized cars, your safety is our priority.
-                </p>
-              </div>
-            </div>
-
-            {/* Item 3: Instant Booking */}
-            <div className="flex items-start gap-3.5 pt-3 sm:pt-0 lg:px-3">
-              <div className="p-2.5 rounded-xl bg-amber-50 text-amber-800 shrink-0">
-                <Zap className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-slate-900">Instant Booking</h4>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Quick booking with instant confirmation.
-                </p>
-              </div>
-            </div>
-
-            {/* Item 4: Live Tracking */}
-            <div className="flex items-start gap-3.5 pt-3 sm:pt-0 lg:px-3">
-              <div className="p-2.5 rounded-xl bg-sky-50 text-sky-800 shrink-0">
-                <MapPin className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-slate-900">Live Tracking</h4>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Track your ride in real-time from pickup to drop.
-                </p>
-              </div>
-            </div>
-
-            {/* Item 5: 24x7 Customer Support */}
-            <div className="flex items-start gap-3.5 pt-3 sm:pt-0 lg:px-3">
-              <div className="p-2.5 rounded-xl bg-purple-50 text-purple-800 shrink-0">
-                <Headphones className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-slate-900">24x7 Customer Support</h4>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  We're here to help, anytime, anywhere.
-                </p>
-              </div>
-            </div>
-
+        {/* Value Proposition Bar - Clean Grid with Card Aesthetics */}
+        <div className="bg-slate-50/90 rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-6 lg:p-7 shadow-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-6">
+            {valueProps.map((prop, i) => {
+              const Icon = prop.icon;
+              return (
+                <div key={i} className="flex items-start gap-3 p-2 rounded-xl">
+                  <div className="w-9 h-9 rounded-xl bg-white border border-slate-200 text-teal-800 flex items-center justify-center shrink-0 shadow-2xs">
+                    <Icon className="w-4 h-4 text-teal-700" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs sm:text-sm font-bold text-slate-900 leading-snug">{prop.title}</h4>
+                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">{prop.desc}</p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 

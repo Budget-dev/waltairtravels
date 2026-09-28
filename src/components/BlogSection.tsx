@@ -1,22 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   BookOpen, 
   Plus, 
   Calendar, 
-  User, 
   Clock, 
-  Tag, 
   Edit3, 
   Trash2, 
   Search, 
   ArrowRight, 
   X, 
   CheckCircle2, 
-  
-  Image as ImageIcon,
-  Share2,
-  Bookmark,
-  ChevronRight
+  ChevronRight,
+  Sparkles
 } from 'lucide-react';
 import { 
   db, 
@@ -27,9 +23,7 @@ import {
   updateDoc, 
   deleteDoc, 
   onSnapshot, 
-  serverTimestamp,
-  orderBy,
-  query
+  serverTimestamp 
 } from '../firebase';
 import { BlogPost, AppUser } from '../types';
 
@@ -141,15 +135,12 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ currentUser, onOpenAut
         items.push({ id: d.id, ...d.data() } as BlogPost);
       });
 
-      // Also read local fallback
       const local = JSON.parse(localStorage.getItem('waltair_blog_posts') || '[]');
       const combined = [...items, ...local.filter((l: BlogPost) => !items.some(i => i.id === l.id))];
 
       if (combined.length === 0) {
-        // Seed initial articles
         setPosts(INITIAL_SEED_POSTS);
         localStorage.setItem('waltair_blog_posts', JSON.stringify(INITIAL_SEED_POSTS));
-        // Try writing initial seeds to Firestore in background
         INITIAL_SEED_POSTS.forEach(async (p) => {
           try {
             await addDoc(collection(db, 'blog_posts'), {
@@ -192,7 +183,7 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ currentUser, onOpenAut
     }
   }, []);
 
-  // 2. Open Editor for Creating a New Post
+  // Open Editor for Creating a New Post
   const handleOpenCreate = () => {
     setEditingPostId(null);
     setFormTitle('');
@@ -207,7 +198,7 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ currentUser, onOpenAut
     setIsEditorOpen(true);
   };
 
-  // 3. Open Editor for Editing an Existing Post
+  // Open Editor for Editing an Existing Post
   const handleOpenEdit = (post: BlogPost, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     setEditingPostId(post.id || null);
@@ -226,7 +217,7 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ currentUser, onOpenAut
     }
   };
 
-  // 4. Delete Post
+  // Delete Post
   const handleDeletePost = async (post: BlogPost, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     const confirmed = window.confirm(`Are you sure you want to delete "${post.title}"?`);
@@ -240,7 +231,6 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ currentUser, onOpenAut
       console.warn('Firestore blog delete fallback:', err);
     }
 
-    // Update local state
     const updated = posts.filter(p => p.id !== post.id);
     setPosts(updated);
     localStorage.setItem('waltair_blog_posts', JSON.stringify(updated));
@@ -249,7 +239,7 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ currentUser, onOpenAut
     }
   };
 
-  // 5. Save (Create / Update) Post
+  // Save (Create / Update) Post
   const handleSavePost = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formTitle.trim() || !formContent.trim() || !formAuthor.trim()) {
@@ -279,13 +269,11 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ currentUser, onOpenAut
 
     try {
       if (editingPostId && !editingPostId.startsWith('seed-')) {
-        // Update existing Firestore doc
         await updateDoc(doc(db, 'blog_posts', editingPostId), { ...postPayload });
         const updatedList = posts.map(p => p.id === editingPostId ? { ...postPayload, id: editingPostId } : p);
         setPosts(updatedList);
         localStorage.setItem('waltair_blog_posts', JSON.stringify(updatedList));
       } else {
-        // Create new Firestore doc
         const docRef = await addDoc(collection(db, 'blog_posts'), {
           ...postPayload,
           createdAt: serverTimestamp ? serverTimestamp() : new Date().toISOString()
@@ -303,7 +291,6 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ currentUser, onOpenAut
       }, 700);
     } catch (err: any) {
       console.warn('Firestore blog write fallback:', err);
-      // Fallback save locally
       const localId = editingPostId || `local-${Date.now()}`;
       const savedPost = { ...postPayload, id: localId };
       const updatedList = editingPostId 
@@ -330,55 +317,62 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ currentUser, onOpenAut
   });
 
   return (
-    <section id="blog" className="py-16 md:py-24 bg-slate-950 text-white relative border-b border-slate-800">
+    <section id="blog" className="py-14 sm:py-20 bg-slate-50/70 text-slate-900 border-b border-slate-200/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-xs font-bold uppercase tracking-wider mb-3">
-              <BookOpen className="w-3.5 h-3.5" />
-              <span>Travel Insights & Guides</span>
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 sm:mb-10 gap-5">
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 border border-teal-100 text-teal-800 text-xs font-semibold mb-2.5">
+              <BookOpen className="w-3.5 h-3.5 text-teal-600" />
+              <span>Travel Guides & Driver Insights</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight">
-              Waltair Travels Blog & Road Stories
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
+              Waltair Travels Blog & Road Guides
             </h2>
-            <p className="text-slate-400 text-sm sm:text-base mt-2 max-w-2xl">
-              Practical airport taxi guides, scenic Araku road trip itineraries, and local Visakhapatnam travel secrets written by our chauffeurs and community.
+            <p className="text-slate-600 text-xs sm:text-sm mt-2 leading-relaxed">
+              Practical airport transfers, scenic Araku itineraries, and local Vizag travel secrets written by our chauffeurs.
             </p>
           </div>
 
-          {/* Action buttons */}
-          <div className="flex items-center gap-3">
-            <button
-              id="write-blog-post-btn"
-              onClick={handleOpenCreate}
-              className="px-4 py-2.5 rounded-xl bg-[#005a66] hover:bg-[#004751] text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-teal-900/30 hover:scale-105 transition-all cursor-pointer"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Write a Post</span>
-            </button>
-          </div>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            id="write-blog-post-btn"
+            onClick={handleOpenCreate}
+            className="px-4 py-2.5 rounded-xl bg-teal-800 hover:bg-teal-900 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-sm transition-all cursor-pointer self-start md:self-auto shrink-0"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Write a Guide</span>
+          </motion.button>
         </div>
 
-        {/* Filters and Search Bar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 bg-slate-900/80 p-3 rounded-2xl border border-slate-800">
+        {/* Filter Tabs and Search Bar */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mb-8 bg-white p-2.5 sm:p-3 rounded-2xl border border-slate-200/80 shadow-xs">
           
-          {/* Category Chips */}
-          <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 scrollbar-none">
-            {CATEGORIES.map(cat => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
-                  selectedCategory === cat 
-                    ? 'bg-cyan-600 text-white font-bold shadow-xs' 
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
+          {/* Category Chips with Animated Pill */}
+          <div className="relative flex items-center gap-1 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 no-scrollbar">
+            {CATEGORIES.map(cat => {
+              const isActive = selectedCategory === cat;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`relative z-10 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors duration-200 cursor-pointer ${
+                    isActive ? 'text-teal-950 font-bold' : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <span>{cat}</span>
+                  {isActive && (
+                    <motion.div
+                      layoutId="blogCatTab"
+                      transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+                      className="absolute inset-0 bg-teal-50 text-teal-800 rounded-xl border border-teal-200/80 -z-10 shadow-2xs"
+                    />
+                  )}
+                </button>
+              );
+            })}
           </div>
 
           {/* Search Box */}
@@ -388,13 +382,13 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ currentUser, onOpenAut
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search articles & routes..."
-              className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+              placeholder="Search guides & routes..."
+              className="w-full pl-9 pr-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-teal-500 focus:bg-white transition-all"
             />
             {searchQuery && (
               <button 
                 onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -405,53 +399,54 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ currentUser, onOpenAut
 
         {/* Blog Posts Grid */}
         {filteredPosts.length === 0 ? (
-          <div className="text-center py-16 bg-slate-900/40 rounded-3xl border border-slate-800/80 p-8">
-            <BookOpen className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-            <h3 className="text-lg font-bold text-slate-300">No blog posts found</h3>
-            <p className="text-xs text-slate-500 mt-1 mb-4">
-              Try choosing another category or be the first to publish a new travel guide!
+          <div className="text-center py-12 bg-white rounded-3xl border border-slate-200 p-8">
+            <BookOpen className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+            <h3 className="text-base font-bold text-slate-800">No blog articles found</h3>
+            <p className="text-xs text-slate-500 mt-1 mb-3">
+              Try selecting another category or write a new travel story.
             </p>
             <button
               onClick={handleOpenCreate}
-              className="px-4 py-2 rounded-xl bg-cyan-700 hover:bg-cyan-600 text-white font-semibold text-xs"
+              className="px-4 py-2 rounded-xl bg-teal-800 text-white font-semibold text-xs hover:bg-teal-900 cursor-pointer"
             >
               Write First Post
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
             {filteredPosts.map(post => (
-              <article 
+              <motion.article 
                 key={post.id}
+                whileHover={{ y: -4, transition: { duration: 0.2 } }}
                 onClick={() => setActiveReadingPost(post)}
-                className="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden hover:border-slate-700 hover:shadow-xl transition-all cursor-pointer flex flex-col group"
+                className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 overflow-hidden hover:border-teal-400/80 hover:shadow-xl hover:shadow-slate-900/5 transition-all duration-300 cursor-pointer flex flex-col group"
               >
-                {/* Cover Image */}
-                <div className="relative h-48 w-full overflow-hidden bg-slate-800">
+                {/* Preserved Cover Image */}
+                <div className="relative h-48 w-full overflow-hidden bg-slate-100">
                   <img 
                     src={post.coverImage || 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=800&q=80'} 
                     alt={post.title}
                     referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute top-3 left-3">
-                    <span className="px-2.5 py-1 rounded-md bg-slate-950/80 backdrop-blur-xs text-cyan-300 text-[11px] font-semibold uppercase tracking-wider border border-white/10">
+                    <span className="px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-xs text-teal-800 text-[11px] font-bold shadow-xs">
                       {post.category || 'Travel Guide'}
                     </span>
                   </div>
 
-                  {/* Quick Action Overlay (Edit/Delete) */}
+                  {/* Actions overlay */}
                   <div className="absolute top-3 right-3 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={(e) => handleOpenEdit(post, e)}
-                      className="p-1.5 rounded-lg bg-slate-900/90 hover:bg-cyan-700 text-white transition-colors"
+                      className="p-1.5 rounded-lg bg-white/90 hover:bg-white text-slate-700 hover:text-teal-800 shadow-sm transition-colors cursor-pointer"
                       title="Edit Post"
                     >
                       <Edit3 className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={(e) => handleDeletePost(post, e)}
-                      className="p-1.5 rounded-lg bg-slate-900/90 hover:bg-rose-600 text-white transition-colors"
+                      className="p-1.5 rounded-lg bg-white/90 hover:bg-white text-slate-700 hover:text-rose-600 shadow-sm transition-colors cursor-pointer"
                       title="Delete Post"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -459,51 +454,48 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ currentUser, onOpenAut
                   </div>
                 </div>
 
-                {/* Body Content */}
+                {/* Content */}
                 <div className="p-5 flex-1 flex flex-col justify-between">
                   <div>
-                    {/* Meta info */}
-                    <div className="flex items-center gap-3 text-xs text-slate-400 mb-2.5">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-3.5 h-3.5 text-cyan-400" />
+                    <div className="flex items-center gap-3 text-xs text-slate-500 mb-2">
+                      <span className="flex items-center gap-1 font-medium">
+                        <Calendar className="w-3.5 h-3.5 text-teal-700" />
                         {post.date}
                       </span>
                       <span>•</span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5 text-slate-500" />
+                      <span className="flex items-center gap-1 font-medium">
+                        <Clock className="w-3.5 h-3.5 text-teal-700" />
                         {post.readTime || '4 min read'}
                       </span>
                     </div>
 
-                    {/* Title */}
-                    <h3 className="text-base sm:text-lg font-bold text-white group-hover:text-cyan-400 transition-colors line-clamp-2 mb-2">
+                    <h3 className="text-base sm:text-lg font-bold text-slate-900 group-hover:text-teal-800 transition-colors line-clamp-2 mb-2 leading-snug">
                       {post.title}
                     </h3>
 
-                    {/* Excerpt */}
-                    <p className="text-xs sm:text-sm text-slate-400 line-clamp-3 leading-relaxed">
+                    <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed">
                       {post.excerpt}
                     </p>
                   </div>
 
-                  {/* Author & Read More */}
-                  <div className="pt-4 mt-4 border-t border-slate-800/80 flex items-center justify-between">
+                  {/* Author & Read CTA */}
+                  <div className="pt-3.5 mt-3.5 border-t border-slate-100 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-full bg-cyan-800 text-cyan-200 flex items-center justify-center text-xs font-bold">
+                      <div className="w-6 h-6 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center text-xs font-bold">
                         {post.author.charAt(0).toUpperCase()}
                       </div>
-                      <span className="text-xs font-medium text-slate-300 truncate max-w-[120px]">
+                      <span className="text-xs font-semibold text-slate-700 truncate max-w-[120px]">
                         {post.author}
                       </span>
                     </div>
 
-                    <span className="text-xs font-bold text-cyan-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                    <span className="text-xs font-bold text-teal-800 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
                       <span>Read Story</span>
                       <ChevronRight className="w-3.5 h-3.5" />
                     </span>
                   </div>
                 </div>
-              </article>
+              </motion.article>
             ))}
           </div>
         )}
@@ -511,262 +503,250 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ currentUser, onOpenAut
       </div>
 
       {/* 1. ARTICLE READER MODAL */}
-      {activeReadingPost && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
-          <div className="bg-slate-900 w-full max-w-3xl rounded-3xl shadow-2xl border border-slate-800 overflow-hidden relative max-h-[90vh] flex flex-col">
-            
-            {/* Modal Header Bar */}
-            <div className="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950/70">
-              <div className="flex items-center gap-2">
-                <span className="px-3 py-1 rounded-md bg-cyan-500/20 text-cyan-300 text-xs font-bold uppercase">
-                  {activeReadingPost.category || 'Travel Article'}
-                </span>
-                <span className="text-xs text-slate-400">• {activeReadingPost.readTime || '4 min read'}</span>
+      <AnimatePresence>
+        {activeReadingPost && (
+          <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 16 }}
+              transition={{ duration: 0.2 }}
+              className="bg-white w-full max-w-3xl rounded-3xl shadow-2xl border border-slate-200 overflow-hidden relative max-h-[90vh] flex flex-col"
+            >
+              {/* Header */}
+              <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
+                <div className="flex items-center gap-2">
+                  <span className="px-2.5 py-1 rounded-md bg-teal-50 text-teal-800 text-xs font-bold uppercase">
+                    {activeReadingPost.category || 'Travel Article'}
+                  </span>
+                  <span className="text-xs text-slate-500">• {activeReadingPost.readTime || '4 min read'}</span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleOpenEdit(activeReadingPost)}
+                    className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <Edit3 className="w-3.5 h-3.5" />
+                    <span>Edit</span>
+                  </button>
+                  <button
+                    onClick={() => handleDeletePost(activeReadingPost)}
+                    className="p-1.5 rounded-lg bg-white border border-slate-200 hover:bg-rose-50 text-slate-700 hover:text-rose-600 transition-colors cursor-pointer"
+                    title="Delete Post"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setActiveReadingPost(null)}
+                    className="p-1.5 rounded-full hover:bg-slate-200/60 text-slate-500 transition-colors ml-1 cursor-pointer"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              {/* Scrollable Body */}
+              <div className="p-6 sm:p-8 overflow-y-auto space-y-5">
+                {activeReadingPost.coverImage && (
+                  <div className="h-60 sm:h-72 rounded-2xl overflow-hidden bg-slate-100">
+                    <img 
+                      src={activeReadingPost.coverImage} 
+                      alt={activeReadingPost.title} 
+                      referrerPolicy="no-referrer"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+
+                <div>
+                  <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
+                    {activeReadingPost.title}
+                  </h1>
+
+                  <div className="flex items-center gap-3 mt-3 pt-3 border-t border-slate-100 text-xs text-slate-500">
+                    <div className="w-8 h-8 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center font-bold text-xs">
+                      {activeReadingPost.author.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <div className="font-bold text-slate-900">{activeReadingPost.author}</div>
+                      <div>Published on {activeReadingPost.date}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="prose prose-slate max-w-none text-slate-700 text-xs sm:text-sm leading-relaxed space-y-3 whitespace-pre-line">
+                  {activeReadingPost.content}
+                </div>
+
+                <div className="mt-6 p-5 rounded-2xl bg-gradient-to-r from-teal-900 to-slate-900 text-white flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div>
+                    <h4 className="font-bold text-white text-base">Traveling this route?</h4>
+                    <p className="text-xs text-teal-200 mt-0.5">Book guaranteed air-conditioned cabs with 24/7 doorstep dispatch.</p>
+                  </div>
+                  <a
+                    href="#home"
+                    onClick={() => setActiveReadingPost(null)}
+                    className="px-5 py-2.5 rounded-xl bg-white text-teal-950 font-bold text-xs sm:text-sm hover:bg-teal-50 transition-colors whitespace-nowrap"
+                  >
+                    Book Cab
+                  </a>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* 2. POST CREATOR / EDITOR MODAL */}
+      <AnimatePresence>
+        {isEditorOpen && (
+          <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 16 }}
+              transition={{ duration: 0.2 }}
+              className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-slate-200 overflow-hidden relative"
+            >
+              <div className="bg-gradient-to-r from-slate-900 via-teal-950 to-slate-900 p-5 text-white flex items-center justify-between">
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-white">
+                    {editingPostId ? 'Edit Travel Guide' : 'Write a Travel Guide'}
+                  </h3>
+                  <p className="text-xs text-teal-200 mt-0.5">Share road advice, itineraries, and taxi tips</p>
+                </div>
                 <button
-                  onClick={() => handleOpenEdit(activeReadingPost)}
-                  className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-cyan-700 text-white text-xs font-medium flex items-center gap-1.5 transition-colors"
-                >
-                  <Edit3 className="w-3.5 h-3.5" />
-                  <span>Edit</span>
-                </button>
-                <button
-                  onClick={() => handleDeletePost(activeReadingPost)}
-                  className="p-1.5 rounded-lg bg-slate-800 hover:bg-rose-600 text-white transition-colors"
-                  title="Delete Post"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setActiveReadingPost(null)}
-                  className="p-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-white transition-colors ml-2"
+                  onClick={() => setIsEditorOpen(false)}
+                  className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
-            </div>
 
-            {/* Modal Scrollable Article Body */}
-            <div className="p-6 sm:p-8 overflow-y-auto space-y-6">
-              
-              {/* Cover Banner */}
-              {activeReadingPost.coverImage && (
-                <div className="h-64 sm:h-80 rounded-2xl overflow-hidden bg-slate-800">
-                  <img 
-                    src={activeReadingPost.coverImage} 
-                    alt={activeReadingPost.title} 
-                    referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
-
-              {/* Title & Author Info */}
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-white leading-tight">
-                  {activeReadingPost.title}
-                </h1>
-
-                <div className="flex items-center gap-3 mt-4 pt-4 border-t border-slate-800 text-xs sm:text-sm text-slate-400">
-                  <div className="w-9 h-9 rounded-full bg-cyan-700 text-white flex items-center justify-center font-bold text-sm">
-                    {activeReadingPost.author.charAt(0).toUpperCase()}
+              <form onSubmit={handleSavePost} className="p-5 sm:p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+                {formError && (
+                  <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs">
+                    {formError}
                   </div>
-                  <div>
-                    <div className="font-bold text-white">{activeReadingPost.author}</div>
-                    <div className="text-xs text-slate-500">Published on {activeReadingPost.date}</div>
+                )}
+
+                {formSuccess && (
+                  <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <span>Saved successfully!</span>
                   </div>
-                </div>
-              </div>
-
-              {/* Content Formatted Paragraphs */}
-              <div className="prose prose-invert prose-cyan max-w-none text-slate-300 text-sm sm:text-base leading-relaxed space-y-4 whitespace-pre-line">
-                {activeReadingPost.content}
-              </div>
-
-              {/* Bottom Call to Action for Booking */}
-              <div className="mt-8 p-6 rounded-2xl bg-gradient-to-r from-[#005a66] to-slate-900 border border-cyan-800/50 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div>
-                  <h4 className="font-bold text-white text-base">Planning this route soon?</h4>
-                  <p className="text-xs text-cyan-200 mt-0.5">Book guaranteed air-conditioned cabs with 24x7 doorstep dispatch.</p>
-                </div>
-                <a
-                  href="#home"
-                  onClick={() => setActiveReadingPost(null)}
-                  className="px-5 py-2.5 rounded-xl bg-white text-slate-900 font-bold text-xs sm:text-sm hover:bg-cyan-100 transition-colors whitespace-nowrap"
-                >
-                  Book This Cab Now
-                </a>
-              </div>
-
-            </div>
-
-          </div>
-        </div>
-      )}
-
-      {/* 2. POST CREATOR / EDITOR MODAL */}
-      {isEditorOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
-          <div className="bg-slate-900 w-full max-w-2xl rounded-3xl shadow-2xl border border-slate-800 overflow-hidden relative">
-            
-            {/* Header */}
-            <div className="bg-gradient-to-r from-slate-950 via-[#005a66] to-slate-950 p-5 text-white flex items-center justify-between border-b border-slate-800">
-              <div>
-                <div className="flex items-center gap-1.5 text-cyan-300 text-xs font-bold uppercase tracking-wider mb-0.5">
-                                    <span>Waltair Editorial Desk</span>
-                </div>
-                <h3 className="text-lg font-bold text-white">
-                  {editingPostId ? 'Edit Travel Blog Post' : 'Create New Travel Blog Post'}
-                </h3>
-              </div>
-              <button
-                onClick={() => setIsEditorOpen(false)}
-                className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Form */}
-            <form onSubmit={handleSavePost} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
-              
-              {formError && (
-                <div className="p-3 rounded-xl bg-rose-950/80 border border-rose-800 text-rose-300 text-xs">
-                  {formError}
-                </div>
-              )}
-
-              {formSuccess && (
-                <div className="p-3 rounded-xl bg-emerald-950/80 border border-emerald-800 text-emerald-300 text-xs flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Blog post saved successfully to Firebase!</span>
-                </div>
-              )}
-
-              {/* Title */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Article Headline / Title *</label>
-                <input
-                  type="text"
-                  value={formTitle}
-                  onChange={(e) => setFormTitle(e.target.value)}
-                  placeholder="e.g. Navigating Bhogapuram Airport Transfers: Fares & Timings"
-                  className="w-full p-3 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs sm:text-sm focus:outline-none focus:border-cyan-500"
-                  required
-                />
-              </div>
-
-              {/* Category & Date */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Category *</label>
-                  <select
-                    value={formCategory}
-                    onChange={(e) => setFormCategory(e.target.value)}
-                    className="w-full p-3 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs sm:text-sm focus:outline-none focus:border-cyan-500"
-                  >
-                    <option value="Airport & Commute">Airport & Commute</option>
-                    <option value="Travel Itineraries">Travel Itineraries</option>
-                    <option value="Outstation Tips">Outstation Tips</option>
-                    <option value="Local Vizag">Local Vizag</option>
-                  </select>
-                </div>
+                )}
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Publication Date *</label>
-                  <input
-                    type="date"
-                    value={formDate}
-                    onChange={(e) => setFormDate(e.target.value)}
-                    className="w-full p-3 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs sm:text-sm focus:outline-none focus:border-cyan-500"
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Author Name */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Author Name *</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Article Headline *</label>
                   <input
                     type="text"
-                    value={formAuthor}
-                    onChange={(e) => setFormAuthor(e.target.value)}
-                    placeholder="e.g. Ramesh Varma"
-                    className="w-full p-3 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs sm:text-sm focus:outline-none focus:border-cyan-500"
+                    value={formTitle}
+                    onChange={(e) => setFormTitle(e.target.value)}
+                    placeholder="e.g. Navigating Bhogapuram Airport Transfers: Fares & Timings"
+                    className="w-full p-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-teal-600 bg-slate-50"
                     required
                   />
                 </div>
 
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Category *</label>
+                    <select
+                      value={formCategory}
+                      onChange={(e) => setFormCategory(e.target.value)}
+                      className="w-full p-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-teal-600 bg-slate-50"
+                    >
+                      <option value="Airport & Commute">Airport & Commute</option>
+                      <option value="Travel Itineraries">Travel Itineraries</option>
+                      <option value="Outstation Tips">Outstation Tips</option>
+                      <option value="Local Vizag">Local Vizag</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Date *</label>
+                    <input
+                      type="date"
+                      value={formDate}
+                      onChange={(e) => setFormDate(e.target.value)}
+                      className="w-full p-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-teal-600 bg-slate-50"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Author Name *</label>
+                    <input
+                      type="text"
+                      value={formAuthor}
+                      onChange={(e) => setFormAuthor(e.target.value)}
+                      placeholder="e.g. Ramesh Varma"
+                      className="w-full p-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-teal-600 bg-slate-50"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Cover Image URL</label>
+                    <input
+                      type="url"
+                      value={formCoverImage}
+                      onChange={(e) => setFormCoverImage(e.target.value)}
+                      placeholder="https://images.unsplash.com/..."
+                      className="w-full p-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-teal-600 bg-slate-50"
+                    />
+                  </div>
+                </div>
+
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Cover Image URL</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Short Excerpt / Preview</label>
                   <input
-                    type="url"
-                    value={formCoverImage}
-                    onChange={(e) => setFormCoverImage(e.target.value)}
-                    placeholder="https://images.unsplash.com/..."
-                    className="w-full p-3 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs sm:text-sm focus:outline-none focus:border-cyan-500"
+                    type="text"
+                    value={formExcerpt}
+                    onChange={(e) => setFormExcerpt(e.target.value)}
+                    placeholder="Short 1-2 sentence preview..."
+                    className="w-full p-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-teal-600 bg-slate-50"
                   />
                 </div>
-              </div>
 
-              {/* Excerpt */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Short Excerpt / Preview Summary</label>
-                <input
-                  type="text"
-                  value={formExcerpt}
-                  onChange={(e) => setFormExcerpt(e.target.value)}
-                  placeholder="A short 1-2 sentence preview shown on article cards..."
-                  className="w-full p-3 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs sm:text-sm focus:outline-none focus:border-cyan-500"
-                />
-              </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Full Article Content *</label>
+                  <textarea
+                    rows={6}
+                    value={formContent}
+                    onChange={(e) => setFormContent(e.target.value)}
+                    placeholder="Write your article content here..."
+                    className="w-full p-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-teal-600 bg-slate-50 font-sans"
+                    required
+                  ></textarea>
+                </div>
 
-              {/* Full Content */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Full Article Content (Markdown or Text) *</label>
-                <textarea
-                  rows={8}
-                  value={formContent}
-                  onChange={(e) => setFormContent(e.target.value)}
-                  placeholder="Write the full travel guide, tips, scenic stops, and chauffeur insights here..."
-                  className="w-full p-3 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs sm:text-sm focus:outline-none focus:border-cyan-500 font-mono"
-                  required
-                ></textarea>
-              </div>
-
-              {/* Submit Buttons */}
-              <div className="pt-3 flex items-center justify-end gap-3 border-t border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => setIsEditorOpen(false)}
-                  className="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs sm:text-sm font-medium transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="px-6 py-2.5 rounded-xl bg-[#005a66] hover:bg-[#004751] text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-lg transition-all cursor-pointer disabled:opacity-50"
-                >
-                  {isSaving ? (
-                    <span>Saving to Firebase...</span>
-                  ) : (
-                    <>
-                      <CheckCircle2 className="w-4 h-4" />
-                      <span>{editingPostId ? 'Update Blog Post' : 'Publish Blog Post'}</span>
-                    </>
-                  )}
-                </button>
-              </div>
-
-            </form>
-
+                <div className="pt-3 flex items-center justify-end gap-3 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditorOpen(false)}
+                    className="px-4 py-2 rounded-xl border border-slate-200 text-slate-700 text-xs font-medium hover:bg-slate-50 transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSaving}
+                    className="px-5 py-2 rounded-xl bg-teal-800 hover:bg-teal-900 text-white font-bold text-xs flex items-center gap-1.5 shadow-md transition-all cursor-pointer disabled:opacity-50"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>{isSaving ? 'Saving...' : editingPostId ? 'Update Guide' : 'Publish Guide'}</span>
+                  </button>
+                </div>
+              </form>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
 
     </section>
   );

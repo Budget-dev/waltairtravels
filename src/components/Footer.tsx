@@ -7,7 +7,6 @@ import {
   Instagram, 
   Twitter, 
   Linkedin,
-  ArrowRight,
   ShieldCheck
 } from 'lucide-react';
 
@@ -26,10 +25,10 @@ export const Footer: React.FC<FooterProps> = ({ onNavigatePage }) => {
   };
 
   return (
-    <footer className="bg-[#0b1b2b] text-slate-300 pt-16 pb-8 border-t border-slate-800">
+    <footer className="bg-slate-950 text-slate-300 pt-14 pb-8 border-t border-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Main 6 Columns Grid (Exact from screenshot) */}
+        {/* Main 6 Columns Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 mb-12">
           
           {/* Column 1: Brand Info & Socials */}
@@ -38,47 +37,47 @@ export const Footer: React.FC<FooterProps> = ({ onNavigatePage }) => {
               onClick={(e) => handleLinkClick(e, 'home')}
               className="flex items-center gap-2.5 group cursor-pointer inline-flex"
             >
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-600 via-teal-600 to-emerald-700 flex items-center justify-center shadow-md">
-                <svg viewBox="0 0 32 32" fill="none" className="w-5 h-5 text-white" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-800 to-slate-900 flex items-center justify-center shadow-md">
+                <svg viewBox="0 0 32 32" fill="none" className="w-5 h-5 text-teal-300" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M4 8 L9 24 L14 12 L18 24 L23 8 L28 20" />
                 </svg>
               </div>
               <div className="text-xl font-bold tracking-tight text-white flex items-center">
                 <span>Waltair</span>
-                <span className="text-cyan-400 ml-1 font-extrabold">Travels</span>
+                <span className="text-teal-400 ml-1 font-extrabold">Travels</span>
               </div>
             </div>
 
             <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
-              Your trusted travel partner in Visakhapatnam. Safe, reliable and affordable taxi services for every journey across Andhra Pradesh.
+              Your verified cab partner in Visakhapatnam. Guaranteed airport transfers to Bhogapuram ASI & VTZ, outstation trips, and Araku Valley tours with 100% transparent pricing.
             </p>
 
             {/* Social Icons */}
             <div className="flex items-center gap-2.5 pt-1">
               <a 
                 href="#facebook" 
-                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-cyan-600 text-slate-300 hover:text-white flex items-center justify-center transition-colors"
+                className="w-8 h-8 rounded-full bg-slate-900 hover:bg-teal-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors border border-slate-800"
                 aria-label="Facebook"
               >
                 <Facebook className="w-4 h-4" />
               </a>
               <a 
                 href="#instagram" 
-                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-cyan-600 text-slate-300 hover:text-white flex items-center justify-center transition-colors"
+                className="w-8 h-8 rounded-full bg-slate-900 hover:bg-teal-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors border border-slate-800"
                 aria-label="Instagram"
               >
                 <Instagram className="w-4 h-4" />
               </a>
               <a 
                 href="#twitter" 
-                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-cyan-600 text-slate-300 hover:text-white flex items-center justify-center transition-colors"
+                className="w-8 h-8 rounded-full bg-slate-900 hover:bg-teal-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors border border-slate-800"
                 aria-label="Twitter"
               >
                 <Twitter className="w-4 h-4" />
               </a>
               <a 
                 href="#linkedin" 
-                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-cyan-600 text-slate-300 hover:text-white flex items-center justify-center transition-colors"
+                className="w-8 h-8 rounded-full bg-slate-900 hover:bg-teal-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors border border-slate-800"
                 aria-label="LinkedIn"
               >
                 <Linkedin className="w-4 h-4" />
@@ -91,25 +90,25 @@ export const Footer: React.FC<FooterProps> = ({ onNavigatePage }) => {
             <h4 className="text-sm font-bold text-white tracking-wider">Quick Links</h4>
             <ul className="space-y-2 text-xs text-slate-400">
               <li>
-                <a href="#home" onClick={(e) => handleLinkClick(e, 'home')} className="hover:text-cyan-400 transition-colors cursor-pointer">Home</a>
+                <a href="#home" onClick={(e) => handleLinkClick(e, 'home')} className="hover:text-teal-300 transition-colors cursor-pointer">Home</a>
               </li>
               <li>
-                <a href="#about-us" onClick={(e) => handleLinkClick(e, 'about-us')} className="hover:text-cyan-400 transition-colors cursor-pointer">About Us</a>
+                <a href="#about-us" onClick={(e) => handleLinkClick(e, 'about-us')} className="hover:text-teal-300 transition-colors cursor-pointer">About Us</a>
               </li>
               <li>
-                <a href="#services" onClick={(e) => handleLinkClick(e, 'services')} className="hover:text-cyan-400 transition-colors cursor-pointer">Our Services</a>
+                <a href="#services" onClick={(e) => handleLinkClick(e, 'services')} className="hover:text-teal-300 transition-colors cursor-pointer">Our Services</a>
               </li>
               <li>
-                <a href="#outstation" onClick={(e) => handleLinkClick(e, 'outstation')} className="hover:text-cyan-400 transition-colors cursor-pointer">Outstation</a>
+                <a href="#outstation" onClick={(e) => handleLinkClick(e, 'outstation')} className="hover:text-teal-300 transition-colors cursor-pointer">Outstation</a>
               </li>
               <li>
-                <a href="#packages" onClick={(e) => handleLinkClick(e, 'packages')} className="hover:text-cyan-400 transition-colors cursor-pointer">Packages</a>
+                <a href="#packages" onClick={(e) => handleLinkClick(e, 'packages')} className="hover:text-teal-300 transition-colors cursor-pointer">Packages</a>
               </li>
               <li>
-                <a href="#travel-blog" onClick={(e) => handleLinkClick(e, 'travel-blog')} className="hover:text-cyan-400 text-cyan-400 font-medium transition-colors flex items-center gap-1 cursor-pointer">Travel Blog</a>
+                <a href="#travel-blog" onClick={(e) => handleLinkClick(e, 'travel-blog')} className="hover:text-teal-300 text-teal-400 font-medium transition-colors flex items-center gap-1 cursor-pointer">Travel Blog</a>
               </li>
               <li>
-                <a href="#contact-us" onClick={(e) => handleLinkClick(e, 'contact-us')} className="hover:text-cyan-400 transition-colors cursor-pointer">Contact Us</a>
+                <a href="#contact-us" onClick={(e) => handleLinkClick(e, 'contact-us')} className="hover:text-teal-300 transition-colors cursor-pointer">Contact Us</a>
               </li>
             </ul>
           </div>
@@ -119,19 +118,19 @@ export const Footer: React.FC<FooterProps> = ({ onNavigatePage }) => {
             <h4 className="text-sm font-bold text-white tracking-wider">Top Services</h4>
             <ul className="space-y-2 text-xs text-slate-400">
               <li>
-                <a href="#airport-taxi" onClick={(e) => handleLinkClick(e, 'airport-taxi')} className="hover:text-cyan-400 transition-colors cursor-pointer">Airport Taxi</a>
+                <a href="#airport-taxi" onClick={(e) => handleLinkClick(e, 'airport-taxi')} className="hover:text-teal-300 transition-colors cursor-pointer">Airport Taxi</a>
               </li>
               <li>
-                <a href="#outstation-cabs" onClick={(e) => handleLinkClick(e, 'outstation-cabs')} className="hover:text-cyan-400 transition-colors cursor-pointer">Outstation Cabs</a>
+                <a href="#outstation-cabs" onClick={(e) => handleLinkClick(e, 'outstation-cabs')} className="hover:text-teal-300 transition-colors cursor-pointer">Outstation Cabs</a>
               </li>
               <li>
-                <a href="#local-rentals" onClick={(e) => handleLinkClick(e, 'local-rentals')} className="hover:text-cyan-400 transition-colors cursor-pointer">Local Rentals</a>
+                <a href="#local-rentals" onClick={(e) => handleLinkClick(e, 'local-rentals')} className="hover:text-teal-300 transition-colors cursor-pointer">Local Rentals</a>
               </li>
               <li>
-                <a href="#one-way-trips" onClick={(e) => handleLinkClick(e, 'one-way-trips')} className="hover:text-cyan-400 transition-colors cursor-pointer">One-Way Trips</a>
+                <a href="#one-way-trips" onClick={(e) => handleLinkClick(e, 'one-way-trips')} className="hover:text-teal-300 transition-colors cursor-pointer">One-Way Trips</a>
               </li>
               <li>
-                <a href="#round-trips" onClick={(e) => handleLinkClick(e, 'round-trips')} className="hover:text-cyan-400 transition-colors cursor-pointer">Round Trips</a>
+                <a href="#round-trips" onClick={(e) => handleLinkClick(e, 'round-trips')} className="hover:text-teal-300 transition-colors cursor-pointer">Round Trips</a>
               </li>
             </ul>
           </div>
@@ -141,19 +140,19 @@ export const Footer: React.FC<FooterProps> = ({ onNavigatePage }) => {
             <h4 className="text-sm font-bold text-white tracking-wider">Support</h4>
             <ul className="space-y-2 text-xs text-slate-400">
               <li>
-                <a href="#help-center" onClick={(e) => handleLinkClick(e, 'help-center')} className="hover:text-cyan-400 transition-colors cursor-pointer">Help Center</a>
+                <a href="#help-center" onClick={(e) => handleLinkClick(e, 'help-center')} className="hover:text-teal-300 transition-colors cursor-pointer">Help Center</a>
               </li>
               <li>
-                <a href="#faqs" onClick={(e) => handleLinkClick(e, 'faqs')} className="hover:text-cyan-400 transition-colors cursor-pointer">FAQs</a>
+                <a href="#faqs" onClick={(e) => handleLinkClick(e, 'faqs')} className="hover:text-teal-300 transition-colors cursor-pointer">FAQs</a>
               </li>
               <li>
-                <a href="#cancellation-policy" onClick={(e) => handleLinkClick(e, 'cancellation-policy')} className="hover:text-cyan-400 transition-colors cursor-pointer">Cancellation Policy</a>
+                <a href="#cancellation-policy" onClick={(e) => handleLinkClick(e, 'cancellation-policy')} className="hover:text-teal-300 transition-colors cursor-pointer">Cancellation Policy</a>
               </li>
               <li>
-                <a href="#privacy-policy" onClick={(e) => handleLinkClick(e, 'privacy-policy')} className="hover:text-cyan-400 transition-colors cursor-pointer">Privacy Policy</a>
+                <a href="#privacy-policy" onClick={(e) => handleLinkClick(e, 'privacy-policy')} className="hover:text-teal-300 transition-colors cursor-pointer">Privacy Policy</a>
               </li>
               <li>
-                <a href="#terms-and-conditions" onClick={(e) => handleLinkClick(e, 'terms-and-conditions')} className="hover:text-cyan-400 transition-colors cursor-pointer">Terms & Conditions</a>
+                <a href="#terms-and-conditions" onClick={(e) => handleLinkClick(e, 'terms-and-conditions')} className="hover:text-teal-300 transition-colors cursor-pointer">Terms & Conditions</a>
               </li>
             </ul>
           </div>
@@ -161,7 +160,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigatePage }) => {
           {/* Column 5: Download Our App & Contact Us */}
           <div className="space-y-4">
             <h4 className="text-sm font-bold text-white tracking-wider">Download Our App</h4>
-            <p className="text-[11px] text-slate-400">Book your ride on the go with our mobile app.</p>
+            <p className="text-[11px] text-slate-400">Book your cab on the go with real-time GPS tracking.</p>
             
             {/* Store Badges */}
             <div className="space-y-2">
@@ -187,17 +186,17 @@ export const Footer: React.FC<FooterProps> = ({ onNavigatePage }) => {
             </div>
 
             {/* Direct Contact Links */}
-            <div className="pt-2 space-y-2 text-xs">
-              <a href="tel:+919123456789" className="flex items-center gap-2 text-slate-300 hover:text-cyan-400 transition-colors">
-                <Phone className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+            <div className="pt-1 space-y-1.5 text-xs">
+              <a href="tel:+919123456789" className="flex items-center gap-2 text-slate-300 hover:text-teal-300 transition-colors">
+                <Phone className="w-3.5 h-3.5 text-teal-400 shrink-0" />
                 <span>+91 91234 56789</span>
               </a>
-              <a href="mailto:info@waltairtravels.com" className="flex items-center gap-2 text-slate-300 hover:text-cyan-400 transition-colors">
-                <Mail className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+              <a href="mailto:info@waltairtravels.com" className="flex items-center gap-2 text-slate-300 hover:text-teal-300 transition-colors">
+                <Mail className="w-3.5 h-3.5 text-teal-400 shrink-0" />
                 <span>info@waltairtravels.com</span>
               </a>
               <div className="flex items-start gap-2 text-slate-300">
-                <MapPin className="w-3.5 h-3.5 text-cyan-400 shrink-0 mt-0.5" />
+                <MapPin className="w-3.5 h-3.5 text-teal-400 shrink-0 mt-0.5" />
                 <span>Visakhapatnam, Andhra Pradesh, India</span>
               </div>
             </div>
@@ -207,18 +206,18 @@ export const Footer: React.FC<FooterProps> = ({ onNavigatePage }) => {
         </div>
 
         {/* Bottom Copyright */}
-        <div className="pt-8 border-t border-slate-800/80 text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2">
+        <div className="pt-8 border-t border-slate-900 text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div>
-            © {new Date().getFullYear()} Waltair Travels. All rights reserved. Registered Commercial Cab Operator.
+            © {new Date().getFullYear()} Waltair Travels. All rights reserved. Registered Commercial Fleet Partner.
           </div>
-          <div className="flex items-center gap-4 text-[11px] text-slate-400">
-            <button onClick={(e) => handleLinkClick(e, 'privacy-policy')} className="hover:text-cyan-400 transition-colors cursor-pointer">Privacy</button>
+          <div className="flex items-center gap-3 text-[11px] text-slate-400">
+            <button onClick={(e) => handleLinkClick(e, 'privacy-policy')} className="hover:text-teal-300 transition-colors cursor-pointer">Privacy</button>
             <span>•</span>
-            <button onClick={(e) => handleLinkClick(e, 'terms-and-conditions')} className="hover:text-cyan-400 transition-colors cursor-pointer">Terms</button>
+            <button onClick={(e) => handleLinkClick(e, 'terms-and-conditions')} className="hover:text-teal-300 transition-colors cursor-pointer">Terms</button>
             <span>•</span>
-            <button onClick={(e) => handleLinkClick(e, 'cancellation-policy')} className="hover:text-cyan-400 transition-colors cursor-pointer">Cancellation</button>
+            <button onClick={(e) => handleLinkClick(e, 'cancellation-policy')} className="hover:text-teal-300 transition-colors cursor-pointer">Cancellation</button>
             <span>•</span>
-            <button onClick={(e) => handleLinkClick(e, 'faqs')} className="hover:text-cyan-400 transition-colors cursor-pointer">FAQs</button>
+            <button onClick={(e) => handleLinkClick(e, 'faqs')} className="hover:text-teal-300 transition-colors cursor-pointer">FAQs</button>
           </div>
         </div>
 
