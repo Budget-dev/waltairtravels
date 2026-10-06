@@ -35,42 +35,43 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
         onNavigateHome={onNavigateHome}
         onOpenBooking={onOpenBooking}
         ctaText="Book a Secure Ride"
+        heroImage="https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=1600&q=80"
       >
-        <div className="max-w-4xl mx-auto space-y-8 text-slate-300 text-xs sm:text-sm leading-relaxed">
+        <div className="max-w-4xl mx-auto space-y-8 text-slate-600 text-xs sm:text-sm leading-relaxed">
           
-          <div className="p-4 rounded-2xl bg-cyan-950/40 border border-cyan-800/50 flex items-start gap-3">
-            <Shield className="w-5 h-5 text-cyan-400 shrink-0 mt-0.5" />
+          <div className="p-4 rounded-2xl bg-teal-50 border border-teal-200 flex items-start gap-3">
+            <Shield className="w-5 h-5 text-teal-700 shrink-0 mt-0.5" />
             <div>
-              <div className="font-bold text-white text-sm">Last Updated: August 2026</div>
-              <p className="text-xs text-slate-300 mt-0.5">
+              <div className="font-bold text-slate-900 text-sm">Last Updated: August 2026</div>
+              <p className="text-xs text-slate-600 mt-0.5">
                 This Privacy Policy applies to all services offered by Waltair Travels across our website, mobile booking engines, and customer support channels.
               </p>
             </div>
           </div>
 
-          <section className="space-y-3 bg-slate-900/60 border border-slate-800 p-6 sm:p-8 rounded-3xl">
-            <h2 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-              <Lock className="w-5 h-5 text-cyan-400" />
+          <section className="space-y-3 bg-white border border-slate-200 p-6 sm:p-8 rounded-3xl">
+            <h2 className="text-lg sm:text-xl font-bold text-slate-900 flex items-center gap-2">
+              <Lock className="w-5 h-5 text-teal-700" />
               1. Information We Collect
             </h2>
             <p>
               To process your travel reservations, verify safety, and assign dedicated chauffeurs, we collect:
             </p>
-            <ul className="list-disc pl-5 space-y-1 text-slate-400">
-              <li><strong className="text-slate-200">Personal Contact Data:</strong> Name, phone number, email address, and billing information.</li>
-              <li><strong className="text-slate-200">Trip & Geolocation Details:</strong> Exact pickup address, destination, flight number (for airport transfers), and travel date/time.</li>
-              <li><strong className="text-slate-200">Live GPS Coordinates:</strong> Real-time location during active trips for passenger emergency safety and driver routing.</li>
-              <li><strong className="text-slate-200">Corporate Details:</strong> GSTIN registration and company name for tax invoicing (when provided).</li>
+            <ul className="list-disc pl-5 space-y-1 text-slate-500">
+              <li><strong className="text-slate-800">Personal Contact Data:</strong> Name, phone number, email address, and billing information.</li>
+              <li><strong className="text-slate-800">Trip & Geolocation Details:</strong> Exact pickup address, destination, flight number (for airport transfers), and travel date/time.</li>
+              <li><strong className="text-slate-800">Live GPS Coordinates:</strong> Real-time location during active trips for passenger emergency safety and driver routing.</li>
+              <li><strong className="text-slate-800">Corporate Details:</strong> GSTIN registration and company name for tax invoicing (when provided).</li>
             </ul>
           </section>
 
-          <section className="space-y-3 bg-slate-900/60 border border-slate-800 p-6 sm:p-8 rounded-3xl">
-            <h2 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-              <Eye className="w-5 h-5 text-emerald-400" />
+          <section className="space-y-3 bg-white border border-slate-200 p-6 sm:p-8 rounded-3xl">
+            <h2 className="text-lg sm:text-xl font-bold text-slate-900 flex items-center gap-2">
+              <Eye className="w-5 h-5 text-emerald-700" />
               2. How We Use Your Information
             </h2>
             <p>We use your information strictly for legitimate operational purposes:</p>
-            <ul className="list-disc pl-5 space-y-1 text-slate-400">
+            <ul className="list-disc pl-5 space-y-1 text-slate-500">
               <li>Dispatching appropriate vehicles and sharing driver credentials via SMS/WhatsApp.</li>
               <li>Monitoring flight delays to synchronize airport taxi arrival times.</li>
               <li>Generating digital trip invoices, GST tax receipts, and payment acknowledgments.</li>
@@ -78,26 +79,26 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
             </ul>
           </section>
 
-          <section className="space-y-3 bg-slate-900/60 border border-slate-800 p-6 sm:p-8 rounded-3xl">
-            <h2 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-              <Server className="w-5 h-5 text-amber-400" />
+          <section className="space-y-3 bg-white border border-slate-200 p-6 sm:p-8 rounded-3xl">
+            <h2 className="text-lg sm:text-xl font-bold text-slate-900 flex items-center gap-2">
+              <Server className="w-5 h-5 text-amber-700" />
               3. Data Security & Non-Disclosure
             </h2>
             <p>
-              We enforce strict technical security standards. We <strong className="text-white">never sell, rent, or trade</strong> your personal contact or travel records to third-party advertising brokers or unauthorized marketing networks.
+              We enforce strict technical security standards. We <strong className="text-slate-900">never sell, rent, or trade</strong> your personal contact or travel records to third-party advertising brokers or unauthorized marketing networks.
             </p>
             <p>
               Payment data processed via UPI, debit/credit cards, or net banking is encrypted using industry-standard SSL 256-bit protocols directly through RBI-compliant payment gateways.
             </p>
           </section>
 
-          <section className="space-y-3 bg-slate-900/60 border border-slate-800 p-6 sm:p-8 rounded-3xl">
-            <h2 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-              <UserCheck className="w-5 h-5 text-teal-400" />
+          <section className="space-y-3 bg-white border border-slate-200 p-6 sm:p-8 rounded-3xl">
+            <h2 className="text-lg sm:text-xl font-bold text-slate-900 flex items-center gap-2">
+              <UserCheck className="w-5 h-5 text-teal-700" />
               4. Your Rights & Data Deletion
             </h2>
             <p>
-              You have the right to request a copy of your trip history or request permanent deletion of your stored user profile by emailing <strong className="text-cyan-400">privacy@waltairtravels.com</strong>.
+              You have the right to request a copy of your trip history or request permanent deletion of your stored user profile by emailing <strong className="text-teal-700">privacy@waltairtravels.com</strong>.
             </p>
           </section>
 

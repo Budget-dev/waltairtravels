@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   MapPin, 
@@ -21,10 +22,9 @@ import {
   ChevronRight,
   Shield,
   HelpCircle,
-  Activity,
-  Sparkles
+  Activity
 } from 'lucide-react';
-import { CITIES, INITIAL_NOTIFICATIONS } from '../data/mockData';
+import { INITIAL_NOTIFICATIONS } from '../data/mockData';
 import { NotificationItem, AppUser } from '../types';
 
 interface NavbarProps {
@@ -58,7 +58,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   currentPage = 'home',
   onNavigatePage,
 }) => {
-  const [isCityMenuOpen, setIsCityMenuOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isServicesOpen, setIsServicesOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -82,14 +81,37 @@ export const Navbar: React.FC<NavbarProps> = ({
     setIsServicesOpen(false);
   };
 
+  // Prevent background scrolling when mobile menu drawer is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [isMobileMenuOpen]);
+
+  // Close mobile drawer on escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isMobileMenuOpen) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isMobileMenuOpen]);
+
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-2xs">
+    <>
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-slate-200/80 shadow-[0_4px_20px_rgba(15,23,42,0.03)]">
       {/* Top Brand Notice Banner */}
-      <div className="bg-gradient-to-r from-teal-950 via-teal-900 to-slate-950 text-white text-xs py-1.5 px-4 border-b border-teal-800/40">
+      <div className="bg-gradient-to-r from-slate-950 via-teal-950 to-slate-950 text-white text-xs py-1 px-4 border-b border-teal-800/30">
         <div className="max-w-7xl mx-auto flex items-center justify-between text-[11px] sm:text-xs">
           <div className="flex items-center gap-2 truncate">
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-teal-500/25 text-teal-200 font-bold text-[10px] tracking-wide uppercase border border-teal-400/40 shrink-0">
-              <Sparkles className="w-3 h-3 text-teal-400" />
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-teal-500/25 text-teal-200 font-bold text-[10px] tracking-wide uppercase border border-teal-400/40 shrink-0">
+              <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse" />
               <span>Airport Express</span>
             </span>
             <span className="text-slate-200 truncate hidden sm:inline">
@@ -102,11 +124,11 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           <div className="flex items-center gap-4 shrink-0 font-medium">
             <a 
-              href="tel:+919123456789" 
+              href="tel:+919110510236" 
               className="text-teal-300 hover:text-white font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <Phone className="w-3.5 h-3.5 text-teal-400" />
-              <span>+91 91234 56789</span>
+              <span>+91 91105 10236</span>
             </a>
             <span className="text-teal-700 hidden md:inline">•</span>
             <span className="text-emerald-400 text-[11px] font-semibold hidden md:inline">
@@ -116,37 +138,42 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       </div>
 
-      {/* Main Navbar Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
+      {/* Main Navbar Bar - Sleek Height */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-15 flex items-center justify-between">
         
         {/* Brand Logo */}
         <div 
           onClick={() => handleNav('home')}
           id="brand-logo-link"
-          className="flex items-center gap-2.5 group cursor-pointer shrink-0 min-w-0"
+          className="flex items-center gap-2 group cursor-pointer shrink-0 min-w-0"
         >
-          {/* Stylized W Logo */}
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-teal-800 to-slate-900 flex items-center justify-center shadow-md shadow-teal-950/20 group-hover:scale-105 transition-transform shrink-0">
-            <svg viewBox="0 0 32 32" fill="none" className="w-5 h-5 sm:w-6 sm:h-6 text-teal-300" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 8 L9 24 L14 12 L18 24 L23 8 L28 20" />
-            </svg>
+          {/* Brand Logo Icon */}
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl overflow-hidden shadow-xs group-hover:scale-105 transition-transform shrink-0 border border-teal-500/20 bg-slate-900 flex items-center justify-center">
+            <img 
+              src="/logo.png" 
+              alt="Waltair Travels Logo" 
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.currentTarget.src = 'https://waltairtravelsandcabs.sirv.com/Glossy%20WT%20Road%20Trip%20App%20Icon.png';
+              }}
+            />
           </div>
           <div className="flex flex-col min-w-0">
-            <div className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 flex items-center leading-none">
+            <div className="text-base sm:text-lg font-extrabold tracking-tight text-slate-900 flex items-center leading-none whitespace-nowrap">
               <span>Waltair</span>
               <span className="text-teal-800 ml-1 font-black">Travels</span>
             </div>
-            <span className="text-[9px] sm:text-[10px] tracking-wider uppercase font-semibold text-slate-400 mt-0.5">
+            <span className="text-[8px] sm:text-[9px] tracking-wider uppercase font-semibold text-slate-400 mt-0.5 whitespace-nowrap">
               Visakhapatnam Cabs
             </span>
           </div>
         </div>
 
         {/* Desktop Navigation Links */}
-        <nav className="hidden lg:flex items-center space-x-1 text-sm font-semibold text-slate-700">
+        <nav className="hidden lg:flex items-center space-x-0.5 xl:space-x-1 text-xs xl:text-[13px] font-semibold text-slate-700 whitespace-nowrap">
           <button 
             onClick={() => handleNav('home')}
-            className={`relative px-3 py-2 rounded-lg transition-colors cursor-pointer ${
+            className={`whitespace-nowrap shrink-0 relative px-2 xl:px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer ${
               currentPage === 'home' ? 'text-teal-900 font-bold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60'
             }`}
           >
@@ -154,14 +181,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             {currentPage === 'home' && (
               <motion.span 
                 layoutId="navActiveLine" 
-                className="absolute bottom-0 left-3 right-3 h-0.5 bg-teal-800 rounded-full" 
+                className="absolute bottom-0 left-2 right-2 h-0.5 bg-teal-800 rounded-full" 
               />
             )}
           </button>
 
           <button 
             onClick={() => handleNav('about-us')}
-            className={`relative px-3 py-2 rounded-lg transition-colors cursor-pointer ${
+            className={`whitespace-nowrap shrink-0 relative px-2 xl:px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer ${
               currentPage === 'about-us' ? 'text-teal-900 font-bold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60'
             }`}
           >
@@ -169,7 +196,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {currentPage === 'about-us' && (
               <motion.span 
                 layoutId="navActiveLine" 
-                className="absolute bottom-0 left-3 right-3 h-0.5 bg-teal-800 rounded-full" 
+                className="absolute bottom-0 left-2 right-2 h-0.5 bg-teal-800 rounded-full" 
               />
             )}
           </button>
@@ -180,14 +207,14 @@ export const Navbar: React.FC<NavbarProps> = ({
               id="services-dropdown-btn"
               onClick={() => setIsServicesOpen(!isServicesOpen)}
               onMouseEnter={() => setIsServicesOpen(true)}
-              className={`px-3 py-2 transition-colors rounded-lg flex items-center gap-1 cursor-pointer ${
+              className={`whitespace-nowrap shrink-0 px-2 xl:px-2.5 py-1.5 transition-colors rounded-lg flex items-center gap-1 cursor-pointer ${
                 ['services', 'airport-taxi', 'outstation-cabs', 'local-rentals', 'one-way-trips', 'round-trips'].includes(currentPage)
                   ? 'text-teal-900 font-bold bg-teal-50'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60'
               }`}
             >
               Services
-              <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isServicesOpen ? 'rotate-180 text-teal-800' : ''}`} />
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isServicesOpen ? 'rotate-180 text-teal-800' : ''}`} />
             </button>
 
             <AnimatePresence>
@@ -198,7 +225,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   exit={{ opacity: 0, y: 8, scale: 0.98 }}
                   transition={{ duration: 0.15 }}
                   onMouseLeave={() => setIsServicesOpen(false)}
-                  className="absolute top-full left-0 mt-1 w-68 bg-white rounded-2xl shadow-xl border border-slate-200/80 p-2 z-50"
+                  className="absolute top-full left-0 mt-1 w-68 bg-white rounded-2xl shadow-xl border border-slate-200/80 p-2 z-50 whitespace-normal"
                 >
                   <button 
                     onClick={() => handleNav('airport-taxi')}
@@ -253,7 +280,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           <button 
             onClick={() => handleNav('outstation')}
-            className={`relative px-3 py-2 rounded-lg transition-colors cursor-pointer ${
+            className={`whitespace-nowrap shrink-0 relative px-2 xl:px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer ${
               currentPage === 'outstation' ? 'text-teal-900 font-bold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60'
             }`}
           >
@@ -261,14 +288,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             {currentPage === 'outstation' && (
               <motion.span 
                 layoutId="navActiveLine" 
-                className="absolute bottom-0 left-3 right-3 h-0.5 bg-teal-800 rounded-full" 
+                className="absolute bottom-0 left-2 right-2 h-0.5 bg-teal-800 rounded-full" 
               />
             )}
           </button>
 
           <button 
             onClick={() => handleNav('packages')}
-            className={`relative px-3 py-2 rounded-lg transition-colors cursor-pointer ${
+            className={`whitespace-nowrap shrink-0 relative px-2 xl:px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer ${
               currentPage === 'packages' ? 'text-teal-900 font-bold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60'
             }`}
           >
@@ -276,14 +303,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             {currentPage === 'packages' && (
               <motion.span 
                 layoutId="navActiveLine" 
-                className="absolute bottom-0 left-3 right-3 h-0.5 bg-teal-800 rounded-full" 
+                className="absolute bottom-0 left-2 right-2 h-0.5 bg-teal-800 rounded-full" 
               />
             )}
           </button>
 
           <button 
             onClick={() => handleNav('travel-blog')}
-            className={`relative px-3 py-2 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5 ${
+            className={`whitespace-nowrap shrink-0 relative px-2 xl:px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer flex items-center gap-1 ${
               currentPage === 'travel-blog' ? 'text-teal-900 font-bold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60'
             }`}
           >
@@ -292,14 +319,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             {currentPage === 'travel-blog' && (
               <motion.span 
                 layoutId="navActiveLine" 
-                className="absolute bottom-0 left-3 right-3 h-0.5 bg-teal-800 rounded-full" 
+                className="absolute bottom-0 left-2 right-2 h-0.5 bg-teal-800 rounded-full" 
               />
             )}
           </button>
 
           <button 
             onClick={() => handleNav('contact-us')}
-            className={`relative px-3 py-2 rounded-lg transition-colors cursor-pointer ${
+            className={`whitespace-nowrap shrink-0 relative px-2 xl:px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer ${
               currentPage === 'contact-us' ? 'text-teal-900 font-bold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60'
             }`}
           >
@@ -307,56 +334,30 @@ export const Navbar: React.FC<NavbarProps> = ({
             {currentPage === 'contact-us' && (
               <motion.span 
                 layoutId="navActiveLine" 
-                className="absolute bottom-0 left-3 right-3 h-0.5 bg-teal-800 rounded-full" 
+                className="absolute bottom-0 left-2 right-2 h-0.5 bg-teal-800 rounded-full" 
               />
             )}
+          </button>
+
+          <button 
+            onClick={onOpenManageTrips}
+            className="whitespace-nowrap shrink-0 px-2.5 py-1 rounded-xl border border-teal-200 bg-teal-50 hover:bg-teal-100 text-teal-950 font-bold transition-all flex items-center gap-1.5 cursor-pointer text-xs ml-0.5 shadow-2xs"
+            title="View saved bookings on this device"
+          >
+            <Car className="w-3.5 h-3.5 text-teal-700" />
+            <span>My Bookings</span>
           </button>
         </nav>
 
         {/* Right Action Icons & Buttons */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 whitespace-nowrap">
           
-          {/* City Selector Pill (Desktop / Tablet view) */}
-          <div className="relative hidden md:block">
-            <button
-              id="city-selector-btn"
-              onClick={() => setIsCityMenuOpen(!isCityMenuOpen)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-200 bg-slate-50/80 hover:bg-slate-100 text-slate-700 text-xs font-semibold transition-all cursor-pointer"
-            >
-              <MapPin className="w-3.5 h-3.5 text-teal-700" />
-              <span className="truncate max-w-[130px]">{currentCity}</span>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-            </button>
-
-            <AnimatePresence>
-              {isCityMenuOpen && (
-                <motion.div 
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 6 }}
-                  className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-xl border border-slate-200/80 p-1.5 z-50"
-                >
-                  <div className="px-2.5 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                    Service Hubs
-                  </div>
-                  {CITIES.map(c => (
-                    <button
-                      key={c.id}
-                      onClick={() => {
-                        onSelectCity(c.name);
-                        setIsCityMenuOpen(false);
-                      }}
-                      className={`w-full text-left px-3 py-2 rounded-xl text-xs flex items-center justify-between transition-colors cursor-pointer ${
-                        currentCity === c.name ? 'bg-teal-50 text-teal-900 font-bold' : 'text-slate-700 hover:bg-slate-50'
-                      }`}
-                    >
-                      <span>{c.label}</span>
-                      {currentCity === c.name && <span className="text-teal-700">✓</span>}
-                    </button>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
+          {/* Operating Hub Badge (Desktop / Tablet view) */}
+          <div className="hidden md:flex items-center gap-1.5 px-3 py-1 rounded-full border border-teal-200/80 bg-teal-50/70 text-slate-800 text-xs font-semibold shrink-0">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+            <MapPin className="w-3.5 h-3.5 text-teal-700 shrink-0" />
+            <span className="font-bold text-teal-950">Visakhapatnam (Vizag)</span>
+            <span className="text-[10px] text-teal-700 bg-white/90 px-1.5 py-0.5 rounded-full font-bold border border-teal-200/60 ml-0.5">Hub</span>
           </div>
 
           {/* Notification Bell */}
@@ -421,11 +422,11 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* User Profile or Login Button */}
           {user && user.isLoggedIn ? (
-            <div className="relative">
+            <div className="relative shrink-0">
               <button 
                 id="user-profile-btn"
                 onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                className="flex items-center gap-1.5 sm:gap-2 bg-slate-900 hover:bg-slate-800 text-white px-2.5 sm:px-3 py-1.5 rounded-xl font-medium text-xs sm:text-sm shadow-xs transition-all cursor-pointer"
+                className="whitespace-nowrap shrink-0 flex items-center gap-1.5 sm:gap-2 bg-slate-900 hover:bg-slate-800 text-white px-2.5 sm:px-3 py-1.5 rounded-xl font-medium text-xs sm:text-sm shadow-xs transition-all cursor-pointer"
               >
                 <div className="w-5 h-5 rounded-full bg-teal-700 text-white flex items-center justify-center text-xs font-bold shrink-0">
                   {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
@@ -440,7 +441,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 8 }}
-                    className="fixed left-4 right-4 top-[72px] sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-60 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 z-50"
+                    className="fixed left-4 right-4 top-[72px] sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-60 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 z-50 whitespace-normal"
                   >
                     <div className="px-3 py-2 border-b border-slate-100">
                       <div className="font-bold text-slate-900 text-xs sm:text-sm">{user.name}</div>
@@ -481,7 +482,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               whileTap={{ scale: 0.96 }}
               id="login-signup-btn"
               onClick={onOpenAuth}
-              className="flex items-center gap-1.5 bg-teal-800 hover:bg-teal-900 text-white px-3 sm:px-4 py-2 rounded-xl font-semibold text-xs sm:text-sm shadow-sm transition-all cursor-pointer shrink-0"
+              className="whitespace-nowrap shrink-0 flex items-center gap-1.5 bg-teal-800 hover:bg-teal-900 text-white px-3 sm:px-3.5 py-1.5 rounded-xl font-semibold text-xs sm:text-sm shadow-xs transition-all cursor-pointer"
             >
               <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span>Login</span>
@@ -499,191 +500,201 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
         </div>
       </div>
+    </header>
 
-      {/* Mobile Slide-in Drawer with Framer Motion AnimatePresence */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <div className="fixed inset-0 z-50 lg:hidden">
-            {/* Dark Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="absolute inset-0 bg-slate-950/60 backdrop-blur-xs"
-              aria-label="Close sidebar backdrop"
-            />
-
-            {/* Slide-in Panel from Right */}
-            <motion.div
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', stiffness: 350, damping: 35 }}
-              className="absolute top-0 right-0 bottom-0 w-[85%] max-w-sm bg-white shadow-2xl flex flex-col z-10 overflow-hidden"
+    {/* Mobile Slide-in Drawer via React Portal directly into document.body */}
+    {typeof document !== 'undefined' &&
+      createPortal(
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <div
+              id="mobile-drawer-portal-root"
+              className="fixed inset-0 z-[99999] lg:hidden"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Mobile Navigation Menu"
             >
-              {/* Header */}
-              <div className="p-4 bg-gradient-to-r from-slate-900 via-teal-950 to-slate-900 text-white flex items-center justify-between border-b border-teal-800/40 shrink-0">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-teal-500/20 border border-teal-400/30 flex items-center justify-center text-teal-300 font-bold text-xs">
-                    W
-                  </div>
-                  <div>
-                    <div className="font-bold text-sm text-white">Waltair Travels</div>
-                    <div className="text-[10px] text-teal-200">Visakhapatnam & Coastal AP</div>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
-                  aria-label="Close sidebar"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
+              {/* Dark Full-screen Backdrop Overlay */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="fixed inset-0 bg-slate-950/75 backdrop-blur-xs z-[99998]"
+                aria-label="Close sidebar backdrop"
+              />
 
-              {/* Body */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                
-                {/* City Selector */}
-                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200">
-                  <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                    <MapPin className="w-3.5 h-3.5 text-teal-700" />
-                    <span>Select Hub / City</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-1.5">
-                    {CITIES.map(c => (
-                      <button
-                        key={c.id}
-                        type="button"
-                        onClick={() => {
-                          onSelectCity(c.name);
+              {/* Slide-in Panel from Right */}
+              <motion.div
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ type: 'spring', stiffness: 380, damping: 36 }}
+                className="fixed top-0 right-0 bottom-0 w-[85%] max-w-sm h-full bg-white shadow-2xl flex flex-col z-[99999] overflow-hidden"
+              >
+                {/* Header */}
+                <div className="p-4 bg-gradient-to-r from-slate-900 via-teal-950 to-slate-900 text-white flex items-center justify-between border-b border-teal-800/40 shrink-0">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg overflow-hidden border border-teal-400/40 shadow-xs shrink-0 bg-slate-900 flex items-center justify-center">
+                      <img 
+                        src="/logo.png" 
+                        alt="Waltair Travels" 
+                        className="w-full h-full object-cover" 
+                        onError={(e) => {
+                          e.currentTarget.src = 'https://waltairtravelsandcabs.sirv.com/Glossy%20WT%20Road%20Trip%20App%20Icon.png';
                         }}
-                        className={`text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-between transition-all cursor-pointer ${
-                          currentCity === c.name 
-                            ? 'bg-teal-800 text-white shadow-xs' 
-                            : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
-                        }`}
-                      >
-                        <span className="truncate">{c.label}</span>
-                        {currentCity === c.name && <CheckCircle className="w-3 h-3 shrink-0 ml-1" />}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Primary Nav Links */}
-                <div className="space-y-1">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-2 py-1">
-                    Navigation Menu
-                  </div>
-
-                  {[
-                    { id: 'home', label: 'Home', icon: Car },
-                    { id: 'services', label: 'Our Services', icon: Briefcase },
-                    { id: 'airport-taxi', label: 'Airport Taxi (ASI Bhogapuram)', icon: Plane },
-                    { id: 'outstation', label: 'Outstation Cabs', icon: Compass },
-                    { id: 'local-rentals', label: 'Hourly City Rentals', icon: Clock },
-                    { id: 'packages', label: 'Holiday Tours (Araku & Lambasingi)', icon: Map },
-                    { id: 'travel-blog', label: 'Travel Guides & Blog', icon: BookOpen },
-                    { id: 'about-us', label: 'About Us', icon: Shield },
-                    { id: 'contact-us', label: 'Contact Us', icon: HelpCircle }
-                  ].map((item) => {
-                    const IconComponent = item.icon;
-                    const isActive = currentPage === item.id;
-                    return (
-                      <button
-                        key={item.id}
-                        type="button"
-                        onClick={() => handleNav(item.id)}
-                        className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-medium flex items-center justify-between transition-all active:scale-98 cursor-pointer ${
-                          isActive 
-                            ? 'text-teal-900 font-bold bg-teal-50 border border-teal-200/80' 
-                            : 'text-slate-700 hover:bg-slate-50'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2.5">
-                          <IconComponent className={`w-4 h-4 ${isActive ? 'text-teal-700' : 'text-slate-400'}`} />
-                          <span>{item.label}</span>
-                        </div>
-                        <ChevronRight className={`w-3.5 h-3.5 ${isActive ? 'text-teal-700' : 'text-slate-300'}`} />
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Quick Actions */}
-                <div className="pt-2 border-t border-slate-100 space-y-2">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-2">
-                    Quick Actions
-                  </div>
-                  <div className="grid grid-cols-1 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsMobileMenuOpen(false);
-                        onOpenManageTrips();
-                      }}
-                      className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-                    >
-                      <Car className="w-4 h-4 text-teal-700" />
-                      <span>My Trips & Booking Management</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* 24/7 Helpline Card */}
-                <a
-                  href="tel:+919985926666"
-                  className="flex items-center justify-between p-3 rounded-2xl bg-teal-50 border border-teal-200 text-teal-950 font-medium text-xs transition-transform active:scale-98"
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-full bg-teal-700 text-white flex items-center justify-center">
-                      <Phone className="w-3.5 h-3.5" />
+                      />
                     </div>
                     <div>
-                      <div className="font-bold text-slate-900 text-xs">24/7 Booking Helpline</div>
-                      <div className="text-[10px] text-teal-700">+91 99859 26666</div>
+                      <div className="font-bold text-sm text-white">Waltair Travels</div>
+                      <div className="text-[10px] text-teal-200">Visakhapatnam & Coastal AP</div>
                     </div>
                   </div>
-                  <span className="text-[10px] font-bold px-2 py-1 bg-teal-800 text-white rounded-lg">Call</span>
-                </a>
+                  <button
+                    type="button"
+                    id="mobile-drawer-close-btn"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+                    aria-label="Close sidebar"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
 
-                {/* User Session Footer */}
-                {user && user.isLoggedIn ? (
-                  <div className="pt-2">
+                {/* Body */}
+                <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4">
+                  
+                  {/* Primary Service Hub Badge Card */}
+                  <div className="p-3 bg-gradient-to-r from-teal-50/90 to-slate-50 rounded-2xl border border-teal-200/80 flex items-center justify-between shadow-xs">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-teal-800 text-white flex items-center justify-center shrink-0 shadow-xs">
+                        <MapPin className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="text-[10px] font-bold text-teal-800 uppercase tracking-wider">Primary Service Hub</div>
+                        <div className="text-xs font-bold text-slate-900">Visakhapatnam & ASI Airport</div>
+                      </div>
+                    </div>
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300/60 shrink-0">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span>24/7 Active</span>
+                    </span>
+                  </div>
+
+                  {/* Primary Nav Links */}
+                  <div className="space-y-1">
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-2 py-1">
+                      Navigation Menu
+                    </div>
+
+                    {[
+                      { id: 'home', label: 'Home', icon: Car },
+                      { id: 'services', label: 'Our Services', icon: Briefcase },
+                      { id: 'airport-taxi', label: 'Airport Taxi (ASI Bhogapuram)', icon: Plane },
+                      { id: 'outstation', label: 'Outstation Cabs', icon: Compass },
+                      { id: 'local-rentals', label: 'Hourly City Rentals', icon: Clock },
+                      { id: 'packages', label: 'Holiday Tours (Araku & Lambasingi)', icon: Map },
+                      { id: 'travel-blog', label: 'Travel Guides & Blog', icon: BookOpen },
+                      { id: 'about-us', label: 'About Us', icon: Shield },
+                      { id: 'contact-us', label: 'Contact Us', icon: HelpCircle }
+                    ].map((item) => {
+                      const IconComponent = item.icon;
+                      const isActive = currentPage === item.id;
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => handleNav(item.id)}
+                          className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-medium flex items-center justify-between transition-all active:scale-98 cursor-pointer ${
+                            isActive 
+                              ? 'text-teal-900 font-bold bg-teal-50 border border-teal-200/80' 
+                              : 'text-slate-700 hover:bg-slate-50'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <IconComponent className={`w-4 h-4 ${isActive ? 'text-teal-700' : 'text-slate-400'}`} />
+                            <span>{item.label}</span>
+                          </div>
+                          <ChevronRight className={`w-3.5 h-3.5 ${isActive ? 'text-teal-700' : 'text-slate-300'}`} />
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Quick Actions */}
+                  <div className="pt-2 border-t border-slate-100 space-y-2">
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-2">
+                      Quick Actions
+                    </div>
+                    <div className="grid grid-cols-1 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsMobileMenuOpen(false);
+                          onOpenManageTrips();
+                        }}
+                        className="p-3 rounded-xl bg-teal-850 hover:bg-teal-900 bg-teal-800 text-white font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs"
+                      >
+                        <Car className="w-4 h-4" />
+                        <span>My Bookings & History</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 24/7 Helpline Card */}
+                  <a
+                    href="tel:+919110510236"
+                    className="flex items-center justify-between p-3 rounded-2xl bg-teal-50 border border-teal-200 text-teal-950 font-medium text-xs transition-transform active:scale-98"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-full bg-teal-700 text-white flex items-center justify-center">
+                        <Phone className="w-3.5 h-3.5" />
+                      </div>
+                      <div>
+                        <div className="font-bold text-slate-900 text-xs">24/7 Booking Helpline</div>
+                        <div className="text-[10px] text-teal-700">+91 91105 10236</div>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-bold px-2 py-1 bg-teal-800 text-white rounded-lg">Call</span>
+                  </a>
+
+                  {/* User Session Footer */}
+                  {user && user.isLoggedIn ? (
+                    <div className="pt-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsMobileMenuOpen(false);
+                          onLogout();
+                        }}
+                        className="w-full py-2.5 rounded-xl border border-rose-200 text-rose-600 bg-rose-50 text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-rose-100 transition-colors cursor-pointer"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        <span>Sign Out ({user.name})</span>
+                      </button>
+                    </div>
+                  ) : (
                     <button
                       type="button"
                       onClick={() => {
                         setIsMobileMenuOpen(false);
-                        onLogout();
+                        onOpenAuth();
                       }}
-                      className="w-full py-2.5 rounded-xl border border-rose-200 text-rose-600 bg-rose-50 text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-rose-100 transition-colors cursor-pointer"
+                      className="w-full py-2.5 rounded-xl bg-teal-800 hover:bg-teal-900 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition-colors cursor-pointer"
                     >
-                      <LogOut className="w-4 h-4" />
-                      <span>Sign Out ({user.name})</span>
+                      <User className="w-4 h-4" />
+                      <span>Login or Register</span>
                     </button>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsMobileMenuOpen(false);
-                      onOpenAuth();
-                    }}
-                    className="w-full py-2.5 rounded-xl bg-teal-800 hover:bg-teal-900 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition-colors cursor-pointer"
-                  >
-                    <User className="w-4 h-4" />
-                    <span>Login or Register</span>
-                  </button>
-                )}
+                  )}
 
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-    </header>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
+    </>
   );
 };

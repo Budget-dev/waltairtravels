@@ -106,8 +106,15 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
         {/* Header */}
         <div className="p-4 sm:p-6 border-b border-slate-800 flex items-center justify-between bg-slate-950">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-cyan-700/80 flex items-center justify-center">
-              <Car className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md border border-cyan-500/30 shrink-0 bg-slate-900 flex items-center justify-center">
+              <img 
+                src="/logo.png" 
+                alt="Waltair Travels" 
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = 'https://waltairtravelsandcabs.sirv.com/Glossy%20WT%20Road%20Trip%20App%20Icon.png';
+                }}
+              />
             </div>
             <div>
               <h3 className="font-bold text-lg text-white">Waltair Fleet Operations & Dispatch Console</h3>
@@ -222,8 +229,8 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
 
                 <div className="flex flex-wrap items-center gap-3 pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-700 shrink-0">
                   <div className="text-right">
-                    <div className="text-base font-extrabold text-white">₹{b.totalFare}</div>
-                    <div className="text-[10px] text-slate-400 capitalize">{b.paymentMethod.replace('_', ' ')}</div>
+                    <div className="text-base font-extrabold text-white">{b.totalFare ? `₹${b.totalFare}` : 'Quote on Request'}</div>
+                    <div className="text-[10px] text-slate-400 capitalize">{b.paymentMethod ? b.paymentMethod.replace('_', ' ') : 'WhatsApp Dispatch'}</div>
                   </div>
 
                   {/* Status update quick dropdown */}

@@ -7,9 +7,7 @@ import {
   Clock, 
   Plane, 
   ChevronDown, 
-  PhoneCall,
-  CheckCircle2,
-  Sparkles
+  CheckCircle2
 } from 'lucide-react';
 import { FAQS } from '../data/mockData';
 
@@ -48,7 +46,7 @@ export const AboutSection: React.FC = () => {
   ];
 
   return (
-    <section id="about" className="py-14 sm:py-20 bg-white border-b border-slate-200/80">
+    <section id="about" className="py-16 sm:py-20 bg-white border-b border-slate-200/70">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* About Grid */}
@@ -57,7 +55,6 @@ export const AboutSection: React.FC = () => {
           {/* Left Column: Story & Trust Pillars */}
           <div className="lg:col-span-6 space-y-5">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 border border-teal-100 text-teal-800 text-xs font-semibold">
-              <Sparkles className="w-3.5 h-3.5 text-teal-600" />
               <span>Visakhapatnam's Dedicated Cab Network</span>
             </div>
 
@@ -91,10 +88,10 @@ export const AboutSection: React.FC = () => {
             <div className="p-4 rounded-2xl bg-gradient-to-r from-teal-900 via-slate-900 to-teal-950 text-white flex flex-col sm:flex-row items-center justify-between gap-3 shadow-md">
               <div>
                 <div className="text-[11px] text-teal-200 font-medium">Need Urgent Ride Dispatch?</div>
-                <div className="text-sm sm:text-base font-bold text-white">24/7 Control Desk: +91 91234 56789</div>
+                <div className="text-sm sm:text-base font-bold text-white">24/7 Control Desk: +91 91105 10236</div>
               </div>
               <a
-                href="tel:+919123456789"
+                href="tel:+919110510236"
                 className="px-4 py-2 rounded-xl bg-teal-700 hover:bg-teal-600 text-white text-xs font-bold transition-colors whitespace-nowrap cursor-pointer"
               >
                 Call Hotline

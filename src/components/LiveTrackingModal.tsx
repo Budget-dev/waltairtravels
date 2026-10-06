@@ -13,10 +13,12 @@ import {
   Search,
 
   AlertTriangle,
-  RotateCw
+  RotateCw,
+  MessageCircle
 } from 'lucide-react';
 import { Booking } from '../types';
 import { db, collection, getDocs } from '../firebase';
+import { WHATSAPP_PHONE_NUMBER } from '../utils/whatsapp';
 
 interface LiveTrackingModalProps {
   isOpen: boolean;
@@ -271,54 +273,63 @@ export const LiveTrackingModal: React.FC<LiveTrackingModalProps> = ({
 
             </div>
 
-            {/* Driver Profile & Vehicle Info Card */}
+            {/* Dispatch & Vehicle Info Card (NO FAKE DRIVER) */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               
-              {/* Driver Box */}
-              <div className="sm:col-span-2 p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+              {/* Dispatch & Chauffeur Box */}
+              <div className="sm:col-span-2 p-4 rounded-2xl bg-teal-50/80 border border-teal-200/80 flex items-center justify-between">
                 <div className="flex items-center gap-3.5">
-                  <img
-                    src={activeBooking.driver?.photoUrl || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80'}
-                    alt="Driver"
-                    className="w-12 h-12 rounded-full object-cover border-2 border-cyan-600 shadow-sm"
-                  />
+                  <div className="w-12 h-12 rounded-full bg-teal-800 text-white flex items-center justify-center font-black text-lg shadow-sm shrink-0">
+                    <Car className="w-6 h-6" />
+                  </div>
                   <div>
                     <div className="flex items-center gap-1.5">
-                      <h4 className="font-bold text-slate-900 text-sm">{activeBooking.driver?.name || 'K. Satish Varma'}</h4>
-                      <span className="text-xs bg-amber-100 text-amber-900 font-bold px-1.5 py-0.2 rounded-md">
-                        ★ {activeBooking.driver?.rating || 4.9}
+                      <h4 className="font-bold text-slate-900 text-sm">Waltair Travels Operations</h4>
+                      <span className="text-xs bg-emerald-100 text-emerald-900 font-bold px-1.5 py-0.2 rounded-md">
+                        Verified Dispatch
                       </span>
                     </div>
                     <div className="text-xs text-slate-600 font-medium">
-                      {activeBooking.driver?.vehicleModel || activeBooking.vehicleName}
+                      Cab: {activeBooking.vehicleName || 'AC Cab'}
                     </div>
-                    <div className="text-[11px] font-mono font-bold text-cyan-800">
-                      {activeBooking.driver?.vehicleNumber || 'AP 31 TH 7842'}
+                    <div className="text-[11px] text-teal-800 font-medium">
+                      Chauffeur details coordinated directly via WhatsApp
                     </div>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <a
-                    href={`tel:${activeBooking.driver?.phone || '+919123456789'}`}
-                    className="p-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-md transition-colors flex items-center gap-1 text-xs font-bold"
-                    title="Call Driver"
+                    href={`https://wa.me/${WHATSAPP_PHONE_NUMBER}?text=${encodeURIComponent(
+                      `Hi Waltair Travels, checking on status for Booking ID ${activeBooking.bookingRef} (${activeBooking.customerName}).`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-md transition-colors flex items-center gap-1.5 text-xs font-bold"
+                    title="WhatsApp Operations"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span>WhatsApp</span>
+                  </a>
+                  <a
+                    href={`tel:${WHATSAPP_PHONE_NUMBER}`}
+                    className="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white shadow-md transition-colors flex items-center gap-1 text-xs font-bold"
+                    title="Call Operations"
                   >
                     <Phone className="w-4 h-4" />
-                    <span className="hidden sm:inline">Call</span>
                   </a>
                 </div>
               </div>
 
               {/* Ride Start OTP Card */}
-              <div className="p-4 rounded-2xl bg-cyan-50/70 border border-cyan-200 flex flex-col justify-center items-center text-center">
-                <span className="text-[10px] uppercase font-bold text-cyan-900 tracking-wider">
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col justify-center items-center text-center">
+                <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">
                   Ride Start OTP
                 </span>
-                <span className="text-2xl font-mono font-extrabold text-cyan-950 tracking-widest my-0.5">
+                <span className="text-2xl font-mono font-extrabold text-teal-800 tracking-widest my-0.5">
                   {activeBooking.otp || '4821'}
                 </span>
-                <span className="text-[10px] text-slate-500">Share with chauffeur when entering</span>
+                <span className="text-[10px] text-slate-500">Share with chauffeur on pickup</span>
               </div>
 
             </div>
@@ -339,7 +350,9 @@ export const LiveTrackingModal: React.FC<LiveTrackingModalProps> = ({
               </div>
               <div>
                 <span className="text-[10px] uppercase font-bold text-slate-400">Fare & Status</span>
-                <div className="font-bold text-cyan-800">₹{activeBooking.totalFare} ({activeBooking.paymentMethod.replace('_', ' ')})</div>
+                <div className="font-bold text-teal-800">
+                  {activeBooking.totalFare ? `₹${activeBooking.totalFare}` : 'Quote on Request'} (Confirmed)
+                </div>
               </div>
             </div>
 

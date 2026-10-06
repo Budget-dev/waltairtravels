@@ -11,8 +11,7 @@ import {
   ArrowRight, 
   X, 
   CheckCircle2, 
-  ChevronRight,
-  Sparkles
+  ChevronRight
 } from 'lucide-react';
 import { 
   db, 
@@ -317,7 +316,7 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ currentUser, onOpenAut
   });
 
   return (
-    <section id="blog" className="py-14 sm:py-20 bg-slate-50/70 text-slate-900 border-b border-slate-200/80">
+    <section id="blog" className="py-16 sm:py-20 bg-white text-slate-900 border-b border-slate-200/70">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}

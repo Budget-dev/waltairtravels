@@ -14,7 +14,6 @@ import {
   MapPin, 
   ArrowRight, 
   CheckCircle2,
-  Sparkles,
   ChevronRight
 } from 'lucide-react';
 import { ServiceCategory, TripSubType } from '../types';
@@ -122,12 +121,15 @@ export const Hero: React.FC<HeroProps> = ({
 
   return (
     <section id="home" className="relative min-h-[660px] lg:min-h-[720px] bg-slate-950 overflow-hidden flex items-center">
-      {/* Background Hero Visual: Crystal-clear authentic Visakhapatnam Coastal Highway & Fleet */}
+      {/* Background Hero Visual: Golden-Hour Airport Taxi Arrival Visual */}
       <div className="absolute inset-0 z-0">
         <img
-          src="/hero-banner.jpg"
-          alt="Waltair Travels Airport Express Fleet on Visakhapatnam Coastal Highway"
+          src="/hero-banner.png"
+          alt="Waltair Travels Golden-Hour Airport Taxi Arrival"
           className="w-full h-full object-cover object-center scale-100"
+          onError={(e) => {
+            e.currentTarget.src = 'https://waltairtravelsandcabs.sirv.com/Golden-Hour%20Airport%20Taxi%20Arrival%20(1).png';
+          }}
         />
         {/* Balanced contrast overlays: deep slate vignette on left for booking card, bright clear view of taxi & coastline */}
         <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/50 to-slate-950/20" />
@@ -142,33 +144,25 @@ export const Hero: React.FC<HeroProps> = ({
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="lg:col-span-6 xl:col-span-5 w-full"
+            className="lg:col-span-6 xl:col-span-5 w-full max-w-full"
           >
-            <div className="bg-white/98 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-2xl shadow-slate-950/40 border border-white/80 ring-1 ring-slate-900/5 text-slate-900">
+            <div className="bg-white/98 backdrop-blur-xl rounded-2xl sm:rounded-[1.75rem] p-3.5 sm:p-6 shadow-2xl shadow-slate-950/40 border border-white/80 ring-1 ring-slate-900/5 text-slate-900 w-full max-w-full box-border">
               
-              {/* Card Header: Clean city indicator & tagline */}
-              <div className="flex items-center justify-between gap-2 mb-3.5 pb-2.5 border-b border-slate-100">
-                <div className="flex items-center gap-1.5 text-xs text-slate-600">
-                  <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="font-semibold text-slate-800">{currentCity}</span>
-                  <span className="text-slate-300">•</span>
-                  <button 
-                    type="button"
-                    onClick={onOpenCitySelector} 
-                    className="text-teal-700 hover:text-teal-900 font-medium underline underline-offset-2 transition-colors cursor-pointer"
-                  >
-                    Change
-                  </button>
+              {/* Card Header: Location indicator + Change + Verified Fleet Badge */}
+              <div className="flex items-center justify-between gap-2 mb-3 pb-2.5 border-b border-slate-100 w-full">
+                <div className="flex items-center gap-1.5 text-xs text-slate-700 min-w-0">
+                  <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                  <span className="font-bold text-slate-800 truncate">{currentCity || 'Visakhapatnam (Vizag), IN'}</span>
                 </div>
 
-                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-teal-50 border border-teal-100 text-[11px] font-semibold text-teal-800">
-                  <CheckCircle2 className="w-3 h-3 text-teal-600" />
-                  <span>Verified Fleet</span>
+                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-teal-50 border border-teal-200/80 text-[10.5px] sm:text-[11px] font-bold text-teal-800 whitespace-nowrap shrink-0">
+                  <CheckCircle2 className="w-3 h-3 text-teal-600 shrink-0" />
+                  <span className="whitespace-nowrap">Verified Fleet</span>
                 </div>
               </div>
 
               {/* Service Category Segmented Control with Framer Motion Active Indicator */}
-              <div className="relative grid grid-cols-3 gap-1 p-1 bg-slate-100/90 rounded-xl sm:rounded-2xl mb-3">
+              <div className="relative grid grid-cols-3 gap-1 p-1 bg-slate-100 rounded-xl sm:rounded-2xl mb-3 w-full">
                 {[
                   { id: 'airport', label: 'Airport', icon: Plane },
                   { id: 'outstation', label: 'Outstation', icon: Send },
@@ -182,12 +176,12 @@ export const Hero: React.FC<HeroProps> = ({
                       type="button"
                       id={`tab-${item.id}`}
                       onClick={() => handleServiceChange(item.id as ServiceCategory)}
-                      className={`relative z-10 flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold transition-colors duration-200 cursor-pointer ${
-                        isActive ? 'text-teal-950 font-bold' : 'text-slate-600 hover:text-slate-900'
+                      className={`relative z-10 flex items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 px-1 sm:px-2 rounded-lg sm:rounded-xl text-[11px] xs:text-xs sm:text-sm font-bold transition-colors duration-200 cursor-pointer min-h-[38px] sm:min-h-[42px] ${
+                        isActive ? 'text-teal-950' : 'text-slate-600 hover:text-slate-900'
                       }`}
                     >
-                      <Icon className={`w-4 h-4 shrink-0 transition-colors ${isActive ? 'text-teal-700' : 'text-slate-500'}`} />
-                      <span>{item.label}</span>
+                      <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 transition-colors ${isActive ? 'text-teal-700' : 'text-slate-500'}`} />
+                      <span className="truncate">{item.label}</span>
                       {isActive && (
                         <motion.div
                           layoutId="activeServiceTab"
@@ -201,7 +195,7 @@ export const Hero: React.FC<HeroProps> = ({
               </div>
 
               {/* Sub-Tabs Row with Clean Pill Design */}
-              <div className="flex flex-wrap items-center gap-1.5 mb-3.5">
+              <div className="grid grid-cols-3 gap-1 sm:gap-1.5 mb-3.5 w-full">
                 {serviceType === 'airport' && (
                   <>
                     {[
@@ -222,13 +216,13 @@ export const Hero: React.FC<HeroProps> = ({
                             setDropoffLocation('Alluri Sitharama Raju International Airport ASI , Bhogapuram');
                           }
                         }}
-                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer active:scale-95 ${
+                        className={`w-full py-1.5 sm:py-2 px-1 sm:px-2 rounded-full text-[10px] xs:text-[11px] sm:text-xs font-semibold text-center transition-all duration-200 cursor-pointer active:scale-95 flex items-center justify-center min-h-[32px] sm:min-h-[36px] ${
                           subType === tab.id
-                            ? 'bg-teal-800 text-white shadow-xs'
+                            ? 'bg-teal-800 text-white shadow-xs font-bold'
                             : 'bg-slate-100 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
                         }`}
                       >
-                        {tab.label}
+                        <span className="truncate">{tab.label}</span>
                       </button>
                     ))}
                   </>
@@ -245,13 +239,13 @@ export const Hero: React.FC<HeroProps> = ({
                         key={tab.id}
                         type="button"
                         onClick={() => setSubType(tab.id as TripSubType)}
-                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer active:scale-95 ${
+                        className={`w-full py-1.5 sm:py-2 px-1 sm:px-2 rounded-full text-[10px] xs:text-[11px] sm:text-xs font-semibold text-center transition-all duration-200 cursor-pointer active:scale-95 flex items-center justify-center min-h-[32px] sm:min-h-[36px] ${
                           subType === tab.id
-                            ? 'bg-teal-800 text-white shadow-xs'
+                            ? 'bg-teal-800 text-white shadow-xs font-bold'
                             : 'bg-slate-100 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
                         }`}
                       >
-                        {tab.label}
+                        <span className="truncate">{tab.label}</span>
                       </button>
                     ))}
                   </>
@@ -268,13 +262,13 @@ export const Hero: React.FC<HeroProps> = ({
                         key={tab.id}
                         type="button"
                         onClick={() => setSubType(tab.id as TripSubType)}
-                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer active:scale-95 ${
+                        className={`w-full py-1.5 sm:py-2 px-1 sm:px-2 rounded-full text-[10px] xs:text-[11px] sm:text-xs font-semibold text-center transition-all duration-200 cursor-pointer active:scale-95 flex items-center justify-center min-h-[32px] sm:min-h-[36px] ${
                           subType === tab.id
-                            ? 'bg-teal-800 text-white shadow-xs'
+                            ? 'bg-teal-800 text-white shadow-xs font-bold'
                             : 'bg-slate-100 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
                         }`}
                       >
-                        {tab.label}
+                        <span className="truncate">{tab.label}</span>
                       </button>
                     ))}
                   </>
@@ -284,66 +278,70 @@ export const Hero: React.FC<HeroProps> = ({
               {/* Booking Inputs Form */}
               <form onSubmit={handleFormSubmit} className="space-y-2.5">
                 
-                {/* Pickup and Dropoff Container with Connected Line & Modern Swap */}
-                <div className="relative space-y-2 rounded-2xl bg-slate-50/80 p-2.5 border border-slate-200/80">
-                  {/* Subtle connecting dotted line between locations */}
-                  <div className="absolute left-[26px] top-[30px] bottom-[30px] w-0.5 border-l border-dashed border-slate-300 pointer-events-none" />
-
+                {/* Pickup and Dropoff Container */}
+                <div className="relative rounded-2xl bg-slate-50/90 p-2.5 sm:p-3 border border-slate-200/90 space-y-2.5">
                   {/* Pickup Location */}
-                  <div className="relative flex items-center gap-2 z-30">
-                    <div className="w-5 h-5 rounded-full bg-emerald-100 border border-emerald-400 flex items-center justify-center shrink-0 z-10">
-                      <div className="w-2 h-2 rounded-full bg-emerald-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <GooglePlacesAutocompleteInput
-                        id="hero-pickup-input"
-                        label="Pickup Location"
-                        value={pickupLocation}
-                        onChange={setPickupLocation}
-                        onPlaceSelect={(place) => {
-                          setPickupLocation(place.address);
-                          if (place.lat && place.lng) {
-                            setPickupCoords({ lat: place.lat, lng: place.lng });
-                          }
-                        }}
-                        placeholder="Enter pickup address, airport or hotel..."
-                        iconType="pickup"
-                        cityBias={currentCity}
-                        compact={true}
-                        required
-                      />
-                    </div>
+                  <div className="w-full">
+                    <GooglePlacesAutocompleteInput
+                      id="hero-pickup-input"
+                      label="Pickup Location"
+                      value={pickupLocation}
+                      onChange={setPickupLocation}
+                      onPlaceSelect={(place) => {
+                        setPickupLocation(place.address);
+                        if (place.lat && place.lng) {
+                          setPickupCoords({ lat: place.lat, lng: place.lng });
+                        }
+                      }}
+                      placeholder="Enter pickup address, airport or hotel..."
+                      iconType="pickup"
+                      cityBias={currentCity}
+                      compact={true}
+                      required
+                    />
+                  </div>
+
+                  {/* Inter-location Divider & Swap Button */}
+                  <div className="relative flex items-center justify-center my-0.5">
+                    <div className="w-full border-t border-slate-200" />
+                    <button
+                      type="button"
+                      id="hero-swap-locations-btn"
+                      onClick={handleSwapLocations}
+                      title="Swap pickup and drop-off locations"
+                      aria-label="Swap pickup and drop-off locations"
+                      className="absolute p-1.5 rounded-full bg-white border border-slate-200 hover:border-teal-500 text-slate-600 hover:text-teal-700 shadow-xs transition-transform active:rotate-180 active:scale-95 cursor-pointer z-10"
+                    >
+                      <ArrowUpDown className="w-3 h-3 text-teal-700" />
+                    </button>
                   </div>
 
                   {/* Drop-off Location */}
-                  <div className="relative flex items-center gap-2 z-20">
-                    <div className="w-5 h-5 rounded-md bg-rose-100 border border-rose-400 flex items-center justify-center shrink-0 z-10">
-                      <div className="w-2 h-2 rounded-xs bg-rose-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <GooglePlacesAutocompleteInput
-                        id="hero-dropoff-input"
-                        label="Drop-off Destination"
-                        value={dropoffLocation}
-                        onChange={setDropoffLocation}
-                        onPlaceSelect={(place) => {
-                          setDropoffLocation(place.address);
-                          if (place.lat && place.lng) {
-                            setDropoffCoords({ lat: place.lat, lng: place.lng });
-                          }
-                        }}
-                        placeholder="Enter destination or landmark..."
-                        iconType="dropoff"
-                        cityBias={currentCity}
-                        compact={true}
-                        required
-                      />
-                    </div>
+                  <div className="w-full">
+                    <GooglePlacesAutocompleteInput
+                      id="hero-dropoff-input"
+                      label="Drop-off Destination"
+                      value={dropoffLocation}
+                      onChange={setDropoffLocation}
+                      onPlaceSelect={(place) => {
+                        setDropoffLocation(place.address);
+                        if (place.lat && place.lng) {
+                          setDropoffCoords({ lat: place.lat, lng: place.lng });
+                        }
+                      }}
+                      placeholder="Enter destination, landmark or village..."
+                      iconType="dropoff"
+                      cityBias={currentCity}
+                      compact={true}
+                      required
+                    />
                   </div>
 
                   {/* Quick Hub Pills on Mobile for Instant Precise Locations */}
-                  <div className="pt-1.5 flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider shrink-0">Popular:</span>
+                  <div className="pt-1 flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 w-full">
+                    <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider shrink-0">
+                      POPULAR:
+                    </span>
                     {[
                       { name: '✈️ Bhogapuram ASI', loc: 'Alluri Sitharama Raju International Airport (ASI), Bhogapuram', coords: { lat: 18.0267, lng: 83.4984 } },
                       { name: '✈️ Vizag VTZ', loc: 'Visakhapatnam International Airport (VTZ), NAD Junction', coords: { lat: 17.7215, lng: 83.2245 } },
@@ -363,31 +361,18 @@ export const Hero: React.FC<HeroProps> = ({
                             setPickupCoords(hub.coords);
                           }
                         }}
-                        className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 hover:bg-teal-50 border border-slate-200 hover:border-teal-300 text-slate-700 whitespace-nowrap transition-colors cursor-pointer shrink-0"
+                        className="text-[11px] px-2.5 py-1 rounded-full bg-white hover:bg-teal-50 border border-slate-200 hover:border-teal-300 text-slate-700 whitespace-nowrap transition-colors cursor-pointer shrink-0 shadow-2xs font-medium active:scale-95"
                       >
                         {hub.name}
                       </button>
                     ))}
                   </div>
-
-                  {/* Swap Button Floating on Right */}
-                  <motion.button
-                    whileTap={{ rotate: 180, scale: 0.9 }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-                    type="button"
-                    id="hero-swap-locations-btn"
-                    onClick={handleSwapLocations}
-                    title="Swap locations"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:text-teal-700 hover:border-teal-300 shadow-sm transition-colors shrink-0 z-20 cursor-pointer"
-                  >
-                    <ArrowUpDown className="w-3.5 h-3.5" />
-                  </motion.button>
                 </div>
 
-                {/* Date & Time Row - Flawless mobile & desktop alignment */}
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="rounded-xl border border-slate-200/90 bg-slate-50/80 px-3 py-2 hover:border-teal-500 focus-within:border-teal-600 focus-within:bg-white transition-all">
-                    <label htmlFor="hero-date-input" className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 mb-0.5 cursor-pointer">
+                {/* Date & Time Row - 50%/50% balanced columns */}
+                <div className="grid grid-cols-2 gap-2 w-full">
+                  <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-2 sm:p-2.5 hover:border-teal-500 focus-within:border-teal-600 focus-within:bg-white transition-all min-h-[54px] min-w-0">
+                    <label htmlFor="hero-date-input" className="flex items-center gap-1.5 text-[10.5px] sm:text-[11px] font-bold text-slate-500 mb-0.5 cursor-pointer truncate">
                       <Calendar className="w-3.5 h-3.5 text-teal-700 shrink-0" />
                       <span>Travel Date</span>
                     </label>
@@ -397,13 +382,13 @@ export const Hero: React.FC<HeroProps> = ({
                       min={today}
                       value={travelDate}
                       onChange={(e) => setTravelDate(e.target.value)}
-                      className="w-full bg-transparent text-xs sm:text-sm font-semibold text-slate-900 outline-none cursor-pointer"
+                      className="w-full min-w-0 bg-transparent text-xs sm:text-sm font-bold text-slate-900 outline-none cursor-pointer"
                       required
                     />
                   </div>
 
-                  <div className="rounded-xl border border-slate-200/90 bg-slate-50/80 px-3 py-2 hover:border-teal-500 focus-within:border-teal-600 focus-within:bg-white transition-all">
-                    <label htmlFor="hero-time-input" className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 mb-0.5 cursor-pointer">
+                  <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-2 sm:p-2.5 hover:border-teal-500 focus-within:border-teal-600 focus-within:bg-white transition-all min-h-[54px] min-w-0">
+                    <label htmlFor="hero-time-input" className="flex items-center gap-1.5 text-[10.5px] sm:text-[11px] font-bold text-slate-500 mb-0.5 cursor-pointer truncate">
                       <Clock className="w-3.5 h-3.5 text-teal-700 shrink-0" />
                       <span>Pickup Time</span>
                     </label>
@@ -412,22 +397,24 @@ export const Hero: React.FC<HeroProps> = ({
                       id="hero-time-input"
                       value={pickupTime}
                       onChange={(e) => setPickupTime(e.target.value)}
-                      className="w-full bg-transparent text-xs sm:text-sm font-semibold text-slate-900 outline-none cursor-pointer"
+                      className="w-full min-w-0 bg-transparent text-xs sm:text-sm font-bold text-slate-900 outline-none cursor-pointer"
                       required
                     />
                   </div>
                 </div>
 
                 {/* Mobile Number Input */}
-                <div className="rounded-xl border border-slate-200/90 bg-slate-50/80 px-3 py-2 hover:border-teal-500 focus-within:border-teal-600 focus-within:bg-white transition-all">
-                  <label htmlFor="hero-phone-input" className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 mb-0.5">
+                <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-2 sm:p-2.5 hover:border-teal-500 focus-within:border-teal-600 focus-within:bg-white transition-all w-full min-h-[54px]">
+                  <label htmlFor="hero-phone-input" className="flex items-center gap-1.5 text-[10.5px] sm:text-[11px] font-bold text-slate-500 mb-0.5 truncate">
                     <Phone className="w-3.5 h-3.5 text-teal-700 shrink-0" />
                     <span>Mobile number for instant dispatch</span>
                   </label>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-slate-500 bg-slate-200/60 px-1.5 py-0.5 rounded-md">+91</span>
+                  <div className="flex items-center gap-2 w-full">
+                    <span className="text-xs font-bold text-slate-600 bg-slate-200/70 px-1.5 py-0.5 rounded-md shrink-0 select-none">+91</span>
                     <input
                       type="tel"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
                       id="hero-phone-input"
                       maxLength={10}
                       value={mobileNumber}
@@ -436,7 +423,7 @@ export const Hero: React.FC<HeroProps> = ({
                         setPhoneError('');
                       }}
                       placeholder="98765 43210"
-                      className="w-full bg-transparent text-xs sm:text-sm font-semibold text-slate-900 outline-none placeholder:text-slate-400"
+                      className="w-full min-w-0 bg-transparent text-xs sm:text-sm font-bold text-slate-900 outline-none placeholder:text-slate-400"
                     />
                   </div>
                   {phoneError && (
@@ -444,32 +431,64 @@ export const Hero: React.FC<HeroProps> = ({
                   )}
                 </div>
 
-                {/* Submit Action Button with Spring Physics */}
-                <motion.button
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.98 }}
-                  type="submit"
-                  id="hero-search-book-btn"
-                  className="w-full py-3.5 px-4 rounded-xl bg-teal-800 hover:bg-teal-900 text-white font-bold text-xs sm:text-sm tracking-wide flex items-center justify-center gap-2 shadow-lg shadow-teal-950/20 transition-all cursor-pointer group"
-                >
-                  <span>Search & Book Cab</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </motion.button>
+                {/* Real-time Availability & Transparency Badge */}
+                <div className="p-2 sm:p-2.5 rounded-xl bg-teal-50/80 border border-teal-200/80 flex items-center justify-between gap-2 text-xs w-full">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="relative flex h-2 w-2 shrink-0">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                    </span>
+                    <span className="font-bold text-slate-800 text-[11px] sm:text-xs truncate">
+                      Cabs Available Now + Fare Quote
+                    </span>
+                  </div>
+                  <span className="text-[10px] uppercase tracking-wider font-extrabold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-md border border-emerald-300 shrink-0 whitespace-nowrap">
+                    ON REQUEST
+                  </span>
+                </div>
+
+                {/* Submit Action Buttons */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 w-full">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    type="submit"
+                    id="hero-search-book-btn"
+                    className="w-full py-3.5 sm:py-3 px-4 rounded-xl bg-teal-800 hover:bg-teal-900 active:bg-teal-950 text-white font-bold text-sm tracking-wide flex items-center justify-center gap-2 shadow-md shadow-teal-950/20 transition-all cursor-pointer group min-h-[46px]"
+                  >
+                    <span>Search & Customize</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform shrink-0" />
+                  </motion.button>
+
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleFormSubmit(e);
+                    }}
+                    id="hero-fast-book-btn"
+                    className="hidden sm:flex w-full py-3 px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs sm:text-sm tracking-wide items-center justify-center gap-1.5 shadow-md shadow-emerald-900/20 transition-all cursor-pointer"
+                  >
+                    <span>⚡ Book in 10s</span>
+                  </motion.button>
+                </div>
               </form>
 
               {/* Bottom Guarantee */}
-              <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                <div className="flex items-center gap-1.5 text-emerald-700 font-medium">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>No cancellation fee • Guaranteed pickup</span>
+              <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 w-full gap-2">
+                <div className="flex items-center gap-1.5 text-emerald-700 font-medium min-w-0">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span className="truncate text-[11px] sm:text-xs">No cancellation fee • Guaranteed pickup</span>
                 </div>
                 <a
-                  href="tel:+919123456789"
+                  href="tel:+919110510236"
                   id="hero-call-link"
-                  className="text-teal-800 hover:text-teal-950 font-semibold flex items-center gap-1 hover:underline"
+                  className="text-teal-800 hover:text-teal-950 font-semibold flex items-center gap-0.5 hover:underline shrink-0 text-[11px] sm:text-xs"
                 >
-                  <span>Call Us</span>
-                  <ChevronRight className="w-3 h-3" />
+                  <span>+91 91105 10236</span>
+                  <ChevronRight className="w-3 h-3 shrink-0" />
                 </a>
               </div>
 
@@ -486,7 +505,7 @@ export const Hero: React.FC<HeroProps> = ({
               transition={{ duration: 0.5, delay: 0.1 }}
               className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-950/75 backdrop-blur-md border border-teal-400/40 text-teal-300 text-xs font-semibold shadow-lg"
             >
-              <Sparkles className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+              <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse shrink-0" />
               <span>Official Airport & Intercity Taxi Partner in Visakhapatnam</span>
             </motion.div>
 
@@ -497,10 +516,10 @@ export const Hero: React.FC<HeroProps> = ({
               transition={{ duration: 0.5, delay: 0.2 }}
               className="space-y-2"
             >
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-[1.15] text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.7)]">
-                Premium, Reliable Travel. <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-300 via-cyan-200 to-emerald-300">
-                  Fixed Pricing. Zero Surges.
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-[3.35rem] font-extrabold tracking-tight leading-[1.12] text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.7)]">
+                Airport cabs you can trust. <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-200 via-cyan-100 to-emerald-200">
+                  Fixed fares. On-time pickups.
                 </span>
               </h1>
               <p className="text-slate-100 text-sm sm:text-base lg:text-lg max-w-xl leading-relaxed pt-1 drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)] font-medium">

@@ -7,11 +7,13 @@ import {
   CheckCircle2, 
   ShieldCheck, 
   Calendar,
-
   Users,
-  Luggage
+  Luggage,
+  Zap,
+  Clock,
+  ArrowRight
 } from 'lucide-react';
-import { VEHICLES } from '../data/mockData';
+import { motion } from 'framer-motion';
 
 interface RoundTripsPageProps {
   onNavigateHome: () => void;
@@ -24,126 +26,222 @@ export const RoundTripsPage: React.FC<RoundTripsPageProps> = ({
   onOpenBooking,
   onNavigatePage,
 }) => {
-  const structuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'Service',
-    'serviceType': 'Round Trip Outstation Taxi',
-    'name': 'Round Trip Outstation Car Rental Visakhapatnam',
-    'provider': {
-      '@type': 'LocalBusiness',
-      'name': 'Waltair Travels',
+  const roundTripCircuits = [
+    {
+      id: 'araku-circuit',
+      title: 'Araku Valley & Borra Caves Circuit',
+      badge: '2 Days / 1 Night',
+      km: '~380 KM Round',
+      img: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80',
+      description: 'Visakhapatnam → Padmapuram Gardens → Coffee Museum → Chaparai Waterfalls → Borra Caves → Return.',
+      highlights: ['Chauffeur stays with you overnight', 'Unlimited stops at ghat viewpoints', 'Hairpin curve veteran drivers']
     },
-    'description': 'Multi-day and same-day round trip taxi rentals from Visakhapatnam. Professional chauffeur remains with you throughout the journey with unlimited local sightseeing.',
-  };
+    {
+      id: 'annavaram-circuit',
+      title: 'Annavaram Satyanarayana Swamy Darshan',
+      badge: '1 Day Return',
+      km: '~260 KM Round',
+      img: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=600&q=80',
+      description: 'Visakhapatnam → Annavaram Temple Hill → Tuni Cashew Market → Payakaraopeta → Return.',
+      highlights: ['Hilltop temple parking included', 'Pooja prasad waiting time included', 'Fast return drop by evening']
+    },
+    {
+      id: 'lambasingi-circuit',
+      title: 'Lambasingi & Kothapalli Waterfalls',
+      badge: '2 Days / 1 Night',
+      km: '~360 KM Round',
+      img: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=600&q=80',
+      description: 'Visakhapatnam → Narsipatnam → Lambasingi Apple Farms → Kothapalli Waterfalls → Return.',
+      highlights: ['Early morning winter mist sunrise', 'Strawberry & apple farm stops', 'Bonfire and resort transfers']
+    },
+    {
+      id: 'godavari-circuit',
+      title: 'Godavari Delta & Papikondalu Hub (Rajahmundry)',
+      badge: '3 Days / 2 Nights',
+      km: '~600 KM Round',
+      img: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=600&q=80',
+      description: 'Visakhapatnam → Kakinada Beach → Rajahmundry Godavari Ghats → Draksharamam → Return.',
+      highlights: ['Godavari boat launch coordination', 'Draksharamam Pancharama temple visit', 'Complete family leisure tour']
+    },
+    {
+      id: 'srikakulam-circuit',
+      title: 'Arasavalli & Srimukhalingam Temple Circuit',
+      badge: '1 Day Return',
+      km: '~280 KM Round',
+      img: 'https://images.unsplash.com/photo-1550355291-bbee04a92027?auto=format&fit=crop&w=600&q=80',
+      description: 'Visakhapatnam → Arasavalli Sun Temple → Srikakulam Town → Srimukhalingam Shivalayam → Return.',
+      highlights: ['Spiritual heritage circuit', 'Temple darshan waiting time covered', 'Family dining halt at clean dhabas']
+    },
+    {
+      id: 'coastal-circuit',
+      title: 'Bheemili Beach & Mangamaripeta Heritage Trail',
+      badge: 'Half Day / Full Day',
+      km: '~140 KM Round',
+      img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80',
+      description: 'Visakhapatnam → Rushikonda → Thotlakonda Buddhist Complex → Bheemili Dutch Cemetery → Return.',
+      highlights: ['Scenic coastal expressway drive', 'Historical Buddhist monastery ruins', 'Sunset seafood shacks']
+    }
+  ];
 
   return (
-    <>
-      
-      <PageLayout
-        title="Round-Trip Outstation Cabs"
-        subtitle="Enjoy seamless multi-day or same-day return trips with the same dedicated vehicle and chauffeur throughout your entire itinerary."
-        categoryBadge="Family & Multi-Day Tours"
-        breadcrumbs={[{ label: 'Top Services', onClick: () => onNavigatePage('services') }, { label: 'Round Trips' }]}
-        onNavigateHome={onNavigateHome}
-        onOpenBooking={onOpenBooking}
-        ctaText="Book Round Trip"
-      >
-        <div className="space-y-12">
+    <PageLayout
+      title="Round-Trip Outstation Cabs"
+      subtitle="Enjoy seamless multi-day or same-day return trips with the same dedicated vehicle and chauffeur throughout your entire journey. Explore Andhra Pradesh at your own leisure."
+      categoryBadge="Family & Multi-Day Tours"
+      breadcrumbs={[{ label: 'Top Services', onClick: () => onNavigatePage('services') }, { label: 'Round Trips' }]}
+      onNavigateHome={onNavigateHome}
+      onOpenBooking={onOpenBooking}
+      ctaText="Book Round Trip"
+      heroImage="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=80"
+    >
+      <div className="space-y-16">
 
-          {/* Key Advantages */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-6 rounded-3xl bg-slate-900/80 border border-teal-800/40 space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-teal-950 text-teal-400 flex items-center justify-center border border-teal-800/50">
-                <Car className="w-6 h-6" />
-              </div>
-              <h3 className="text-base font-bold text-white">Same Cab & Driver Throughout</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                No changing vehicles. The same courteous driver stays with you from your departure in Visakhapatnam until your safe return home.
-              </p>
+        {/* Key Advantages */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-teal-50 text-teal-700 flex items-center justify-center border border-teal-200">
+              <Car className="w-6 h-6" />
             </div>
-
-            <div className="p-6 rounded-3xl bg-slate-900/80 border border-cyan-800/40 space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-cyan-950 text-cyan-400 flex items-center justify-center border border-cyan-800/50">
-                <MapPin className="w-6 h-6" />
-              </div>
-              <h3 className="text-base font-bold text-white">Unlimited Sightseeing En Route</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Take spontaneous detours to scenic viewpoints, temple darshans, roadside dhabas, and photo stops without rigid restrictions.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-3xl bg-slate-900/80 border border-emerald-800/40 space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-950 text-emerald-400 flex items-center justify-center border border-emerald-800/50">
-                <ShieldCheck className="w-6 h-6" />
-              </div>
-              <h3 className="text-base font-bold text-white">Transparent 250 KM/Day Slabs</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Clear minimum daily distance limits with transparent per-km billing for extra runs. Zero hidden driver food or fuel extras.
-              </p>
-            </div>
+            <h3 className="text-base font-bold text-slate-900">Same Vehicle & Chauffeur Throughout</h3>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              No shifting luggage or re-booking midway. The same trusted, veteran driver stays with your family across every destination.
+            </p>
           </div>
 
-          {/* Popular Round Trip Circuits */}
-          <div className="p-6 sm:p-8 rounded-3xl bg-slate-900/80 border border-slate-800 space-y-6">
-            <h2 className="text-2xl font-bold text-white">Popular Round-Trip Circuits from Visakhapatnam</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="p-6 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-md bg-cyan-950 text-cyan-300 border border-cyan-800/40 uppercase">2 Days / 1 Night</span>
-                  <span className="text-xs text-slate-400">~380 KM Round</span>
-                </div>
-                <h3 className="text-lg font-bold text-white">Araku Valley & Borra Caves Circuit</h3>
-                <p className="text-xs text-slate-400">Visakhapatnam → Padmapuram Gardens → Coffee Museum → Chaparai Waterfalls → Borra Caves → Return.</p>
-                <div className="pt-2 flex items-center justify-between">
-                  <span className="text-xs text-slate-400">Sedan: <strong className="text-emerald-400">₹6,200</strong> | SUV: <strong className="text-teal-400">₹8,400</strong></span>
-                  <button onClick={onOpenBooking} className="text-xs text-cyan-400 font-bold hover:underline">Book Circuit →</button>
-                </div>
-              </div>
-
-              <div className="p-6 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-md bg-amber-950 text-amber-300 border border-amber-800/40 uppercase">1 Day Return</span>
-                  <span className="text-xs text-slate-400">~260 KM Round</span>
-                </div>
-                <h3 className="text-lg font-bold text-white">Annavaram Satyanarayana Swamy Darshan</h3>
-                <p className="text-xs text-slate-400">Visakhapatnam → Annavaram Temple Hill → Tuni Cashew Market → Payakaraopeta → Return.</p>
-                <div className="pt-2 flex items-center justify-between">
-                  <span className="text-xs text-slate-400">Sedan: <strong className="text-emerald-400">₹4,200</strong> | SUV: <strong className="text-teal-400">₹5,800</strong></span>
-                  <button onClick={onOpenBooking} className="text-xs text-cyan-400 font-bold hover:underline">Book Circuit →</button>
-                </div>
-              </div>
-
-              <div className="p-6 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-md bg-emerald-950 text-emerald-300 border border-emerald-800/40 uppercase">2 Days / 1 Night</span>
-                  <span className="text-xs text-slate-400">~360 KM Round</span>
-                </div>
-                <h3 className="text-lg font-bold text-white">Lambasingi & Kothapalli Waterfalls</h3>
-                <p className="text-xs text-slate-400">Visakhapatnam → Narsipatnam → Lambasingi Apple Farms → Kothapalli Waterfalls → Return.</p>
-                <div className="pt-2 flex items-center justify-between">
-                  <span className="text-xs text-slate-400">Sedan: <strong className="text-emerald-400">₹6,400</strong> | SUV: <strong className="text-teal-400">₹8,600</strong></span>
-                  <button onClick={onOpenBooking} className="text-xs text-cyan-400 font-bold hover:underline">Book Circuit →</button>
-                </div>
-              </div>
-
-              <div className="p-6 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-md bg-teal-950 text-teal-300 border border-teal-800/40 uppercase">3 Days / 2 Nights</span>
-                  <span className="text-xs text-slate-400">~600 KM Round</span>
-                </div>
-                <h3 className="text-lg font-bold text-white">Godavari Delta & Papikondalu Hub (Rajahmundry)</h3>
-                <p className="text-xs text-slate-400">Visakhapatnam → Kakinada Beach → Rajahmundry Godavari Ghats → Draksharamam → Return.</p>
-                <div className="pt-2 flex items-center justify-between">
-                  <span className="text-xs text-slate-400">Sedan: <strong className="text-emerald-400">₹9,800</strong> | SUV: <strong className="text-teal-400">₹13,200</strong></span>
-                  <button onClick={onOpenBooking} className="text-xs text-cyan-400 font-bold hover:underline">Book Circuit →</button>
-                </div>
-              </div>
+          <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-200">
+              <MapPin className="w-6 h-6" />
             </div>
+            <h3 className="text-base font-bold text-slate-900">Spontaneous En-Route Stops</h3>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Pull over whenever you like for roadside hot tea, scenic viewpoint photography, or temple visits without rigid per-stop penalties.
+            </p>
           </div>
 
+          <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center border border-amber-200">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <h3 className="text-base font-bold text-slate-900">Transparent 250 KM/Day Slabs</h3>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Standard daily allowance with clear per-km billing for extra distances. Zero hidden driver food or phantom fuel charges.
+            </p>
+          </div>
         </div>
-      </PageLayout>
-    </>
+
+        {/* Circuits Showcase Grid with Photography */}
+        <div className="space-y-8">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div>
+              <div className="inline-flex items-center gap-1.5 text-xs font-bold text-teal-700 uppercase tracking-wider mb-1">
+                <span>Curated Holiday Itineraries</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+                Popular Round-Trip Circuits from Visakhapatnam
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                Fixed round-trip packages with all highway toll estimates, driver allowances, and fuel covered.
+              </p>
+            </div>
+            <button
+              onClick={onOpenBooking}
+              className="px-5 py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-xs uppercase tracking-wider transition-colors shadow-md shrink-0 cursor-pointer"
+            >
+              Custom Circuit Planner →
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {roundTripCircuits.map((circuit) => (
+              <motion.div
+                key={circuit.id}
+                whileHover={{ y: -4 }}
+                transition={{ duration: 0.2 }}
+                className="rounded-3xl bg-white border border-slate-200 shadow-lg overflow-hidden flex flex-col justify-between group"
+              >
+                <div>
+                  <div className="relative h-44 overflow-hidden bg-slate-950">
+                    <img
+                      src={circuit.img}
+                      alt={circuit.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+                    <span className="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-teal-800 text-[10px] font-bold text-white uppercase tracking-wider">
+                      {circuit.badge}
+                    </span>
+                    <span className="absolute bottom-3 left-3 px-2.5 py-1 rounded-md bg-white/90 backdrop-blur-xs text-[11px] font-bold text-slate-900">
+                      {circuit.km}
+                    </span>
+                  </div>
+
+                  <div className="p-6 space-y-4">
+                    <div>
+                      <h3 className="text-lg font-black text-slate-900 group-hover:text-teal-700 transition-colors">
+                        {circuit.title}
+                      </h3>
+                      <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                        {circuit.description}
+                      </p>
+                    </div>
+
+                    <div className="space-y-1.5 text-xs text-slate-600">
+                      {circuit.highlights.map((h, i) => (
+                        <div key={i} className="flex items-center gap-2">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          <span>{h}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="pt-3 border-t border-slate-100 space-y-1 text-xs">
+                      <div className="flex justify-between py-1">
+                        <span className="text-slate-500">Sedan (Dzire / Aura)</span>
+                        <strong className="text-teal-800 font-bold">Quote on Request</strong>
+                      </div>
+                      <div className="flex justify-between py-1">
+                        <span className="text-slate-500">SUV (Ertiga / Carens)</span>
+                        <strong className="text-teal-800 font-bold">Quote on Request</strong>
+                      </div>
+                      <div className="flex justify-between py-1">
+                        <span className="text-slate-500">Innova Crysta</span>
+                        <strong className="text-teal-800 font-bold">Quote on Request</strong>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-6 pt-0">
+                  <button
+                    onClick={onOpenBooking}
+                    className="w-full py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-md transition-colors cursor-pointer"
+                  >
+                    <Zap className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
+                    <span>Book Round Trip Circuit</span>
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        {/* Bottom Banner */}
+        <div className="p-8 rounded-3xl bg-gradient-to-r from-teal-900 via-slate-900 to-teal-950 text-white flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="space-y-1">
+            <h3 className="text-2xl font-bold">Planning a Multi-Day Custom Family Vacation?</h3>
+            <p className="text-xs sm:text-sm text-teal-100">
+              Our travel specialists will design custom itineraries with hotel recommendations and verified chauffeurs.
+            </p>
+          </div>
+          <button
+            onClick={onOpenBooking}
+            className="px-6 py-3 rounded-xl bg-white text-slate-900 hover:bg-teal-50 font-bold text-xs uppercase tracking-wider shrink-0 transition-colors shadow-lg cursor-pointer"
+          >
+            Plan Vacation with Us
+          </button>
+        </div>
+
+      </div>
+    </PageLayout>
   );
 };

@@ -10,9 +10,13 @@ import {
   CheckCircle2, 
   ShieldCheck,
   Building2,
-  HelpCircle
+  Zap,
+  HelpCircle,
+  Plane,
+  Train
 } from 'lucide-react';
 import { db, collection, addDoc } from '../firebase';
+import { motion } from 'framer-motion';
 
 interface ContactUsPageProps {
   onNavigateHome: () => void;
@@ -44,113 +48,162 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
       setSubmitted(true);
     } catch (err) {
       console.warn('Inquiry submission fallback:', err);
+      // Fallback save to localStorage
+      try {
+        const existing = JSON.parse(localStorage.getItem('waltair_offline_inquiries') || '[]');
+        existing.push({ ...formData, createdAt: new Date().toISOString() });
+        localStorage.setItem('waltair_offline_inquiries', JSON.stringify(existing));
+      } catch {
+        // ignore
+      }
       setSubmitted(true);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const structuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'ContactPage',
-    'name': 'Contact Waltair Travels Visakhapatnam',
-    'description': '24x7 Customer Support Desk, Corporate Travel Desk & Bhogapuram Airport Taxi dispatch center.',
-    'mainEntity': {
-      '@type': 'LocalBusiness',
-      'name': 'Waltair Travels Head Office',
-      'telephone': '+91-9123456789',
-      'email': 'info@waltairtravels.com',
-      'address': {
-        '@type': 'PostalAddress',
-        'streetAddress': 'Waltair Uplands, Siripuram Circle',
-        'addressLocality': 'Visakhapatnam',
-        'addressRegion': 'Andhra Pradesh',
-        'postalCode': '530003',
-        'addressCountry': 'IN',
-      },
+  const dispatchLocations = [
+    {
+      title: 'Headquarters & Operations Desk',
+      address: 'Waltair Uplands, Siripuram Circle, Visakhapatnam, AP - 530003',
+      timings: '24 Hours Open / 365 Days',
+      phone: '+91 91105 10236',
+      icon: Building2,
+      badge: 'Main HQ'
     },
-  };
+    {
+      title: 'Bhogapuram Airport Transit Counter',
+      address: 'Near NH-16 Airport Expressway Junction, Bhogapuram, AP',
+      timings: 'Synchronized with Flight Schedules',
+      phone: '+91 91105 10236',
+      icon: Plane,
+      badge: 'Airport Terminal'
+    },
+    {
+      title: 'Railway Station Pickup Point',
+      address: 'Platform 1 & 8 Passenger Exits, Visakhapatnam Junction (VSKP)',
+      timings: '24/7 Train Arrivals',
+      phone: '+91 91105 10236',
+      icon: Train,
+      badge: 'Rail Kiosk'
+    }
+  ];
 
   return (
-    <>
-      
-      <PageLayout
-        title="Contact Waltair Travels"
-        subtitle="24/7 Operations Desk, Airport Transit Dispatch, and Dedicated Corporate Mobility Support."
-        categoryBadge="Customer Support & Office"
-        breadcrumbs={[{ label: 'Contact Us' }]}
-        onNavigateHome={onNavigateHome}
-        onOpenBooking={onOpenBooking}
-        ctaText="Book Instant Taxi"
-      >
+    <PageLayout
+      title="Contact Waltair Travels"
+      subtitle="24/7 Operations Desk, Airport Transit Dispatch, and Dedicated Corporate Mobility Support. Always a call or message away."
+      categoryBadge="Customer Support & Office"
+      breadcrumbs={[{ label: 'Contact Us' }]}
+      onNavigateHome={onNavigateHome}
+      onOpenBooking={onOpenBooking}
+      ctaText="Book Instant Taxi"
+      heroImage="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1600&q=80"
+    >
+      <div className="space-y-16">
+
+        {/* Quick Contact Action Banner */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <a
+            href="tel:+919110510236"
+            className="p-6 rounded-3xl bg-white border border-slate-200 shadow-md hover:border-teal-500 transition-all flex items-start gap-4 group"
+          >
+            <div className="p-3.5 rounded-2xl bg-teal-50 text-teal-700 group-hover:bg-teal-700 group-hover:text-white transition-colors">
+              <Phone className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="text-[11px] uppercase tracking-wider text-slate-500 font-bold">Direct Phone Dispatch</div>
+              <div className="text-lg font-black text-slate-900 group-hover:text-teal-700 transition-colors mt-0.5">
+                +91 91105 10236
+              </div>
+              <div className="text-xs text-slate-500 mt-1">Available 24x7 for urgent rides</div>
+            </div>
+          </a>
+
+          <a
+            href="https://wa.me/919110510236?text=Hi%20Waltair%20Travels,%20I%20would%20like%20to%20inquire%20about%20a%20cab%20booking."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-6 rounded-3xl bg-white border border-slate-200 shadow-md hover:border-emerald-500 transition-all flex items-start gap-4 group"
+          >
+            <div className="p-3.5 rounded-2xl bg-emerald-50 text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+              <MessageCircle className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="text-[11px] uppercase tracking-wider text-slate-500 font-bold">Instant WhatsApp Chat</div>
+              <div className="text-lg font-black text-slate-900 group-hover:text-emerald-700 transition-colors mt-0.5">
+                Chat with Desk
+              </div>
+              <div className="text-xs text-slate-500 mt-1">Avg response time: &lt; 2 minutes</div>
+            </div>
+          </a>
+
+          <a
+            href="mailto:info@waltairtravels.com"
+            className="p-6 rounded-3xl bg-white border border-slate-200 shadow-md hover:border-cyan-500 transition-all flex items-start gap-4 group"
+          >
+            <div className="p-3.5 rounded-2xl bg-cyan-50 text-cyan-700 group-hover:bg-cyan-700 group-hover:text-white transition-colors">
+              <Mail className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="text-[11px] uppercase tracking-wider text-slate-500 font-bold">Corporate & Invoicing</div>
+              <div className="text-lg font-black text-slate-900 group-hover:text-cyan-700 transition-colors mt-0.5">
+                info@waltairtravels.com
+              </div>
+              <div className="text-xs text-slate-500 mt-1">GST invoices & contract requests</div>
+            </div>
+          </a>
+        </div>
+
+        {/* Form and Office Location Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           
-          {/* Contact Details & Office info */}
+          {/* Dispatch Locations */}
           <div className="lg:col-span-5 space-y-6">
-            <div className="p-6 sm:p-8 rounded-3xl bg-slate-900/80 border border-slate-800 space-y-6">
-              <h2 className="text-xl sm:text-2xl font-bold text-white">Get in Touch</h2>
-              <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-                Whether you need immediate cab dispatch for an upcoming flight, want to book a multi-day family tour, or require corporate GST invoicing, our team is ready 24 hours a day.
-              </p>
+            <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-xl space-y-6">
+              <div>
+                <span className="px-3 py-1 rounded-md bg-teal-50 text-teal-800 text-xs font-bold border border-teal-200">
+                  Physical Hubs
+                </span>
+                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mt-2">Our Operating Locations</h2>
+                <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                  Visit our office in Siripuram or meet our airport representatives on arrival.
+                </p>
+              </div>
 
-              <div className="space-y-4 pt-2">
-                <a
-                  href="tel:+919123456789"
-                  className="flex items-start gap-4 p-4 rounded-2xl bg-slate-950/70 border border-slate-800 hover:border-cyan-500/50 transition-colors group"
-                >
-                  <div className="p-3 rounded-xl bg-cyan-950 text-cyan-400 group-hover:bg-cyan-600 group-hover:text-white transition-colors">
-                    <Phone className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="text-[11px] uppercase tracking-wider text-slate-400 font-bold">24x7 Helpline / Dispatch</div>
-                    <div className="text-base font-bold text-white group-hover:text-cyan-400 transition-colors mt-0.5">
-                      +91 91234 56789
+              <div className="space-y-4">
+                {dispatchLocations.map((loc, idx) => {
+                  const Icon = loc.icon;
+                  return (
+                    <div key={idx} className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Icon className="w-4 h-4 text-teal-700" />
+                          <span className="text-xs font-bold text-slate-900">{loc.title}</span>
+                        </div>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-teal-100 text-teal-800">
+                          {loc.badge}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-600 leading-relaxed">{loc.address}</p>
+                      <div className="flex items-center justify-between pt-1 border-t border-slate-200 text-[11px] text-slate-500">
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-teal-700" /> {loc.timings}
+                        </span>
+                        <a href={`tel:${loc.phone}`} className="font-bold text-teal-700 hover:underline">
+                          {loc.phone}
+                        </a>
+                      </div>
                     </div>
-                  </div>
-                </a>
+                  );
+                })}
+              </div>
 
-                <a
-                  href="https://wa.me/919123456789?text=Hi%20Waltair%20Travels,%20I%20would%20like%20to%20inquire%20about%20a%20cab%20booking."
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-start gap-4 p-4 rounded-2xl bg-slate-950/70 border border-slate-800 hover:border-emerald-500/50 transition-colors group"
-                >
-                  <div className="p-3 rounded-xl bg-emerald-950 text-emerald-400 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-                    <MessageCircle className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="text-[11px] uppercase tracking-wider text-slate-400 font-bold">WhatsApp Direct Support</div>
-                    <div className="text-base font-bold text-white group-hover:text-emerald-400 transition-colors mt-0.5">
-                      Chat on WhatsApp
-                    </div>
-                  </div>
-                </a>
-
-                <a
-                  href="mailto:info@waltairtravels.com"
-                  className="flex items-start gap-4 p-4 rounded-2xl bg-slate-950/70 border border-slate-800 hover:border-teal-500/50 transition-colors group"
-                >
-                  <div className="p-3 rounded-xl bg-teal-950 text-teal-400 group-hover:bg-teal-600 group-hover:text-white transition-colors">
-                    <Mail className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="text-[11px] uppercase tracking-wider text-slate-400 font-bold">Email Support</div>
-                    <div className="text-base font-bold text-white group-hover:text-teal-400 transition-colors mt-0.5">
-                      info@waltairtravels.com
-                    </div>
-                  </div>
-                </a>
-
-                <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-950/70 border border-slate-800">
-                  <div className="p-3 rounded-xl bg-amber-950 text-amber-400">
-                    <MapPin className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="text-[11px] uppercase tracking-wider text-slate-400 font-bold">Head Office</div>
-                    <div className="text-xs sm:text-sm font-semibold text-slate-200 mt-0.5">
-                      Waltair Uplands, Siripuram Circle, Visakhapatnam, Andhra Pradesh - 530003
-                    </div>
-                  </div>
+              {/* Trust Badge */}
+              <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center gap-3">
+                <ShieldCheck className="w-6 h-6 text-emerald-700 shrink-0" />
+                <div className="text-xs text-slate-700">
+                  <strong className="text-slate-900 font-bold">100% Commercial AP Permits:</strong> All Waltair vehicles hold state-wide valid tourist permits, insurance, and emergency GPS SOS tracking.
                 </div>
               </div>
             </div>
@@ -158,107 +211,113 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
 
           {/* Contact Inquiry Form */}
           <div className="lg:col-span-7">
-            <div className="p-6 sm:p-8 rounded-3xl bg-slate-900/80 border border-slate-800 shadow-xl">
+            <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-xl">
               {submitted ? (
-                <div className="py-12 text-center space-y-4">
-                  <div className="w-16 h-16 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/50 flex items-center justify-center mx-auto">
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="py-12 text-center space-y-4"
+                >
+                  <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center mx-auto">
                     <CheckCircle2 className="w-8 h-8" />
                   </div>
-                  <h3 className="text-2xl font-bold text-white">Thank You for Reaching Out!</h3>
-                  <p className="text-xs sm:text-sm text-slate-300 max-w-md mx-auto">
-                    Your inquiry has been received. Our operations team will contact you within 15 minutes.
+                  <h3 className="text-2xl font-bold text-slate-900">Inquiry Received Successfully!</h3>
+                  <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto">
+                    Thank you for reaching out. Our 24/7 dispatch supervisor will call you back within 15 minutes with exact vehicle options and confirmed fares.
                   </p>
                   <button
                     onClick={() => {
                       setSubmitted(false);
                       setFormData({ name: '', phone: '', email: '', subject: 'General Inquiry', message: '' });
                     }}
-                    className="px-6 py-2.5 rounded-xl bg-slate-800 text-cyan-400 hover:text-white font-bold text-xs"
+                    className="px-6 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-teal-800 font-bold text-xs transition-colors cursor-pointer"
                   >
                     Send Another Message
                   </button>
-                </div>
+                </motion.div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-5">
                   <div>
-                    <h2 className="text-xl font-bold text-white">Send Us a Direct Message</h2>
-                    <p className="text-xs text-slate-400 mt-1">Fill out the details below and we will respond promptly.</p>
+                    <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Send an Inquiry or Custom Quote Request</h2>
+                    <p className="text-xs text-slate-500 mt-1">
+                      Fill out your requirements below and receive an instant transparent quote.
+                    </p>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-300">Your Full Name *</label>
+                      <label className="text-xs font-bold text-slate-700">Full Name *</label>
                       <input
                         type="text"
                         required
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        placeholder="e.g. Ramesh Naidu"
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-cyan-500"
+                        placeholder="e.g. Rajesh Varma"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-teal-600 focus:bg-white transition-colors"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-300">Phone Number *</label>
+                      <label className="text-xs font-bold text-slate-700">Phone Number *</label>
                       <input
                         type="tel"
                         required
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         placeholder="+91 98480 12345"
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-cyan-500"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-teal-600 focus:bg-white transition-colors"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-300">Email Address (Optional)</label>
+                      <label className="text-xs font-bold text-slate-700">Email Address (Optional)</label>
                       <input
                         type="email"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        placeholder="ramesh@example.com"
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-cyan-500"
+                        placeholder="rajesh@company.com"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-teal-600 focus:bg-white transition-colors"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-300">Inquiry Purpose</label>
+                      <label className="text-xs font-bold text-slate-700">Inquiry Purpose</label>
                       <select
                         value={formData.subject}
                         onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-cyan-500"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-teal-600 focus:bg-white transition-colors"
                       >
-                        <option value="General Inquiry">General Inquiry</option>
-                        <option value="Airport Taxi Booking">Airport Taxi Booking</option>
-                        <option value="Outstation Cabs">Outstation Trip</option>
-                        <option value="Tour Package Customization">Holiday Tour Package</option>
-                        <option value="Corporate / Billing Inquiry">Corporate Billing / GST</option>
+                        <option value="General Inquiry">General Ride Inquiry</option>
+                        <option value="Airport Taxi Booking">Bhogapuram Airport Taxi (ASI)</option>
+                        <option value="Outstation Cabs">Intercity Outstation Journey</option>
+                        <option value="Tour Package Customization">Araku / Lambasingi Tour Package</option>
+                        <option value="Corporate / Billing Inquiry">Corporate Contract / GST Invoicing</option>
                         <option value="Driver / Partner Registration">Driver Partner Registration</option>
                       </select>
                     </div>
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-300">Message / Travel Requirements *</label>
+                    <label className="text-xs font-bold text-slate-700">Travel Details & Requirements *</label>
                     <textarea
                       required
                       rows={4}
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      placeholder="Please specify your pickup location, dates, passengers, or specific vehicle preferences..."
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-xs sm:text-sm text-white focus:outline-none focus:border-cyan-500"
+                      placeholder="Specify dates, pickup/drop locations, number of passengers, luggage count, or preferred vehicle (Dzire / Ertiga / Innova Crysta)..."
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-teal-600 focus:bg-white transition-colors"
                     ></textarea>
                   </div>
 
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-cyan-900/30 transition-all cursor-pointer"
+                    className="w-full py-3.5 px-6 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-teal-950/20 transition-all cursor-pointer"
                   >
                     <Send className="w-4 h-4" />
-                    <span>{isSubmitting ? 'Submitting...' : 'Submit Inquiry'}</span>
+                    <span>{isSubmitting ? 'Sending Request...' : 'Submit Travel Inquiry'}</span>
                   </button>
                 </form>
               )}
@@ -266,7 +325,8 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
           </div>
 
         </div>
-      </PageLayout>
-    </>
+
+      </div>
+    </PageLayout>
   );
 };

@@ -13,7 +13,7 @@ import {
 // Load environment variables
 dotenv.config();
 
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 5004;
 const isProduction = process.env.NODE_ENV === 'production';
 
 async function startServer() {

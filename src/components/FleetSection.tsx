@@ -7,8 +7,7 @@ import {
   Check, 
   ArrowRight, 
   Car,
-  Fuel,
-  Sparkles
+  Fuel
 } from 'lucide-react';
 import { useVehicles } from '../hooks/useVehicles';
 
@@ -35,7 +34,7 @@ export const FleetSection: React.FC<FleetSectionProps> = ({ onBookVehicle }) => 
     : vehicles.filter(v => v.id === filterCategory);
 
   return (
-    <section id="fleet" className="py-14 sm:py-20 bg-slate-50/60 border-b border-slate-200/80">
+    <section id="fleet" className="py-16 sm:py-20 bg-slate-50 border-b border-slate-200/70">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header with Title and Modern Filter Pills */}

@@ -12,8 +12,7 @@ import {
   Zap, 
   MapPin, 
   Headphones,
-  ArrowRight,
-  Sparkles
+  ArrowRight
 } from 'lucide-react';
 import { ServiceCategory, TripSubType } from '../types';
 
@@ -117,13 +116,12 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ onSelectServic
   ];
 
   return (
-    <section id="services" className="py-14 sm:py-18 bg-white border-b border-slate-200/80">
+    <section id="services" className="py-16 sm:py-20 bg-white border-b border-slate-200/70">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 border border-teal-100 text-teal-800 text-xs font-semibold mb-3">
-            <Sparkles className="w-3 h-3 text-teal-600" />
             <span>Tailored Mobility Solutions</span>
           </div>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
@@ -150,7 +148,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ onSelectServic
                 transition={{ duration: 0.4, delay: idx * 0.05 }}
                 whileHover={{ y: -5, transition: { duration: 0.2 } }}
                 whileTap={{ scale: 0.98 }}
-                className="group bg-slate-50/70 hover:bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 hover:border-teal-400/80 hover:shadow-lg hover:shadow-teal-900/5 transition-all duration-300 flex flex-col justify-between cursor-pointer relative overflow-hidden"
+                className="group bg-white hover:bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 hover:border-teal-400 hover:shadow-xl hover:shadow-teal-900/8 transition-all duration-300 flex flex-col justify-between cursor-pointer relative overflow-hidden"
               >
                 <div>
                   {/* Icon & Mini Badge */}

@@ -25,8 +25,31 @@ export const Footer: React.FC<FooterProps> = ({ onNavigatePage }) => {
   };
 
   return (
-    <footer className="bg-slate-950 text-slate-300 pt-14 pb-8 border-t border-slate-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <footer className="bg-[#071018] text-slate-300 pt-0 pb-8 border-t border-slate-900">
+      <div className="bg-gradient-to-r from-teal-800 via-teal-700 to-emerald-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <p className="text-white font-bold text-sm sm:text-base">Need a cab in the next 30 minutes?</p>
+            <p className="text-teal-50/80 text-xs mt-0.5">Airport, outstation, and hourly rentals with live GPS tracking.</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <a
+              href="tel:+919110510236"
+              className="px-4 py-2.5 rounded-xl bg-white text-teal-900 font-bold text-xs hover:bg-teal-50"
+            >
+              Call +91 91105 10236
+            </a>
+            <a
+              href="#booking"
+              onClick={(e) => handleLinkClick(e, 'booking')}
+              className="px-4 py-2.5 rounded-xl bg-teal-950/40 border border-white/20 text-white font-bold text-xs hover:bg-teal-950/60"
+            >
+              Book online
+            </a>
+          </div>
+        </div>
+      </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14">
         
         {/* Main 6 Columns Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 mb-12">
@@ -37,10 +60,15 @@ export const Footer: React.FC<FooterProps> = ({ onNavigatePage }) => {
               onClick={(e) => handleLinkClick(e, 'home')}
               className="flex items-center gap-2.5 group cursor-pointer inline-flex"
             >
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-800 to-slate-900 flex items-center justify-center shadow-md">
-                <svg viewBox="0 0 32 32" fill="none" className="w-5 h-5 text-teal-300" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 8 L9 24 L14 12 L18 24 L23 8 L28 20" />
-                </svg>
+              <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md border border-teal-500/30 shrink-0 group-hover:scale-105 transition-transform bg-slate-900 flex items-center justify-center">
+                <img 
+                  src="/logo.png" 
+                  alt="Waltair Travels" 
+                  className="w-full h-full object-cover" 
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://waltairtravelsandcabs.sirv.com/Glossy%20WT%20Road%20Trip%20App%20Icon.png';
+                  }}
+                />
               </div>
               <div className="text-xl font-bold tracking-tight text-white flex items-center">
                 <span>Waltair</span>
@@ -187,9 +215,9 @@ export const Footer: React.FC<FooterProps> = ({ onNavigatePage }) => {
 
             {/* Direct Contact Links */}
             <div className="pt-1 space-y-1.5 text-xs">
-              <a href="tel:+919123456789" className="flex items-center gap-2 text-slate-300 hover:text-teal-300 transition-colors">
+              <a href="tel:+919110510236" className="flex items-center gap-2 text-slate-300 hover:text-teal-300 transition-colors">
                 <Phone className="w-3.5 h-3.5 text-teal-400 shrink-0" />
-                <span>+91 91234 56789</span>
+                <span>+91 91105 10236</span>
               </a>
               <a href="mailto:info@waltairtravels.com" className="flex items-center gap-2 text-slate-300 hover:text-teal-300 transition-colors">
                 <Mail className="w-3.5 h-3.5 text-teal-400 shrink-0" />

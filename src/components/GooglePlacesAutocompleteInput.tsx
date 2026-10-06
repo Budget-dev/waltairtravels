@@ -316,18 +316,18 @@ export const GooglePlacesAutocompleteInput: React.FC<GooglePlacesAutocompleteInp
   return (
     <div ref={containerRef} className={`relative w-full ${className}`}>
       {label && (
-        <div className={`flex items-center justify-between ${compact ? 'mb-0.5' : 'mb-1'}`}>
-          <label htmlFor={id} className={`block font-bold text-slate-700 ${compact ? 'text-[11px]' : 'text-xs'}`}>
+        <div className={`flex items-center justify-between gap-1 w-full ${compact ? 'mb-1' : 'mb-1.5'}`}>
+          <label htmlFor={id} className={`block font-bold text-slate-700 truncate ${compact ? 'text-[11px]' : 'text-xs'}`}>
             {label}
           </label>
-          <span className="inline-flex items-center gap-1 text-[10px] text-cyan-700 font-semibold">
-                        <span>Search Any Village / City</span>
+          <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] text-teal-700 font-semibold whitespace-nowrap shrink-0">
+            <span>Search Any Village / City</span>
           </span>
         </div>
       )}
 
       {/* Input Field Container */}
-      <div className={`group relative flex items-center gap-2 bg-slate-50 hover:bg-white focus-within:bg-white rounded-xl border border-slate-200 focus-within:border-cyan-600 focus-within:ring-2 focus-within:ring-cyan-500/20 transition-all shadow-xs ${
+      <div className={`group relative flex items-center gap-2 bg-slate-50 hover:bg-white focus-within:bg-white rounded-xl border border-slate-200 focus-within:border-teal-600 focus-within:ring-2 focus-within:ring-teal-500/20 transition-all shadow-2xs w-full min-h-[42px] sm:min-h-[44px] ${
         compact ? 'px-2.5 py-1.5 sm:py-2' : 'px-3 py-2.5'
       }`}>
         {renderIcon()}
@@ -346,13 +346,13 @@ export const GooglePlacesAutocompleteInput: React.FC<GooglePlacesAutocompleteInp
           placeholder={placeholder}
           required={required}
           autoComplete="off"
-          className={`w-full bg-transparent text-slate-900 placeholder:text-slate-400 font-semibold outline-none ${
+          className={`w-full min-w-0 bg-transparent text-slate-900 placeholder:text-slate-400 font-semibold outline-none ${
             compact ? 'text-xs sm:text-sm' : 'text-xs sm:text-sm'
           }`}
         />
 
         {isLoading ? (
-          <Loader2 className="w-3.5 h-3.5 text-cyan-600 animate-spin shrink-0" />
+          <Loader2 className="w-3.5 h-3.5 text-teal-600 animate-spin shrink-0" />
         ) : value ? (
           <button
             type="button"
@@ -361,7 +361,7 @@ export const GooglePlacesAutocompleteInput: React.FC<GooglePlacesAutocompleteInp
               inputRef.current?.focus();
               fetchPredictions('');
             }}
-            className="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 transition-colors cursor-pointer"
+            className="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 transition-colors cursor-pointer shrink-0"
             title="Clear location"
           >
             <X className="w-3.5 h-3.5" />
@@ -374,12 +374,12 @@ export const GooglePlacesAutocompleteInput: React.FC<GooglePlacesAutocompleteInp
           onClick={handleUseCurrentLocation}
           disabled={isLocating}
           title="Detect my current village/locality via GPS"
-          className={`rounded-lg text-cyan-700 hover:bg-cyan-50 border border-transparent hover:border-cyan-200 transition-all flex items-center gap-1 font-bold shrink-0 cursor-pointer ${
+          className={`rounded-lg text-teal-700 hover:bg-teal-50 border border-transparent hover:border-teal-200 transition-all flex items-center gap-1 font-bold shrink-0 cursor-pointer ml-auto ${
             compact ? 'p-1 text-[10px]' : 'p-1.5 text-[11px]'
           }`}
         >
           {isLocating ? (
-            <Loader2 className="w-3.5 h-3.5 animate-spin text-cyan-600" />
+            <Loader2 className="w-3.5 h-3.5 animate-spin text-teal-600" />
           ) : (
             <Navigation className="w-3.5 h-3.5" />
           )}

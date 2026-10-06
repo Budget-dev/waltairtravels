@@ -5,8 +5,7 @@ import {
   CheckCircle2, 
   PlusCircle, 
   X,
-  Quote,
-  Sparkles
+  Quote
 } from 'lucide-react';
 import { INITIAL_REVIEWS } from '../data/mockData';
 import { CustomerReview } from '../types';
@@ -81,14 +80,13 @@ export const CustomerReviewsSection: React.FC = () => {
   };
 
   return (
-    <section className="py-14 sm:py-20 bg-white border-b border-slate-200/80">
+    <section className="py-16 sm:py-20 bg-slate-50 border-b border-slate-200/70">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 sm:mb-12 gap-5">
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 border border-teal-100 text-teal-800 text-xs font-semibold mb-2.5">
-              <Sparkles className="w-3.5 h-3.5 text-teal-600" />
               <span>Real Customer Stories</span>
             </div>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
@@ -116,7 +114,7 @@ export const CustomerReviewsSection: React.FC = () => {
             <motion.div
               key={rev.id || idx}
               whileHover={{ y: -4, transition: { duration: 0.2 } }}
-              className="bg-slate-50/70 rounded-2xl sm:rounded-3xl p-5 border border-slate-200/80 shadow-xs hover:shadow-lg hover:shadow-slate-900/5 hover:border-teal-300/80 transition-all flex flex-col justify-between"
+              className="bg-white rounded-2xl sm:rounded-3xl p-5 border border-slate-200/80 shadow-xs hover:shadow-lg hover:shadow-slate-900/5 hover:border-teal-300 transition-all flex flex-col justify-between"
             >
               <div>
                 {/* Rating stars & Quote Icon */}

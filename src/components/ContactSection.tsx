@@ -8,8 +8,7 @@ import {
   Send, 
   CheckCircle2,
   Building,
-  Headphones,
-  Sparkles
+  Headphones
 } from 'lucide-react';
 import { db, collection, addDoc, serverTimestamp } from '../firebase';
 
@@ -53,7 +52,7 @@ export const ContactSection: React.FC = () => {
   };
 
   return (
-    <section id="contact" className="py-14 sm:py-20 bg-slate-950 text-white border-b border-slate-800">
+    <section id="contact" className="py-16 sm:py-20 bg-slate-950 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
@@ -81,8 +80,8 @@ export const ContactSection: React.FC = () => {
                 </div>
                 <div>
                   <div className="text-[11px] text-slate-400 font-semibold uppercase tracking-wider">24/7 Booking Helpline</div>
-                  <a href="tel:+919123456789" className="text-base sm:text-lg font-bold text-white hover:text-teal-300 transition-colors">
-                    +91 91234 56789
+                  <a href="tel:+919110510236" className="text-base sm:text-lg font-bold text-white hover:text-teal-300 transition-colors">
+                    +91 91105 10236
                   </a>
                   <div className="text-xs text-slate-400">Toll Free: 1800 270 4567</div>
                 </div>

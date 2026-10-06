@@ -10,12 +10,12 @@ import { CustomerReviewsSection } from './components/CustomerReviewsSection';
 import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
 import { WhatsAppButton } from './components/WhatsAppButton';
-import { LiveTrackingModal } from './components/LiveTrackingModal';
 import { ManageBookingModal } from './components/ManageBookingModal';
 import { AdminDashboardModal } from './components/AdminDashboardModal';
 import { AuthModal } from './components/AuthModal';
 import { BackendTelemetryModal } from './components/BackendTelemetryModal';
 import { AiTripPlannerModal } from './components/AiTripPlannerModal';
+import { FastBookingBar } from './components/FastBookingBar';
 
 // Dedicated SEO Pages
 import { AboutUsPage } from './pages/AboutUsPage';
@@ -96,8 +96,6 @@ export default function App() {
     dropoffCoords?: { lat?: number; lng?: number } | null;
   } | null>(null);
 
-  const [isTrackOpen, setIsTrackOpen] = useState<boolean>(false);
-  const [trackRefQuery, setTrackRefQuery] = useState<string>('');
   const [isManageOpen, setIsManageOpen] = useState<boolean>(false);
   const [isAdminOpen, setIsAdminOpen] = useState<boolean>(false);
   const [isAuthOpen, setIsAuthOpen] = useState<boolean>(false);
@@ -242,7 +240,7 @@ export default function App() {
       ...bookingData,
       phone: bookingData.phone || user?.phone
     });
-    setCurrentPage('booking');
+    navigateToPage('booking');
   };
 
   // Quick book vehicle from Fleet section
@@ -257,7 +255,7 @@ export default function App() {
       preSelectedVehicleId: vehicleId,
       phone: user?.phone
     });
-    setCurrentPage('booking');
+    navigateToPage('booking');
   };
 
   // Quick book popular outstation route
@@ -271,7 +269,7 @@ export default function App() {
       pickupTime: '09:00',
       phone: user?.phone
     });
-    setCurrentPage('booking');
+    navigateToPage('booking');
   };
 
   // Quick book holiday package
@@ -285,16 +283,11 @@ export default function App() {
       pickupTime: '07:00',
       phone: user?.phone
     });
-    setCurrentPage('booking');
+    navigateToPage('booking');
   };
 
   const handleBookingSuccess = (newBooking: Booking) => {
     setAllBookings(prev => [newBooking, ...prev.filter(b => b.bookingRef !== newBooking.bookingRef)]);
-  };
-
-  const handleOpenLiveTrack = (bookingRef: string) => {
-    setTrackRefQuery(bookingRef);
-    setIsTrackOpen(true);
   };
 
   const handleLogout = async () => {
@@ -308,8 +301,9 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen w-full max-w-[100vw] overflow-x-hidden relative bg-slate-50 text-slate-900 font-sans selection:bg-teal-700 selection:text-white">
-      
+    <div className="min-h-screen w-full max-w-[100vw] overflow-x-hidden relative bg-slate-50 text-slate-900 font-sans">
+      <a href="#main-content" className="skip-link">Skip to content</a>
+
       {/* 1. Sticky Navigation Bar */}
       <Navbar
         currentCity={currentCity}
@@ -326,12 +320,9 @@ export default function App() {
             pickupTime: '10:30',
             phone: user?.phone
           });
-          setCurrentPage('booking');
+          navigateToPage('booking');
         }}
-        onOpenTrackTrip={() => {
-          setTrackRefQuery(allBookings.length > 0 ? allBookings[0].bookingRef : '');
-          setIsTrackOpen(true);
-        }}
+        onOpenTrackTrip={() => setIsManageOpen(true)}
         onOpenManageTrips={() => setIsManageOpen(true)}
         onOpenAdmin={() => setIsAdminOpen(true)}
         onOpenAuth={() => setIsAuthOpen(true)}
@@ -342,10 +333,10 @@ export default function App() {
       />
 
       {/* 2. Main Body Content (Home view or Dedicated TSX SEO Page) */}
-      <main className="overflow-x-hidden">
+      <main id="main-content" className="overflow-x-hidden">
         <div
           key={currentPage}
-          className="transition-opacity duration-300 ease-out animate-in fade-in"
+          className="wt-page-enter"
         >
             {currentPage === 'home' && (
               <>
@@ -414,7 +405,22 @@ export default function App() {
             {currentPage === 'services' && (
               <OurServicesPage
                 onNavigateHome={() => navigateToPage('home')}
-                onOpenBooking={() => setCurrentPage('booking')}
+                onSelectService={(service, subType) => {
+                  setBookingInitialData({
+                    serviceType: service,
+                    subType: subType || (service === 'airport' ? 'pickup' : 'oneway'),
+                    pickupLocation: service === 'airport'
+                      ? 'Alluri Sitharama Raju International Airport ASI , Bhogapuram'
+                      : 'Visakhapatnam City Center',
+                    dropoffLocation: service === 'airport'
+                      ? 'Visakhapatnam City Center'
+                      : 'Araku Valley (Hill Station)',
+                    travelDate: new Date().toISOString().split('T')[0],
+                    pickupTime: '09:00',
+                    phone: user?.phone
+                  });
+                  navigateToPage('booking');
+                }}
                 onNavigatePage={navigateToPage}
               />
             )}
@@ -552,10 +558,7 @@ export default function App() {
                 onNavigatePage={navigateToPage}
               />
             )}
-        </div>
-      </main>
 
-      
             {currentPage === 'booking' && (
               <BookingPage
                 onNavigateHome={() => navigateToPage('home')}
@@ -563,40 +566,34 @@ export default function App() {
                 currentCity={currentCity}
                 onBookingSuccess={(booking) => {
                   handleBookingSuccess(booking);
-                  // We also need to navigate away from booking page when success triggers 
-                  // or the BookingPage itself handles the success state.
-                  // The BookingPage shows the success screen (step 4), so we don't strictly need to navigate away immediately.
                 }}
-                onOpenLiveTrack={(id) => {
-                  handleOpenLiveTrack(id);
-                }}
+                onOpenBookingHistory={() => setIsManageOpen(true)}
               />
             )}
+        </div>
+      </main>
 
       {/* 3. Footer Matching Screenshot Layout */}
       <Footer onNavigatePage={navigateToPage} />
 
       {/* 11. Floating WhatsApp Button */}
-      <WhatsAppButton />
+      <WhatsAppButton offsetForMobileCta={currentPage !== 'home'} />
+
+      {/* 12. Floating Express 10-Second Quick-Booking Bar */}
+      <FastBookingBar
+        currentCity={currentCity}
+        currentPage={currentPage}
+        onInitiateBooking={handleInitiateBooking}
+        onBookingSuccess={handleBookingSuccess}
+      />
 
       {/* MODALS */}
 
-      
-
-      {/* Live GPS Tracking Simulator */}
-      <LiveTrackingModal
-        isOpen={isTrackOpen}
-        onClose={() => setIsTrackOpen(false)}
-        bookingRefQuery={trackRefQuery}
-        allBookings={allBookings}
-      />
-
-      {/* Manage Trips & Invoices Portal */}
+      {/* Booking History & My Bookings Portal */}
       <ManageBookingModal
         isOpen={isManageOpen}
         onClose={() => setIsManageOpen(false)}
         allBookings={allBookings}
-        onOpenLiveTrack={handleOpenLiveTrack}
         onBookingUpdated={fetchBookings}
       />
 

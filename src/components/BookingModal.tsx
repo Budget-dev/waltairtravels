@@ -31,6 +31,7 @@ import { GooglePlacesAutocompleteInput, SelectedPlaceData } from './GooglePlaces
 import { LeafletRouteMap, LocationCoord } from './LeafletRouteMap';
 import { TripCountdownTimer } from './TripCountdownTimer';
 import { useVehicles } from '../hooks/useVehicles';
+import { createBookingWhatsAppUrl, DISPLAY_PHONE_NUMBER, WHATSAPP_PHONE_NUMBER } from '../utils/whatsapp';
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -174,29 +175,6 @@ export const BookingModal: React.FC<BookingModalProps> = ({
   const gstAmount = Math.round(subTotal * 0.05); // 5% GST on transport
   const totalFare = subTotal + gstAmount;
 
-  // Realistic driver generator for instant dispatch
-  const createMockDriver = (): DriverInfo => {
-    const drivers = [
-      { name: 'K. Satish Varma', phone: '+91 98480 23456', vehicleNumber: 'AP 31 TH 7842', rating: 4.9, totalTrips: 1420 },
-      { name: 'M. Ramesh Babu', phone: '+91 99890 87654', vehicleNumber: 'AP 31 TJ 9123', rating: 4.8, totalTrips: 980 },
-      { name: 'P. Appala Naidu', phone: '+91 94401 54321', vehicleNumber: 'AP 31 TK 4510', rating: 5.0, totalTrips: 2150 },
-      { name: 'D. Suresh Kumar', phone: '+91 89123 45678', vehicleNumber: 'AP 31 TL 3090', rating: 4.9, totalTrips: 1120 },
-    ];
-    const picked = drivers[Math.floor(Math.random() * drivers.length)];
-    return {
-      name: picked.name,
-      phone: picked.phone,
-      vehicleNumber: picked.vehicleNumber,
-      vehicleModel: `${selectedVehicle?.name || ''} (${selectedVehicle?.modelExamples.split(',')[0] || ''})`,
-      rating: picked.rating,
-      totalTrips: picked.totalTrips,
-      photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80',
-      currentLat: 17.72 + (Math.random() * 0.05),
-      currentLng: 83.30 + (Math.random() * 0.05),
-      etaMinutes: 12
-    };
-  };
-
   const handleConfirmBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!pickupLocation.trim()) {
@@ -224,7 +202,6 @@ export const BookingModal: React.FC<BookingModalProps> = ({
 
     const bookingRef = `WAL-${Math.floor(10000 + Math.random() * 90000)}`;
     const otp = `${Math.floor(1000 + Math.random() * 9000)}`;
-    const driver = createMockDriver();
 
     const newBooking: Booking = {
       bookingRef,
@@ -240,16 +217,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
       vehicleCategory: selectedVehicle?.category || 'Sedan',
       vehicleName: selectedVehicle?.name || 'Maruti Suzuki Dzire',
       estimatedDistanceKm: estimatedKm,
-      baseFare: baseRate,
-      distanceFare,
-      tollCharges,
-      gstAmount,
-      totalFare,
-      paymentMethod: paymentOption,
-      advancePaid: paymentOption === 'online_advance' ? Math.round(totalFare * 0.2) : (paymentOption === 'full_prepaid' ? totalFare : 0),
-      balanceDue: paymentOption === 'cash_to_driver' ? totalFare : (paymentOption === 'online_advance' ? totalFare - Math.round(totalFare * 0.2) : 0),
       status: 'confirmed',
-      driver,
       otp,
       specialRequests,
       createdAt: serverTimestamp ? serverTimestamp() : new Date().toISOString(),
@@ -330,13 +298,26 @@ export const BookingModal: React.FC<BookingModalProps> = ({
             <X className="w-5 h-5" />
           </button>
 
-          <div className="flex items-center gap-2 text-cyan-300 text-xs font-semibold uppercase tracking-wider mb-1">
-                        <span>Waltair Express Booking</span>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md border border-cyan-400/30 shrink-0 bg-slate-900 flex items-center justify-center">
+              <img 
+                src="/logo.png" 
+                alt="Waltair Travels" 
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = 'https://waltairtravelsandcabs.sirv.com/Glossy%20WT%20Road%20Trip%20App%20Icon.png';
+                }}
+              />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 text-cyan-300 text-xs font-semibold uppercase tracking-wider mb-0.5">
+                <span>Waltair Express Booking</span>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-bold leading-tight">
+                {step === 4 ? '🎉 Booking Confirmed!' : 'Complete Your Reservation'}
+              </h3>
+            </div>
           </div>
-
-          <h3 className="text-xl sm:text-2xl font-bold">
-            {step === 4 ? '🎉 Booking Confirmed!' : 'Complete Your Reservation'}
-          </h3>
 
           {/* Stepper indicator */}
           {step < 4 && (
@@ -427,7 +408,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                       </span>
                     </div>
                     <div className="text-[10px] text-slate-500 font-medium">
-                      Est. <strong className="text-teal-900 font-bold">₹{totalFare}</strong> (All-in)
+                      Pricing: <strong className="text-teal-900 font-bold">Quote on Request</strong>
                     </div>
                   </div>
                 </div>
@@ -705,18 +686,17 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                           </div>
                           <p className="text-xs text-slate-500">{v.modelExamples}</p>
                           <div className="text-[11px] text-emerald-700 font-medium mt-0.5">
-                            AC • {v.luggageCount} Luggage Bags • ₹{v.ratePerKm}/km
+                            AC • {v.luggageCount} Luggage Bags • Clean & Sanitized
                           </div>
                         </div>
                       </div>
 
                       <div className="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
                         <div className="text-right">
-                          <div className="text-base sm:text-lg font-extrabold text-slate-900 flex items-center sm:justify-end">
-                            <IndianRupee className="w-4 h-4" />
-                            <span>{vTotal}</span>
+                          <div className="text-sm sm:text-base font-extrabold text-teal-800 flex items-center sm:justify-end">
+                            Quote on Request
                           </div>
-                          <span className="text-[10px] text-slate-400">All taxes & tolls included</span>
+                          <span className="text-[10px] text-slate-400">Fare shared via WhatsApp</span>
                         </div>
                         <div className={`mt-1.5 w-5 h-5 rounded-full border flex items-center justify-center ${
                           isSelected ? 'bg-cyan-700 border-cyan-700 text-white' : 'border-slate-300'
@@ -794,36 +774,19 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                 </div>
               </div>
 
-              {/* Fare Breakdown Summary Card */}
-              <div className="bg-slate-900 text-white rounded-2xl p-4 space-y-2.5 text-xs">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-800 text-cyan-300 font-bold">
-                  <span>Cab: {selectedVehicle?.name}</span>
-                  <span>{estimatedKm} km Estimated</span>
+              {/* Fare & Transparency Notice */}
+              <div className="bg-slate-900 text-white rounded-2xl p-4 space-y-2 text-xs">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-800 text-teal-300 font-bold">
+                  <span>Selected Cab: {selectedVehicle?.name}</span>
+                  <span>~{estimatedKm} km Estimated</span>
                 </div>
-                <div className="flex justify-between text-slate-300">
-                  <span>Base Fare ({selectedVehicle?.baseKm || 0} km included)</span>
-                  <span>₹{baseRate}</span>
+                <div className="flex justify-between items-center text-slate-200 py-1">
+                  <span>Estimated Trip Fare:</span>
+                  <span className="font-extrabold text-sm text-teal-300">Quote on Request via WhatsApp</span>
                 </div>
-                {extraKm > 0 && (
-                  <div className="flex justify-between text-slate-300">
-                    <span>Extra Distance ({extraKm} km × ₹{selectedVehicle?.ratePerKm || 0})</span>
-                    <span>₹{distanceFare}</span>
-                  </div>
-                )}
-                {tollCharges > 0 && (
-                  <div className="flex justify-between text-slate-300">
-                    <span>Airport Tolls & Highway Surcharge</span>
-                    <span>₹{tollCharges}</span>
-                  </div>
-                )}
-                <div className="flex justify-between text-slate-300">
-                  <span>GST (5% Transport Tax)</span>
-                  <span>₹{gstAmount}</span>
-                </div>
-                <div className="flex justify-between text-sm sm:text-base font-extrabold text-white pt-2 border-t border-slate-800">
-                  <span>Total Amount</span>
-                  <span className="text-cyan-400">₹{totalFare}</span>
-                </div>
+                <p className="text-[11px] text-slate-400 leading-relaxed border-t border-slate-800 pt-2">
+                  Highway toll charges, parking, and driver allowances will be confirmed directly with you by the Waltair Travels team over WhatsApp upon receiving this booking request.
+                </p>
               </div>
 
               {/* Passenger Inputs */}
@@ -903,50 +866,18 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                   />
                 </div>
 
-                {/* Payment Option Selection */}
+                {/* Payment & Coordination Preference */}
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                    Payment Method
+                    Fare Discussion & Payment
                   </label>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    <label className={`p-3 rounded-xl border cursor-pointer text-xs font-semibold flex items-center gap-2 transition-all ${
-                      paymentOption === 'cash_to_driver' ? 'border-cyan-700 bg-cyan-50 text-cyan-950' : 'border-slate-200 text-slate-700'
-                    }`}>
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        checked={paymentOption === 'cash_to_driver'}
-                        onChange={() => setPaymentOption('cash_to_driver')}
-                        className="text-cyan-700"
-                      />
-                      <span>Pay Cash/UPI to Driver</span>
-                    </label>
-
-                    <label className={`p-3 rounded-xl border cursor-pointer text-xs font-semibold flex items-center gap-2 transition-all ${
-                      paymentOption === 'online_advance' ? 'border-cyan-700 bg-cyan-50 text-cyan-950' : 'border-slate-200 text-slate-700'
-                    }`}>
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        checked={paymentOption === 'online_advance'}
-                        onChange={() => setPaymentOption('online_advance')}
-                        className="text-cyan-700"
-                      />
-                      <span>20% Advance (₹{Math.round(totalFare * 0.2)})</span>
-                    </label>
-
-                    <label className={`p-3 rounded-xl border cursor-pointer text-xs font-semibold flex items-center gap-2 transition-all ${
-                      paymentOption === 'full_prepaid' ? 'border-cyan-700 bg-cyan-50 text-cyan-950' : 'border-slate-200 text-slate-700'
-                    }`}>
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        checked={paymentOption === 'full_prepaid'}
-                        onChange={() => setPaymentOption('full_prepaid')}
-                        className="text-cyan-700"
-                      />
-                      <span>Full Online Payment</span>
-                    </label>
+                  <div className="p-3 bg-teal-50/70 border border-teal-200/80 rounded-xl text-xs text-teal-950 space-y-1">
+                    <p className="font-bold flex items-center gap-1.5">
+                      <span>WhatsApp Discussion & Trip Settlement</span>
+                    </p>
+                    <p className="text-[11px] text-teal-800">
+                      Zero advance required now. Fare quote will be provided upon request and discussed directly with driver/dispatch via WhatsApp. Cash or UPI accepted on trip completion.
+                    </p>
                   </div>
                 </div>
 
@@ -981,7 +912,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                       Confirming Booking...
                     </span>
                   ) : (
-                    <span>CONFIRM & BOOK TAXI (₹{totalFare})</span>
+                    <span>⚡ CONFIRM & REQUEST BOOKING</span>
                   )}
                 </button>
               </div>
@@ -1000,7 +931,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
               <div>
                 <h4 className="text-xl font-extrabold text-slate-900">Your Ride is Confirmed!</h4>
                 <p className="text-xs text-slate-500 mt-1">
-                  Booking details & driver assignment sent via SMS & WhatsApp to +91 {confirmedBooking.customerPhone}
+                  Booking details sent to Waltair Travels. Please share details on WhatsApp below.
                 </p>
               </div>
 
@@ -1009,16 +940,25 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                 travelDate={confirmedBooking.travelDate}
                 pickupTime={confirmedBooking.pickupTime}
                 confirmedAt={confirmedBooking.createdAt}
-                driverName={confirmedBooking.driver?.name}
-                vehicleModel={confirmedBooking.driver?.vehicleModel}
+                vehicleModel={confirmedBooking.vehicleName}
               />
 
               {/* Ticket / Slip Card */}
               <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 text-left space-y-3 text-xs">
                 <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-                  <div>
-                    <span className="text-[10px] uppercase font-bold text-slate-400">Booking Reference</span>
-                    <div className="font-extrabold text-base text-cyan-800">{confirmedBooking.bookingRef}</div>
+                  <div className="flex items-center gap-2.5">
+                    <img 
+                      src="/logo.png" 
+                      alt="Waltair Travels" 
+                      className="w-9 h-9 rounded-lg border border-teal-500/30 object-cover shrink-0" 
+                      onError={(e) => {
+                        e.currentTarget.src = 'https://waltairtravelsandcabs.sirv.com/Glossy%20WT%20Road%20Trip%20App%20Icon.png';
+                      }}
+                    />
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-slate-400">Booking Reference</span>
+                      <div className="font-extrabold text-base text-cyan-800">{confirmedBooking.bookingRef}</div>
+                    </div>
                   </div>
                   <div className="text-right">
                     <span className="text-[10px] uppercase font-bold text-slate-400">Ride Start OTP</span>
@@ -1028,51 +968,28 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                   </div>
                 </div>
 
-                {/* Assigned Driver Box */}
-                {confirmedBooking.driver && (
-                  <div className="p-3 bg-white rounded-xl border border-slate-100 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <img 
-                        src={confirmedBooking.driver.photoUrl} 
-                        alt={confirmedBooking.driver.name} 
-                        className="w-10 h-10 rounded-full object-cover border border-slate-200"
-                      />
-                      <div>
-                        <div className="font-bold text-slate-900">{confirmedBooking.driver.name}</div>
-                        <div className="text-[11px] text-slate-500 font-medium">
-                          {confirmedBooking.driver.vehicleModel} • {confirmedBooking.driver.vehicleNumber}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-xs font-bold text-amber-600">★ {confirmedBooking.driver.rating}</span>
-                      <div className="text-[10px] text-slate-400">Arriving in ~12 mins</div>
-                    </div>
-                  </div>
-                )}
+                <div className="p-3.5 bg-teal-50 rounded-xl border border-teal-200 text-teal-950 text-xs">
+                  <strong>Vehicle & Chauffeur Coordination:</strong> Waltair Travels operations team will confirm your booking on WhatsApp, provide your fare quote upon request, and coordinate chauffeur details.
+                </div>
 
                 <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-600">
                   <div>Pickup: <strong>{confirmedBooking.pickupLocation}</strong></div>
                   <div>Drop: <strong>{confirmedBooking.dropoffLocation}</strong></div>
                   <div>Date: <strong>{confirmedBooking.travelDate} at {confirmedBooking.pickupTime}</strong></div>
-                  <div>Total Fare: <strong className="text-slate-900 font-bold">₹{confirmedBooking.totalFare}</strong></div>
+                  <div>Fare: <strong className="text-teal-900 font-bold">Quote on Request</strong></div>
                 </div>
               </div>
 
               {/* Action Buttons */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                <button
-                  type="button"
-                  id="modal-track-now-btn"
-                  onClick={() => {
-                    onClose();
-                    onOpenLiveTrack(confirmedBooking.bookingRef);
-                  }}
-                  className="w-full py-3 rounded-xl bg-[#005a66] hover:bg-[#004751] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md"
+                <a
+                  href={createBookingWhatsAppUrl(confirmedBooking)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-colors"
                 >
-                  <Compass className="w-4 h-4" />
-                  <span>TRACK RIDE LIVE</span>
-                </button>
+                  <span>Send to WhatsApp ({DISPLAY_PHONE_NUMBER})</span>
+                </a>
 
                 <button
                   type="button"

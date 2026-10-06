@@ -271,20 +271,32 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         
         {/* Header */}
         <div className="bg-gradient-to-r from-slate-900 via-[#005a66] to-slate-900 text-white p-5 flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-1.5 text-cyan-300 text-xs font-bold uppercase tracking-wider mb-0.5">
-                            <span>Waltair Rider Portal</span>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md border border-cyan-400/30 shrink-0 bg-slate-900 flex items-center justify-center">
+              <img 
+                src="/logo.png" 
+                alt="Waltair Travels" 
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = 'https://waltairtravelsandcabs.sirv.com/Glossy%20WT%20Road%20Trip%20App%20Icon.png';
+                }}
+              />
             </div>
-            <h3 className="font-bold text-lg text-white">
-              {authMode === 'signin' && 'Sign In to Your Account'}
-              {authMode === 'signup' && 'Create New Rider Account'}
-              {authMode === 'forgot' && 'Reset Your Password'}
-              {authMode === 'phone' && 'Quick Mobile Login'}
-            </h3>
+            <div>
+              <div className="flex items-center gap-1.5 text-cyan-300 text-xs font-bold uppercase tracking-wider mb-0.5">
+                <span>Waltair Rider Portal</span>
+              </div>
+              <h3 className="font-bold text-lg text-white">
+                {authMode === 'signin' && 'Sign In to Your Account'}
+                {authMode === 'signup' && 'Create New Rider Account'}
+                {authMode === 'forgot' && 'Reset Your Password'}
+                {authMode === 'phone' && 'Quick Mobile Login'}
+              </h3>
+            </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+            className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>

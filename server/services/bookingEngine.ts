@@ -22,8 +22,8 @@ export interface BookingRecord {
   vehicleCategory: string;
   vehicleName: string;
   estimatedDistanceKm: number;
-  totalFare: number;
-  paymentMethod: string;
+  totalFare?: number;
+  paymentMethod?: string;
   status: BookingStatus;
   otp: string;
   assignedDriver?: {
@@ -69,21 +69,11 @@ class BookingEngine {
       vehicleCategory: 'sedan',
       vehicleName: 'Swift Dzire Premium',
       estimatedDistanceKm: 16,
-      totalFare: 800,
-      paymentMethod: 'Cash to Driver',
-      status: 'DRIVER_ASSIGNED',
+      status: 'CONFIRMED',
       otp: '7492',
-      assignedDriver: {
-        name: 'Ravi Teja',
-        phone: '+91 98491 55667',
-        vehicleNumber: 'AP 31 TV 4829',
-        rating: 4.9,
-        tripsCompleted: 1420,
-      },
       auditLog: [
         { status: 'REQUESTED', timestamp: new Date(Date.now() - 3600000).toISOString(), note: 'Booking submitted via Web App' },
-        { status: 'CONFIRMED', timestamp: new Date(Date.now() - 3500000).toISOString(), note: 'Fare locked and guaranteed' },
-        { status: 'DRIVER_ASSIGNED', timestamp: new Date(Date.now() - 3000000).toISOString(), note: 'Driver Ravi Teja dispatched' },
+        { status: 'CONFIRMED', timestamp: new Date(Date.now() - 3500000).toISOString(), note: 'Booking received and pending WhatsApp dispatch' },
       ],
       createdAt: new Date(Date.now() - 3600000).toISOString(),
       updatedAt: new Date(Date.now() - 3000000).toISOString(),
@@ -108,13 +98,6 @@ class BookingEngine {
       bookingRef,
       status: 'CONFIRMED',
       otp,
-      assignedDriver: {
-        name: 'K. Venkatesh Rao',
-        phone: '+91 98485 12049',
-        vehicleNumber: 'AP 31 TH 8842',
-        rating: 4.88,
-        tripsCompleted: 890,
-      },
       auditLog: [
         {
           status: 'REQUESTED',
@@ -124,7 +107,7 @@ class BookingEngine {
         {
           status: 'CONFIRMED',
           timestamp: now,
-          note: 'Tariff confirmed with zero surge pricing guarantee',
+          note: 'Booking logged - driver details to be coordinated via WhatsApp',
         },
       ],
       createdAt: now,

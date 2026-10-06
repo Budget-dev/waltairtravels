@@ -24,7 +24,7 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
   ],
   canonicalPath,
   ogType = 'website',
-  ogImage = 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=1200&q=80',
+  ogImage = 'https://waltairtravelsandcabs.sirv.com/Glossy%20WT%20Road%20Trip%20App%20Icon.png',
   structuredData,
 }) => {
   useEffect(() => {
@@ -96,10 +96,11 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       '@context': 'https://schema.org',
       '@type': 'TaxiService',
       'name': 'Waltair Travels Visakhapatnam',
+      'logo': 'https://waltairtravelsandcabs.sirv.com/Glossy%20WT%20Road%20Trip%20App%20Icon.png',
       'image': ogImage,
       '@id': 'https://waltairtravels.com',
       'url': 'https://waltairtravels.com',
-      'telephone': '+91-9123456789',
+      'telephone': '+91-9110510236',
       'priceRange': '₹₹',
       'address': {
         '@type': 'PostalAddress',

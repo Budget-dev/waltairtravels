@@ -231,10 +231,9 @@ export const AiTripPlannerModal: React.FC<AiTripPlannerModalProps> = ({
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="text-right">
-                    <span className="text-[10px] text-slate-500 uppercase block">Estimated Cab Fare</span>
-                    <span className="text-lg font-black text-cyan-900 flex items-center justify-end">
-                      <IndianRupee className="w-4 h-4" />
-                      {planResult.estimatedBudgetInr}
+                    <span className="text-[10px] text-teal-700 font-bold uppercase block">Fare & Chauffeur</span>
+                    <span className="text-xs font-extrabold text-slate-800">
+                      Quote on Request
                     </span>
                   </div>
                 </div>

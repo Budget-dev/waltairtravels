@@ -258,7 +258,7 @@ export const TripCountdownTimer: React.FC<TripCountdownTimerProps> = ({
 
             <div className="text-[10px] text-slate-400 flex items-center justify-center gap-2 border-t border-slate-800/80 pt-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Instant Dispatch Active • Driver Assigned: <strong>{driverName || 'K. Satish Varma'}</strong></span>
+              <span>Booking Confirmed • Chauffeur details coordinated directly via WhatsApp</span>
             </div>
           </div>
         )}

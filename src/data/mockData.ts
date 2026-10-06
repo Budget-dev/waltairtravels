@@ -2,9 +2,6 @@ import { Vehicle, TourPackage, PopularRoute, CustomerReview, NotificationItem, B
 
 export const CITIES = [
   { id: 'vizag', name: 'Visakhapatnam, IN', label: 'Visakhapatnam (Vizag)' },
-  { id: 'vijayawada', name: 'Vijayawada, IN', label: 'Vijayawada' },
-  { id: 'rajahmundry', name: 'Rajahmundry, IN', label: 'Rajahmundry' },
-  { id: 'kakinada', name: 'Kakinada, IN', label: 'Kakinada' },
 ];
 
 export const POPULAR_LOCATIONS = [
@@ -306,7 +303,7 @@ export const INITIAL_REVIEWS: CustomerReview[] = [
     location: 'Siripuram, Vizag',
     serviceUsed: 'Bhogapuram Airport Drop',
     date: '2 days ago',
-    comment: 'Booked Waltair Travels for my early 5:30 AM flight. Driver Satish arrived 15 minutes before time, sanitized cab, smooth expressway drive. No surge pricing like other apps. Truly top notch!',
+    comment: 'Booked Waltair Travels for my early 5:30 AM flight to Bhogapuram Airport. Driver Satish arrived 15 minutes before time, sanitized cab, smooth expressway drive. No surge pricing like other apps. Truly top notch!',
     verified: true,
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80'
   },
@@ -317,7 +314,7 @@ export const INITIAL_REVIEWS: CustomerReview[] = [
     location: 'MVP Colony, Vizag',
     serviceUsed: 'Araku Valley 2-Day Tour',
     date: '1 week ago',
-    comment: 'Took the Innova Crysta for family trip with elderly parents. The driver was extremely polite, drove carefully on the hairpin bends, and showed us hidden scenic viewpoints. Great value for money!',
+    comment: 'Took the Innova Crysta for family trip with elderly parents to Araku Valley. The driver was extremely polite, drove carefully on the hairpin bends, and showed us hidden scenic viewpoints. Great value for money!',
     verified: true,
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80'
   },
@@ -325,7 +322,7 @@ export const INITIAL_REVIEWS: CustomerReview[] = [
     id: 'rev-3',
     name: 'Rohan Deshmukh',
     rating: 5,
-    location: 'Rushikonda IT SEZ',
+    location: 'Rushikonda IT SEZ, Vizag',
     serviceUsed: 'Outstation to Vijayawada',
     date: '2 weeks ago',
     comment: 'Corporate booking was seamless. Instant tax invoice received on WhatsApp & email, live GPS tracking shared with my office team, and super clean Dzire sedan. Highly recommended!',
@@ -336,12 +333,56 @@ export const INITIAL_REVIEWS: CustomerReview[] = [
     id: 'rev-4',
     name: 'Padma & Venkat Rao',
     rating: 5,
-    location: 'Gajuwaka',
+    location: 'Gajuwaka, Vizag',
     serviceUsed: 'Simhachalam & Annavaram Darshan',
     date: '3 weeks ago',
-    comment: 'Smooth and devotional trip. The driver knew exact temple timings, parking spots, and assisted our parents with wheelchairs. God bless Waltair Travels team!',
+    comment: 'Smooth and devotional trip to Simhachalam & Annavaram. The driver knew exact temple timings, parking spots, and assisted our parents with wheelchairs. God bless Waltair Travels team!',
     verified: true,
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'
+  },
+  {
+    id: 'rev-5',
+    name: 'K. Satyanarayana Murthy',
+    rating: 5,
+    location: 'Dwaraka Nagar, Vizag',
+    serviceUsed: 'Bhogapuram Airport Transfer',
+    date: '3 days ago',
+    comment: 'Traveled from Dwaraka Nagar to Bhogapuram Airport (ASI). Chauffeur was punctual, AC was powerful in the Vizag heat, and the fare was exactly what was confirmed on WhatsApp. Zero hidden charges!',
+    verified: true,
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=120&q=80'
+  },
+  {
+    id: 'rev-6',
+    name: 'Lakshmi Prasanna P.',
+    rating: 5,
+    location: 'Madhurawada, Vizag',
+    serviceUsed: 'Lambasingi & Borra Caves Package',
+    date: '5 days ago',
+    comment: 'Hired an Ertiga for outstation trip to Lambasingi & Borra Caves. The chauffeur Chaitanya was punctual, soft-spoken and very familiar with Eastern Ghat roads. Safe and comfortable ride for families!',
+    verified: true,
+    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80'
+  },
+  {
+    id: 'rev-7',
+    name: 'Rajesh Chowdary',
+    rating: 5,
+    location: 'Seethammadhara, Vizag',
+    serviceUsed: 'Vizag to Kakinada Outstation',
+    date: '1 week ago',
+    comment: 'Frequent business commuter between Vizag and Kakinada. Waltair Travels is my trusted cab partner. Well-maintained cars, professional drivers in uniform, and courteous customer support 24/7.',
+    verified: true,
+    avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=120&q=80'
+  },
+  {
+    id: 'rev-8',
+    name: 'Praveen Kumar Varma',
+    rating: 5,
+    location: 'Jagadamba Center, Vizag',
+    serviceUsed: 'VSKP Railway Station Pickup',
+    date: '2 weeks ago',
+    comment: 'Midnight arrival at Visakhapatnam Junction Railway Station (VSKP) after a 2-hour train delay. The cab was patiently waiting outside platform 1 with our name board. Truly dependable service in Vizag!',
+    verified: true,
+    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=120&q=80'
   }
 ];
 
@@ -349,7 +390,7 @@ export const INITIAL_NOTIFICATIONS: NotificationItem[] = [
   {
     id: 'notif-1',
     title: '✈️ Bhogapuram Airport Express',
-    message: 'Fixed fare ₹899 for Bhogapuram International Airport pickups & drops with zero delay surcharges.',
+    message: 'Express cabs for Bhogapuram International Airport pickups & drops with zero delay surcharges. Custom quotes on request.',
     time: '10 mins ago',
     read: false,
     type: 'offer'
@@ -365,7 +406,7 @@ export const INITIAL_NOTIFICATIONS: NotificationItem[] = [
   {
     id: 'notif-3',
     title: '⛰️ Araku Weekend Special',
-    message: 'Get ₹300 OFF on Araku full-day Innova & SUV package bookings this weekend. Use code VIZAGHILL.',
+    message: 'Special rates on Araku full-day Innova & SUV package bookings. Inquire via WhatsApp for custom quote.',
     time: '5 hrs ago',
     read: true,
     type: 'offer'
