@@ -108,69 +108,59 @@ apiRouter.post('/routes/estimate', (req: Request, res: Response) => {
   res.json({ success: true, estimate });
 });
 
+import { FileDatabase } from './db/fileDb';
+
 /**
- * 6. Bookings Transaction Engine
+ * 6. Bookings Transaction & Persistent Database Engine
  */
 apiRouter.post('/bookings', (req: Request, res: Response) => {
+  const body = req.body || {};
   const {
-    bookingRef,
-    idempotencyKey,
     customerName,
     customerPhone,
-    customerEmail,
-    serviceType,
-    subType,
     pickupLocation,
     dropoffLocation,
-    travelDate,
-    pickupTime,
-    vehicleCategory,
-    vehicleName,
-    estimatedDistanceKm,
-    totalFare,
-    paymentMethod,
-  } = req.body || {};
+  } = body;
 
-  if (!customerName || !customerPhone || !pickupLocation || !dropoffLocation) {
+  if (!customerPhone && !customerName) {
     res.status(400).json({
-      error: 'Validation failed: customerName, customerPhone, pickupLocation, dropoffLocation are mandatory',
+      error: 'Validation failed: customerPhone or customerName required',
     });
     return;
   }
 
-  const booking = bookingEngine.createBooking({
-    bookingRef,
-    idempotencyKey: idempotencyKey || req.header('idempotency-key'),
-    customerName,
-    customerPhone,
-    customerEmail,
-    serviceType: serviceType || 'airport',
-    subType: subType || 'pickup',
-    pickupLocation,
-    dropoffLocation,
-    travelDate: travelDate || new Date().toISOString().split('T')[0],
-    pickupTime: pickupTime || '10:00',
-    vehicleCategory: vehicleCategory || 'sedan',
-    vehicleName: vehicleName || 'Swift Dzire',
-    estimatedDistanceKm: Number(estimatedDistanceKm) || 20,
-    totalFare: Number(totalFare) || 800,
-    paymentMethod: paymentMethod || 'Cash to Chauffeur',
-  });
+  // 1. Persist directly to server FileDatabase
+  const persistentBooking = FileDatabase.saveBooking(body);
+
+  // 2. Also register with high-speed in-memory engine
+  try {
+    bookingEngine.createBooking({
+      ...body,
+      bookingRef: persistentBooking.bookingRef,
+      customerName: customerName || 'Passenger',
+      customerPhone: customerPhone || '9848012345',
+      pickupLocation: pickupLocation || 'Visakhapatnam',
+      dropoffLocation: dropoffLocation || 'Visakhapatnam',
+    });
+  } catch (engErr) {
+    // Engine registration note
+  }
 
   res.status(201).json({
     success: true,
-    message: 'Booking generated successfully',
-    booking,
+    message: 'Booking generated and persisted successfully',
+    booking: persistentBooking,
   });
 });
 
 apiRouter.get('/bookings', (_req: Request, res: Response) => {
-  const list = bookingEngine.listRecentBookings(25);
+  const list = FileDatabase.getAllBookings();
   res.json({ success: true, count: list.length, bookings: list });
 });
 
 apiRouter.get('/bookings/:ref', (req: Request, res: Response) => {
-  const booking = bookingEngine.getBookingByRef(req.params.ref);
+  const list = FileDatabase.getAllBookings();
+  const booking = list.find((b: any) => b.bookingRef === req.params.ref || b.id === req.params.ref);
   if (!booking) {
     res.status(404).json({ error: `Booking with reference ${req.params.ref} not found` });
     return;
@@ -181,19 +171,73 @@ apiRouter.get('/bookings/:ref', (req: Request, res: Response) => {
 apiRouter.patch('/bookings/:ref/status', (req: Request, res: Response) => {
   const { status, note } = req.body || {};
   try {
-    const updated = bookingEngine.updateBookingStatus(
-      req.params.ref,
-      status as BookingStatus,
-      note || `Status transition to ${status}`
-    );
+    const updated = FileDatabase.updateBookingStatus(req.params.ref, status, note);
     if (!updated) {
       res.status(404).json({ error: `Booking ${req.params.ref} not found` });
       return;
     }
+    // Sync with in-memory engine if exists
+    try {
+      bookingEngine.updateBookingStatus(req.params.ref, status as BookingStatus, note || `Status updated to ${status}`);
+    } catch {}
     res.json({ success: true, booking: updated });
   } catch (err: any) {
-    res.status(400).json({ error: err.message || 'Invalid state transition' });
+    res.status(400).json({ error: err.message || 'Invalid status transition' });
   }
+});
+
+apiRouter.delete('/bookings/:ref', (req: Request, res: Response) => {
+  const deleted = FileDatabase.deleteBooking(req.params.ref);
+  if (!deleted) {
+    res.status(404).json({ error: `Booking ${req.params.ref} not found` });
+    return;
+  }
+  res.json({ success: true, message: 'Booking deleted successfully' });
+});
+
+/**
+ * 6B. Persistent Real-time Leads Footprints Engine
+ */
+apiRouter.get('/leads', (_req: Request, res: Response) => {
+  const leads = FileDatabase.getAllLeads();
+  res.json({ success: true, count: leads.length, leads });
+});
+
+apiRouter.post('/leads', (req: Request, res: Response) => {
+  const saved = FileDatabase.saveLead(req.body || {});
+  res.status(201).json({ success: true, lead: saved });
+});
+
+apiRouter.patch('/leads/:id/status', (req: Request, res: Response) => {
+  const { status, notes } = req.body || {};
+  const updated = FileDatabase.updateLeadStatus(req.params.id, status, notes);
+  if (!updated) {
+    res.status(404).json({ error: `Lead ${req.params.id} not found` });
+    return;
+  }
+  res.json({ success: true, lead: updated });
+});
+
+apiRouter.delete('/leads/:id', (req: Request, res: Response) => {
+  const deleted = FileDatabase.deleteLead(req.params.id);
+  if (!deleted) {
+    res.status(404).json({ error: `Lead ${req.params.id} not found` });
+    return;
+  }
+  res.json({ success: true, message: 'Lead deleted successfully' });
+});
+
+/**
+ * 6C. Registered Users Engine
+ */
+apiRouter.get('/users', (_req: Request, res: Response) => {
+  const users = FileDatabase.getAllUsers();
+  res.json({ success: true, count: users.length, users });
+});
+
+apiRouter.post('/users', (req: Request, res: Response) => {
+  const saved = FileDatabase.saveUser(req.body || {});
+  res.status(201).json({ success: true, user: saved });
 });
 
 /**

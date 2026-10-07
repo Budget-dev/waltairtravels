@@ -33,6 +33,7 @@ import { TripCountdownTimer } from './TripCountdownTimer';
 import { useVehicles } from '../hooks/useVehicles';
 import { createBookingWhatsAppUrl, DISPLAY_PHONE_NUMBER, WHATSAPP_PHONE_NUMBER } from '../utils/whatsapp';
 import { trackFieldFootprint, markLeadConverted, getOrCreateLeadSessionId } from '../services/leadTrackingService';
+import { syncSaveBooking } from '../services/dbSync';
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -230,23 +231,12 @@ export const BookingModal: React.FC<BookingModalProps> = ({
     const activeLeadId = getOrCreateLeadSessionId();
 
     try {
-      // Save directly to Firestore collection
-      const docRef = await addDoc(collection(db, 'bookings'), {
-        ...newBooking,
-        createdAt: new Date().toISOString()
-      });
-      newBooking.id = docRef.id;
+      // 1. Universal persistence (LocalStorage + Server DB + Cloud Firestore)
+      const savedBooking = await syncSaveBooking(newBooking);
+      newBooking.id = savedBooking.id;
 
       // Mark lead converted in real-time
       markLeadConverted(newBooking.bookingRef, activeLeadId);
-
-      // Also save in local storage as safety backup
-      try {
-        const existing = JSON.parse(localStorage.getItem('waltair_user_bookings') || '[]');
-        localStorage.setItem('waltair_user_bookings', JSON.stringify([newBooking, ...existing]));
-      } catch (err) {
-        console.warn('Local storage error', err);
-      }
 
       setConfirmedBooking(newBooking);
       setStep(4);
@@ -263,13 +253,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
         // ignore confetti failures
       }
     } catch (error) {
-      console.error('Error saving booking to Firestore:', error);
-      // Fallback local save so booking is never blocked
-      newBooking.id = `local-${Date.now()}`;
-      try {
-        const existing = JSON.parse(localStorage.getItem('waltair_user_bookings') || '[]');
-        localStorage.setItem('waltair_user_bookings', JSON.stringify([newBooking, ...existing]));
-      } catch (err) {}
+      console.warn('Booking save error fallback:', error);
       setConfirmedBooking(newBooking);
       setStep(4);
       onBookingSuccess(newBooking);

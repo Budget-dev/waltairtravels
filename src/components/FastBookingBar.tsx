@@ -21,6 +21,7 @@ import { createBookingWhatsAppUrl } from '../utils/whatsapp';
 import confetti from 'canvas-confetti';
 import { trackFieldFootprint, markLeadConverted, getOrCreateLeadSessionId } from '../services/leadTrackingService';
 import { trackBookingStart, trackBookingSubmit, trackLeadGenerated, trackWhatsAppClick } from '../services/analyticsService';
+import { syncSaveBooking } from '../services/dbSync';
 
 interface FastBookingBarProps {
   currentCity: string;
@@ -134,24 +135,17 @@ export const FastBookingBar: React.FC<FastBookingBarProps> = ({
     };
 
     try {
-      try {
-        const docRef = await addDoc(collection(db, 'bookings'), {
-          ...newBooking,
-          createdAt: new Date().toISOString()
-        });
-        newBooking.id = docRef.id;
-      } catch (err) {
-        newBooking.id = `local-${Date.now()}`;
-      }
+      const saved = await syncSaveBooking(newBooking);
+      newBooking.id = saved.id;
 
       // Mark lead converted in real time
       markLeadConverted(bookingRef, activeLeadId);
       trackBookingSubmit(bookingRef, 'airport');
       trackLeadGenerated('fast_booking_bar', cleanPhone);
 
-      const existing = JSON.parse(localStorage.getItem('waltair_user_bookings') || '[]');
-      localStorage.setItem('waltair_user_bookings', JSON.stringify([newBooking, ...existing]));
-      localStorage.setItem('waltair_last_booking', JSON.stringify(newBooking));
+      try {
+        localStorage.setItem('waltair_last_booking', JSON.stringify(newBooking));
+      } catch {}
 
       setBookingConfirmed(newBooking);
       if (onBookingSuccess) onBookingSuccess(newBooking);

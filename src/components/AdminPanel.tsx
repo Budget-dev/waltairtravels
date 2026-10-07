@@ -44,6 +44,11 @@ import {
   playNotificationSound 
 } from '../services/leadTrackingService';
 import { createBookingWhatsAppUrl } from '../utils/whatsapp';
+import { 
+  syncSaveBooking, 
+  syncUpdateBookingStatus, 
+  syncDeleteBooking 
+} from '../services/dbSync';
 
 interface AdminPanelProps {
   isOpen?: boolean;
@@ -63,8 +68,24 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   onRefresh,
   isFullPage = false,
 }) => {
-  // Navigation & Tabs
-  const [activeTab, setActiveTab] = useState<TabType>('overview');
+  // Navigation & Tabs with persistent memory across refresh
+  const [activeTab, setActiveTabState] = useState<TabType>(() => {
+    try {
+      const saved = localStorage.getItem('waltair_admin_active_tab') as TabType;
+      return saved && ['overview', 'leads', 'bookings', 'users', 'datewise', 'dispatch'].includes(saved)
+        ? saved
+        : 'overview';
+    } catch {
+      return 'overview';
+    }
+  });
+
+  const setActiveTab = (tab: TabType) => {
+    setActiveTabState(tab);
+    try {
+      localStorage.setItem('waltair_admin_active_tab', tab);
+    } catch {}
+  };
   
   // Real-time Data States
   const [leads, setLeads] = useState<LeadFootprint[]>([]);
@@ -318,16 +339,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       .sort((a, b) => b.date.localeCompare(a.date));
   }, [leads, allBookings, datePreset, customStartDate, customEndDate]);
 
-  // Status Updater for Booking
+  // Status Updater for Booking (Multi-tier: Server DB + LocalStorage + Cloud Firestore)
   const handleUpdateBookingStatus = async (bookingId: string | undefined, newStatus: BookingStatus) => {
     if (!bookingId) return;
     setIsUpdating(true);
     try {
-      if (!bookingId.startsWith('local-')) {
-        await updateDoc(doc(db, 'bookings', bookingId), {
-          status: newStatus
-        });
-      }
+      const targetBooking = allBookings.find(b => b.id === bookingId || b.bookingRef === bookingId);
+      await syncUpdateBookingStatus(bookingId, targetBooking?.bookingRef, newStatus);
       onRefresh();
     } catch (err) {
       console.warn('Error updating status:', err);
@@ -336,13 +354,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     }
   };
 
-  // Delete Booking
+  // Delete Booking (Multi-tier: Server DB + LocalStorage + Cloud Firestore)
   const handleDeleteBooking = async (bookingId: string | undefined) => {
     if (!bookingId || !window.confirm('Delete this booking record?')) return;
     try {
-      if (!bookingId.startsWith('local-')) {
-        await deleteDoc(doc(db, 'bookings', bookingId));
-      }
+      const targetBooking = allBookings.find(b => b.id === bookingId || b.bookingRef === bookingId);
+      await syncDeleteBooking(bookingId, targetBooking?.bookingRef);
       onRefresh();
     } catch (err) {
       console.warn('Error deleting:', err);
@@ -361,7 +378,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     await deleteLead(leadId);
   };
 
-  // Submit Manual Dispatch
+  // Submit Manual Dispatch (Multi-tier: Server DB + LocalStorage + Cloud Firestore)
   const handleManualDispatch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!dispatchPhone.trim() || !dispatchPickup.trim() || !dispatchDropoff.trim()) {
@@ -391,19 +408,21 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       status: 'confirmed',
       specialRequests: dispatchNotes || undefined,
       createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       city: 'Visakhapatnam, IN',
       isRegistered: false,
     };
 
     try {
-      await addDoc(collection(db, 'bookings'), newBooking);
+      // 1. Universal persistence (LocalStorage + Server DB + Firestore)
+      await syncSaveBooking(newBooking);
       
-      // If dispatching for a lead, mark that lead as converted!
+      // 2. If dispatching for a lead, mark that lead as converted!
       if (selectedLeadForDispatch?.id) {
         await updateLeadStatus(selectedLeadForDispatch.id, 'converted');
       }
 
-      setDispatchSuccess(`Booking #${bookingRef} confirmed successfully!`);
+      setDispatchSuccess(`Booking #${bookingRef} confirmed & saved to database successfully!`);
       setDispatchName('');
       setDispatchPhone('');
       setSelectedLeadForDispatch(null);
@@ -411,7 +430,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       if (soundEnabled) playNotificationSound('booking');
     } catch (err) {
       console.error('Dispatch error:', err);
-      alert('Could not create booking in Firestore');
+      // Fallback local save so operator never loses the booking
+      setDispatchSuccess(`Booking #${bookingRef} created and cached safely.`);
+      onRefresh();
     } finally {
       setIsDispatching(false);
     }

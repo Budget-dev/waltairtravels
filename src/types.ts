@@ -63,6 +63,7 @@ export interface Booking {
   otp?: string;
   specialRequests?: string;
   createdAt: any;
+  updatedAt?: any;
   city: string;
   isRegistered?: boolean;
   userId?: string;

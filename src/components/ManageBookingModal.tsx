@@ -20,6 +20,7 @@ import {
 import { Booking } from '../types';
 import { db, doc, updateDoc } from '../firebase';
 import { createBookingWhatsAppUrl, DISPLAY_PHONE_NUMBER } from '../utils/whatsapp';
+import { syncUpdateBookingStatus } from '../services/dbSync';
 
 interface ManageBookingModalProps {
   isOpen: boolean;
@@ -90,28 +91,25 @@ export const ManageBookingModal: React.FC<ManageBookingModalProps> = ({
 
     setIsCancelling(true);
     try {
-      if (selectedBooking.id && !selectedBooking.id.startsWith('local-')) {
-        await updateDoc(doc(db, 'bookings', selectedBooking.id), {
-          status: 'cancelled'
-        });
-      }
+      await syncUpdateBookingStatus(
+        selectedBooking.id,
+        selectedBooking.bookingRef,
+        'cancelled',
+        'Customer cancelled booking via Manage Booking'
+      );
       const updated = { ...selectedBooking, status: 'cancelled' as const };
       setSelectedBooking(updated);
 
-      // Update in local storage
       const updatedList = localBookings.map(b => b.bookingRef === updated.bookingRef ? updated : b);
       setLocalBookings(updatedList);
-      localStorage.setItem('waltair_user_bookings', JSON.stringify(updatedList));
 
       if (onBookingUpdated) onBookingUpdated(updated);
       setCancelFeedback('Your booking has been marked as cancelled.');
     } catch (err) {
+      console.warn('Trip cancel note:', err);
       const updated = { ...selectedBooking, status: 'cancelled' as const };
       setSelectedBooking(updated);
-      const updatedList = localBookings.map(b => b.bookingRef === updated.bookingRef ? updated : b);
-      setLocalBookings(updatedList);
-      localStorage.setItem('waltair_user_bookings', JSON.stringify(updatedList));
-      setCancelFeedback('Trip cancelled locally.');
+      setCancelFeedback('Your booking has been marked as cancelled.');
     } finally {
       setIsCancelling(false);
     }

@@ -137,16 +137,26 @@ export function trackFieldFootprint(partialData: Partial<LeadFootprint>) {
     // ignore
   }
 
-  // 3. Debounced save to Firestore (700ms debounce to prevent high write volume on fast typing)
+  // 3. Debounced save to Server DB and Cloud Firestore (700ms debounce to prevent high write volume on fast typing)
   if (debounceTimers[sessionId]) {
     clearTimeout(debounceTimers[sessionId]);
   }
 
   debounceTimers[sessionId] = setTimeout(async () => {
+    // A. Backend Persistent Server DB
+    try {
+      fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(fullLead)
+      }).catch(() => {});
+    } catch {}
+
+    // B. Cloud Firestore (non-blocking, resilient)
     try {
       await setDoc(doc(db, 'leads', sessionId), fullLead, { merge: true });
     } catch (err) {
-      console.warn('Firestore lead sync note (offline/cache resilient):', err);
+      console.debug('Firestore lead sync note (offline/cache resilient):', err);
     }
   }, 700);
 }
@@ -235,6 +245,7 @@ export async function markLeadConverted(
  * Update lead status by Admin (e.g. mark as Contacted, Converted, Lost)
  */
 export async function updateLeadStatus(leadId: string, newStatus: LeadStatus, notes?: string) {
+  let updatedRecord: LeadFootprint | null = null;
   try {
     // 1. Local storage update
     const raw = localStorage.getItem(LOCAL_LEADS_KEY);
@@ -242,26 +253,39 @@ export async function updateLeadStatus(leadId: string, newStatus: LeadStatus, no
       const localLeads: LeadFootprint[] = JSON.parse(raw);
       const updated = localLeads.map(l => {
         if (l.leadSessionId === leadId || l.id === leadId) {
-          return {
+          updatedRecord = {
             ...l,
             status: newStatus,
             notes: notes !== undefined ? notes : l.notes,
             updatedAt: new Date().toISOString()
           };
+          return updatedRecord;
         }
         return l;
       });
       localStorage.setItem(LOCAL_LEADS_KEY, JSON.stringify(updated));
     }
 
-    // 2. Firestore update
+    // 2. Dispatch local notification
+    if (updatedRecord) {
+      window.dispatchEvent(new CustomEvent('waltair_lead_captured', { detail: updatedRecord }));
+    }
+
+    // 3. Backend Persistent Server DB
+    fetch(`/api/leads/${encodeURIComponent(leadId)}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus, notes })
+    }).catch(() => {});
+
+    // 4. Cloud Firestore update (safe catch)
     await updateDoc(doc(db, 'leads', leadId), {
       status: newStatus,
       ...(notes !== undefined ? { notes } : {}),
       updatedAt: new Date().toISOString()
     });
   } catch (err) {
-    console.warn('Update lead status error:', err);
+    console.debug('Update lead status note:', err);
   }
 }
 
@@ -270,6 +294,7 @@ export async function updateLeadStatus(leadId: string, newStatus: LeadStatus, no
  */
 export async function deleteLead(leadId: string) {
   try {
+    // 1. Local storage delete
     const raw = localStorage.getItem(LOCAL_LEADS_KEY);
     if (raw) {
       const localLeads: LeadFootprint[] = JSON.parse(raw);
@@ -277,9 +302,18 @@ export async function deleteLead(leadId: string) {
       localStorage.setItem(LOCAL_LEADS_KEY, JSON.stringify(updated));
     }
 
+    // 2. Dispatch event
+    window.dispatchEvent(new CustomEvent('waltair_lead_captured', { detail: { id: leadId, deleted: true } }));
+
+    // 3. Backend Persistent Server DB
+    fetch(`/api/leads/${encodeURIComponent(leadId)}`, {
+      method: 'DELETE'
+    }).catch(() => {});
+
+    // 4. Cloud Firestore delete (safe catch)
     await deleteDoc(doc(db, 'leads', leadId));
   } catch (err) {
-    console.warn('Delete lead error:', err);
+    console.debug('Delete lead note:', err);
   }
 }
 
@@ -299,6 +333,41 @@ export function subscribeToLeads(callback: (leads: LeadFootprint[]) => void): ()
 
   callback(getLocalLeads());
 
+  // 1. Fetch from Persistent Server DB
+  fetch('/api/leads', { cache: 'no-store' })
+    .then(res => res.json())
+    .then(json => {
+      if (Array.isArray(json.leads)) {
+        const local = getLocalLeads();
+        const mergedMap = new Map<string, LeadFootprint>();
+        local.forEach(l => mergedMap.set(l.leadSessionId || l.id || '', l));
+        json.leads.forEach((serverLead: LeadFootprint) => {
+          const key = serverLead.leadSessionId || serverLead.id || '';
+          if (!key) return;
+          const existing = mergedMap.get(key);
+          if (!existing) {
+            mergedMap.set(key, serverLead);
+          } else {
+            const localTime = new Date(existing.updatedAt || existing.createdAt || 0).getTime();
+            const serverTime = new Date(serverLead.updatedAt || serverLead.createdAt || 0).getTime();
+            if (serverTime >= localTime) {
+              mergedMap.set(key, serverLead);
+            }
+          }
+        });
+
+        const combined = Array.from(mergedMap.values()).sort((a, b) => {
+          const timeA = new Date(a.updatedAt || a.createdAt || 0).getTime();
+          const timeB = new Date(b.updatedAt || b.createdAt || 0).getTime();
+          return timeB - timeA;
+        });
+
+        localStorage.setItem(LOCAL_LEADS_KEY, JSON.stringify(combined));
+        callback(combined);
+      }
+    })
+    .catch(() => {});
+
   let unsubscribeFirestore = () => {};
 
   try {
@@ -309,10 +378,22 @@ export function subscribeToLeads(callback: (leads: LeadFootprint[]) => void): ()
       });
 
       const local = getLocalLeads();
-      // Merge remote + local (remote takes precedence, local fills any gaps)
       const mergedMap = new Map<string, LeadFootprint>();
       local.forEach(l => mergedMap.set(l.leadSessionId || l.id || '', l));
-      remoteLeads.forEach(r => mergedMap.set(r.leadSessionId || r.id || '', r));
+      remoteLeads.forEach(r => {
+        const key = r.leadSessionId || r.id || '';
+        if (!key) return;
+        const existing = mergedMap.get(key);
+        if (!existing) {
+          mergedMap.set(key, r);
+        } else {
+          const localTime = new Date(existing.updatedAt || existing.createdAt || 0).getTime();
+          const remoteTime = new Date(r.updatedAt || r.createdAt || 0).getTime();
+          if (remoteTime >= localTime) {
+            mergedMap.set(key, r);
+          }
+        }
+      });
 
       const combined = Array.from(mergedMap.values()).sort((a, b) => {
         const timeA = new Date(a.updatedAt || a.createdAt || 0).getTime();
@@ -320,27 +401,39 @@ export function subscribeToLeads(callback: (leads: LeadFootprint[]) => void): ()
         return timeB - timeA;
       });
 
+      localStorage.setItem(LOCAL_LEADS_KEY, JSON.stringify(combined));
       callback(combined);
     }, (err) => {
-      console.warn('Leads snapshot listener note:', err);
+      console.debug('Leads snapshot listener note:', err);
       callback(getLocalLeads());
     });
   } catch (err) {
-    console.warn('Leads subscription error:', err);
+    console.debug('Leads subscription error:', err);
   }
 
   // Also listen to window event for local instant updates
   const handleLocalEvent = (e: any) => {
-    const lead = e.detail as LeadFootprint;
+    const lead = e.detail;
     const local = getLocalLeads();
-    const map = new Map<string, LeadFootprint>();
-    local.forEach(l => map.set(l.leadSessionId || l.id || '', l));
-    map.set(lead.leadSessionId || lead.id || '', lead);
-    const combined = Array.from(map.values()).sort((a, b) => {
+    let updatedList: LeadFootprint[];
+
+    if (lead?.deleted && lead?.id) {
+      updatedList = local.filter(l => l.id !== lead.id && l.leadSessionId !== lead.id);
+    } else if (lead?.leadSessionId || lead?.id) {
+      const map = new Map<string, LeadFootprint>();
+      local.forEach(l => map.set(l.leadSessionId || l.id || '', l));
+      map.set(lead.leadSessionId || lead.id || '', lead as LeadFootprint);
+      updatedList = Array.from(map.values());
+    } else {
+      updatedList = local;
+    }
+
+    const combined = updatedList.sort((a, b) => {
       const timeA = new Date(a.updatedAt || a.createdAt || 0).getTime();
       const timeB = new Date(b.updatedAt || b.createdAt || 0).getTime();
       return timeB - timeA;
     });
+
     callback(combined);
   };
 

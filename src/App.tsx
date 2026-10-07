@@ -41,6 +41,7 @@ import { trackEvent } from './services/analyticsService';
 
 import { ServiceCategory, TripSubType, Booking, TourPackage, AppUser } from './types';
 import { db, auth, onAuthStateChanged, signOut, collection, getDocs, onSnapshot, query, orderBy, getRedirectResult } from './firebase';
+import { syncFetchBookings, syncSaveBooking } from './services/dbSync';
 
 
 export const PAGE_URL_MAP: Record<string, string> = {
@@ -280,93 +281,43 @@ export default function App() {
     }
   }, []);
 
-  // Fetch / Listen to Firestore Bookings in Real-time
+  // Fetch & Synchronize Bookings Multi-tier (Server DB + LocalStorage + Cloud Firestore)
   const fetchBookings = async () => {
     try {
-      const q = collection(db, 'bookings');
-      const snapshot = await getDocs(q);
-      const items: Booking[] = [];
-      snapshot.forEach(doc => {
-        items.push({ id: doc.id, ...doc.data() } as Booking);
-      });
-
-      // Also combine with local bookings if any
-      const local = JSON.parse(localStorage.getItem('waltair_user_bookings') || '[]');
-      const combined = [...items, ...local.filter((l: Booking) => !items.some(i => i.bookingRef === l.bookingRef))];
-      
-      // If completely empty on first launch, seed a sample airport booking so tracking immediately works
-      if (combined.length === 0) {
-        const seedSample: Booking = {
-          id: 'seed-1',
-          bookingRef: 'WAL-84920',
-          customerName: 'Suresh Varma',
-          customerPhone: '9848012345',
-          customerEmail: 'suresh.varma@example.com',
-          serviceType: 'airport',
-          subType: 'pickup',
-          pickupLocation: 'Alluri Sitharama Raju International Airport ASI , Bhogapuram',
-          dropoffLocation: 'Siripuram Circle & Waltair Uplands, Visakhapatnam',
-          travelDate: new Date().toISOString().split('T')[0],
-          pickupTime: '11:00',
-          vehicleCategory: 'Sedan',
-          vehicleName: 'Maruti Suzuki Dzire',
-          estimatedDistanceKm: 42,
-          baseFare: 550,
-          distanceFare: 351,
-          tollCharges: 140,
-          gstAmount: 52,
-          totalFare: 1093,
-          paymentMethod: 'cash_to_driver',
-          status: 'on_the_way',
-          driver: {
-            name: 'K. Satish Varma',
-            phone: '+91 98480 23456',
-            vehicleNumber: 'AP 31 TH 7842',
-            vehicleModel: 'Maruti Suzuki Dzire (White)',
-            rating: 4.9,
-            totalTrips: 1420,
-            photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80',
-            currentLat: 17.729,
-            currentLng: 83.310,
-            etaMinutes: 8
-          },
-          otp: '4821',
-          createdAt: new Date().toISOString(),
-          city: 'Visakhapatnam, IN'
-        };
-        combined.push(seedSample);
-      }
-
-      setAllBookings(combined);
+      const list = await syncFetchBookings();
+      setAllBookings(list);
     } catch (err) {
-      console.warn('Firestore fetch fallback:', err);
-      const local = JSON.parse(localStorage.getItem('waltair_user_bookings') || '[]');
-      setAllBookings(local);
+      console.warn('Sync fetch bookings note:', err);
     }
   };
 
   useEffect(() => {
     fetchBookings();
     
-    // Set up real-time listener if available
+    // Listen to custom booking changes across components & tabs
+    const handleBookingsChanged = () => {
+      fetchBookings();
+    };
+    window.addEventListener('waltair_bookings_changed', handleBookingsChanged);
+    window.addEventListener('storage', handleBookingsChanged);
+
+    // Set up real-time listener if Firestore is connected
+    let unsubscribe = () => {};
     try {
-      const unsubscribe = onSnapshot(collection(db, 'bookings'), (snapshot) => {
-        const items: Booking[] = [];
-        snapshot.forEach(doc => {
-          items.push({ id: doc.id, ...doc.data() } as Booking);
-        });
-        const local = JSON.parse(localStorage.getItem('waltair_user_bookings') || '[]');
-        const combined = [...items, ...local.filter((l: Booking) => !items.some(i => i.bookingRef === l.bookingRef))];
-        if (combined.length > 0) {
-          setAllBookings(combined);
-        }
+      unsubscribe = onSnapshot(collection(db, 'bookings'), () => {
+        fetchBookings();
       }, (err) => {
-        console.warn('Snapshot listener info:', err);
+        console.debug('Bookings snapshot note:', err);
       });
-      return () => unsubscribe();
     } catch (e) {
       // ignore
     }
+
+    return () => {
+      window.removeEventListener('waltair_bookings_changed', handleBookingsChanged);
+      window.removeEventListener('storage', handleBookingsChanged);
+      unsubscribe();
+    };
   }, []);
 
   // Handlers from Hero
@@ -432,6 +383,7 @@ export default function App() {
   };
 
   const handleBookingSuccess = (newBooking: Booking) => {
+    syncSaveBooking(newBooking);
     setAllBookings(prev => [newBooking, ...prev.filter(b => b.bookingRef !== newBooking.bookingRef)]);
   };
 

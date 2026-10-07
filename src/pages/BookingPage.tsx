@@ -38,6 +38,7 @@ import { useVehicles } from '../hooks/useVehicles';
 import { CURATED_AP_LOCATIONS } from '../utils/placesService';
 import { createBookingWhatsAppUrl, DISPLAY_PHONE_NUMBER, WHATSAPP_PHONE_NUMBER } from '../utils/whatsapp';
 import { trackFieldFootprint, markLeadConverted, getOrCreateLeadSessionId } from '../services/leadTrackingService';
+import { syncSaveBooking } from '../services/dbSync';
 import { SEOHead } from '../components/SEOHead';
 
 interface BookingPageProps {
@@ -372,16 +373,9 @@ export const BookingPage: React.FC<BookingPageProps> = ({
     };
 
     try {
-      // 1. Save to Firestore
-      try {
-        const docRef = await addDoc(collection(db, 'bookings'), {
-          ...newBooking,
-          createdAt: new Date().toISOString()
-        });
-        newBooking.id = docRef.id;
-      } catch (err) {
-        newBooking.id = `local-${Date.now()}`;
-      }
+      // 1. Universal persistence (LocalStorage + Server DB + Cloud Firestore)
+      const savedBooking = await syncSaveBooking(newBooking);
+      newBooking.id = savedBooking.id;
 
       // Convert lead in real-time with full customer and route details
       markLeadConverted(bookingRef, activeLeadId, {
@@ -399,10 +393,7 @@ export const BookingPage: React.FC<BookingPageProps> = ({
         lastFieldChanged: 'Booking Confirmed'
       });
 
-      // 2. Save in localStorage so data survives refreshes!
       try {
-        const existing = JSON.parse(localStorage.getItem('waltair_user_bookings') || '[]');
-        localStorage.setItem('waltair_user_bookings', JSON.stringify([newBooking, ...existing]));
         localStorage.setItem('waltair_last_booking', JSON.stringify(newBooking));
       } catch (err) {
         console.warn('LocalStorage save error:', err);
