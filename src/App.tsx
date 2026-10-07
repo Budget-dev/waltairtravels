@@ -16,7 +16,6 @@ import { AdminPanel } from './components/AdminPanel';
 import { AuthModal } from './components/AuthModal';
 import { BackendTelemetryModal } from './components/BackendTelemetryModal';
 import { AiTripPlannerModal } from './components/AiTripPlannerModal';
-import { FastBookingBar } from './components/FastBookingBar';
 
 // Dedicated SEO Pages
 import { AboutUsPage } from './pages/AboutUsPage';
@@ -769,16 +768,8 @@ export default function App() {
       {/* 3. Footer Matching Screenshot Layout */}
       <Footer onNavigatePage={navigateToPage} />
 
-      {/* 11. Floating WhatsApp Button */}
-      <WhatsAppButton offsetForMobileCta={currentPage !== 'home'} />
-
-      {/* 12. Floating Express 10-Second Quick-Booking Bar */}
-      <FastBookingBar
-        currentCity={currentCity}
-        currentPage={currentPage}
-        onInitiateBooking={handleInitiateBooking}
-        onBookingSuccess={handleBookingSuccess}
-      />
+      {/* Floating WhatsApp Button */}
+      <WhatsAppButton />
 
       {/* MODALS */}
 
