@@ -19,6 +19,9 @@ import {
 import { VEHICLES } from '../data/mockData';
 import { motion } from 'framer-motion';
 
+import { SEOHead } from '../components/SEOHead';
+import { trackBookingStart } from '../services/analyticsService';
+
 interface AirportTaxiPageProps {
   onNavigateHome: () => void;
   onOpenBooking: () => void;
@@ -30,6 +33,25 @@ export const AirportTaxiPage: React.FC<AirportTaxiPageProps> = ({
   onOpenBooking,
   onNavigatePage,
 }) => {
+  const airportFaqs = [
+    {
+      question: 'How do I book an airport taxi in Visakhapatnam with Waltair Cabs?',
+      answer: 'You can book online in seconds by selecting your pickup/drop location, flight arrival/departure time, and preferred vehicle. You can also call or WhatsApp our 24/7 dispatch desk directly at +91 91105 10236 for instant confirmation.'
+    },
+    {
+      question: 'Do you provide cab transfers to the new Bhogapuram International Airport (ASI)?',
+      answer: 'Yes. Waltair Cabs operates dedicated express airport transfers between Visakhapatnam city center, Siripuram, MVP Colony, Rushikonda, Gajuwaka, and the upcoming Bhogapuram International Airport (ASI) along the NH-16 corridor.'
+    },
+    {
+      question: 'What happens if my incoming flight is delayed?',
+      answer: 'All airport pickups include automatic flight tracking. If your flight is delayed, our dispatch schedule adjusts automatically, and your driver will be waiting at the terminal without extra waiting penalties.'
+    },
+    {
+      question: 'Are NH-16 highway tolls and airport parking included in the fare?',
+      answer: 'Yes. Waltair Cabs maintains 100% transparent pricing with zero surprise charges. All tolls, airport entry slips, and driver charges are transparently communicated upfront.'
+    }
+  ];
+
   const airportRoutes = [
     { 
       from: 'Bhogapuram Airport (ASI)', 
@@ -82,16 +104,39 @@ export const AirportTaxiPage: React.FC<AirportTaxiPageProps> = ({
   ];
 
   return (
-    <PageLayout
-      title="Airport Taxi Service (Bhogapuram ASI & VTZ)"
-      subtitle="Guaranteed punctual airport pickups and drops with flight delay tracking, meet & greet terminal service, and fixed transparent fares."
-      categoryBadge="Dedicated Airport Transfer"
-      breadcrumbs={[{ label: 'Top Services', onClick: () => onNavigatePage('services') }, { label: 'Airport Taxi' }]}
-      onNavigateHome={onNavigateHome}
-      onOpenBooking={onOpenBooking}
-      ctaText="Book Airport Cab Now"
-      heroImage="/hero-banner.png"
-    >
+    <>
+      <SEOHead
+        title="Vizag Airport Taxi & Cab Booking | Bhogapuram ASI & VTZ Transfers"
+        description="Reliable 24/7 airport taxi in Visakhapatnam for VTZ and Bhogapuram International Airport (ASI). Flight delay tracking, doorstep pickup, and fixed transparent fares."
+        canonicalPath="/airport-taxi-vizag"
+        keywords={[
+          'airport taxi vizag',
+          'vizag airport cab',
+          'bhogapuram airport cab',
+          'bhogapuram airport taxi fare',
+          'visakhapatnam airport taxi',
+          'airport transfer vizag',
+          'vtz airport taxi'
+        ]}
+        breadcrumbs={[
+          { name: 'Home', item: '/' },
+          { name: 'Airport Taxi', item: '/airport-taxi-vizag' }
+        ]}
+        faqs={airportFaqs}
+      />
+      <PageLayout
+        title="Airport Taxi Service (Bhogapuram ASI & VTZ)"
+        subtitle="Guaranteed punctual airport pickups and drops with flight delay tracking, meet & greet terminal service, and fixed transparent fares."
+        categoryBadge="Dedicated Airport Transfer"
+        breadcrumbs={[{ label: 'Top Services', onClick: () => onNavigatePage('services') }, { label: 'Airport Taxi' }]}
+        onNavigateHome={onNavigateHome}
+        onOpenBooking={() => {
+          trackBookingStart('airport', 'airport_page_hero');
+          onOpenBooking();
+        }}
+        ctaText="Book Airport Cab Now"
+        heroImage="/hero-banner.png"
+      >
       <div className="space-y-16">
 
         {/* 3 Core Airport Guarantees */}
@@ -276,7 +321,29 @@ export const AirportTaxiPage: React.FC<AirportTaxiPageProps> = ({
           </div>
         </div>
 
+        {/* Frequently Asked Questions */}
+        <div className="space-y-6">
+          <div className="max-w-2xl">
+            <span className="text-teal-700 font-bold text-xs uppercase tracking-wider">Airport Travel Questions</span>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 mt-1">Frequently Asked Questions</h2>
+          </div>
+          <div className="divide-y divide-slate-200/80 rounded-2xl bg-white border border-slate-200/80 overflow-hidden shadow-xs">
+            {airportFaqs.map((faq, i) => (
+              <div key={i} className="p-5 sm:p-6 space-y-2">
+                <h3 className="text-sm sm:text-base font-bold text-slate-900 flex items-start gap-2">
+                  <span className="text-teal-600 font-black">Q.</span>
+                  <span>{faq.question}</span>
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed pl-6">
+                  {faq.answer}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
     </PageLayout>
+    </>
   );
 };

@@ -32,6 +32,7 @@ import { LeafletRouteMap, LocationCoord } from './LeafletRouteMap';
 import { TripCountdownTimer } from './TripCountdownTimer';
 import { useVehicles } from '../hooks/useVehicles';
 import { createBookingWhatsAppUrl, DISPLAY_PHONE_NUMBER, WHATSAPP_PHONE_NUMBER } from '../utils/whatsapp';
+import { trackFieldFootprint, markLeadConverted, getOrCreateLeadSessionId } from '../services/leadTrackingService';
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -221,8 +222,12 @@ export const BookingModal: React.FC<BookingModalProps> = ({
       otp,
       specialRequests,
       createdAt: serverTimestamp ? serverTimestamp() : new Date().toISOString(),
-      city: currentCity
+      city: currentCity,
+      isRegistered: Boolean(localStorage.getItem('waltair_user_session')),
+      leadId: getOrCreateLeadSessionId()
     };
+
+    const activeLeadId = getOrCreateLeadSessionId();
 
     try {
       // Save directly to Firestore collection
@@ -231,6 +236,9 @@ export const BookingModal: React.FC<BookingModalProps> = ({
         createdAt: new Date().toISOString()
       });
       newBooking.id = docRef.id;
+
+      // Mark lead converted in real-time
+      markLeadConverted(newBooking.bookingRef, activeLeadId);
 
       // Also save in local storage as safety backup
       try {

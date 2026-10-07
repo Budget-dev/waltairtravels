@@ -1,6 +1,7 @@
 import React from 'react';
 import { PageLayout } from '../components/PageLayout';
 import { FileText, ShieldAlert, CheckCircle, Scale, AlertCircle } from 'lucide-react';
+import { SEOHead } from '../components/SEOHead';
 
 interface TermsConditionsPageProps {
   onNavigateHome: () => void;
@@ -26,7 +27,13 @@ export const TermsConditionsPage: React.FC<TermsConditionsPageProps> = ({
 
   return (
     <>
-      
+      <SEOHead
+        title="Terms & Conditions | Waltair Cabs Visakhapatnam"
+        description="Review standard terms of service, payment policies, luggage allowances, and passenger guidelines for Waltair Cabs operations."
+        canonicalUrl="/terms-and-conditions"
+        keywords={["waltair cabs terms and conditions", "taxi terms visakhapatnam", "cab service conditions vizag"]}
+        structuredData={structuredData}
+      />
       <PageLayout
         title="Terms & Conditions"
         subtitle="Standard operating rules, user guidelines, luggage allowances, and legal provisions governing services provided by Waltair Travels."

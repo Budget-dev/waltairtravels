@@ -17,6 +17,7 @@ import {
 import { ServiceCategory, TripSubType } from '../types';
 import { VEHICLES } from '../data/mockData';
 import { motion } from 'framer-motion';
+import { SEOHead } from '../components/SEOHead';
 
 interface OurServicesPageProps {
   onNavigateHome: () => void;
@@ -115,6 +116,12 @@ export const OurServicesPage: React.FC<OurServicesPageProps> = ({
       ctaText="Book Instant Cab"
       heroImage="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=1600&q=80"
     >
+      <SEOHead
+        title="Cab & Taxi Services in Vizag | Airport, Outstation & Rentals | Waltair Cabs"
+        description="Explore Waltair Cabs services in Visakhapatnam: Bhogapuram airport transfers, one-way outstation cabs, hourly city car rentals, and Araku sightseeing packages."
+        canonicalUrl="/services"
+        keywords={["vizag cab services", "taxi services in vizag", "car rental visakhapatnam", "airport cab service", "outstation taxi vizag"]}
+      />
       <div className="space-y-16">
         
         {/* Services Grid with Visual Photography */}

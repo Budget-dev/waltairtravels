@@ -37,6 +37,8 @@ import { LeafletRouteMap } from '../components/LeafletRouteMap';
 import { useVehicles } from '../hooks/useVehicles';
 import { CURATED_AP_LOCATIONS } from '../utils/placesService';
 import { createBookingWhatsAppUrl, DISPLAY_PHONE_NUMBER, WHATSAPP_PHONE_NUMBER } from '../utils/whatsapp';
+import { trackFieldFootprint, markLeadConverted, getOrCreateLeadSessionId } from '../services/leadTrackingService';
+import { SEOHead } from '../components/SEOHead';
 
 interface BookingPageProps {
   onNavigateHome: () => void;
@@ -146,65 +148,6 @@ export const BookingPage: React.FC<BookingPageProps> = ({
     return () => observer.disconnect();
   }, [bookingMode, step]);
 
-  // Persist draft to localStorage on any field change so refreshing never loses entered data
-  useEffect(() => {
-    try {
-      const currentDraft = {
-        pickupLocation,
-        dropoffLocation,
-        pickupCoords,
-        dropoffCoords,
-        travelDate,
-        pickupTime,
-        serviceType,
-        subType,
-        customerName,
-        customerPhone,
-        customerEmail,
-        additionalPassengers,
-        specialRequests,
-        selectedVehicleId: selectedVehicle?.id
-      };
-      localStorage.setItem('waltair_booking_draft', JSON.stringify(currentDraft));
-    } catch (e) {
-      // ignore
-    }
-  }, [
-    pickupLocation, dropoffLocation, pickupCoords, dropoffCoords,
-    travelDate, pickupTime, serviceType, subType,
-    customerName, customerPhone, customerEmail, additionalPassengers,
-    specialRequests, selectedVehicle
-  ]);
-
-  // Sync initialData changes from parent
-  useEffect(() => {
-    if (initialData) {
-      if (initialData.pickupLocation) setPickupLocation(initialData.pickupLocation);
-      if (initialData.dropoffLocation) setDropoffLocation(initialData.dropoffLocation);
-      if (initialData.travelDate) setTravelDate(initialData.travelDate);
-      if (initialData.pickupTime) setPickupTime(initialData.pickupTime);
-      if (initialData.serviceType) setServiceType(initialData.serviceType);
-      if (initialData.subType) setSubType(initialData.subType);
-      if (initialData.phone) setCustomerPhone(initialData.phone);
-      if (initialData.pickupCoords) setPickupCoords(initialData.pickupCoords);
-      if (initialData.dropoffCoords) setDropoffCoords(initialData.dropoffCoords);
-
-      if (initialData.preSelectedVehicleId && vehicles.length > 0) {
-        const found = vehicles.find(v => v.id === initialData.preSelectedVehicleId);
-        if (found) setSelectedVehicle(found);
-      }
-    }
-  }, [initialData, vehicles]);
-
-  // Select default vehicle if none selected
-  useEffect(() => {
-    if (vehicles.length > 0 && !selectedVehicle) {
-      const preferredId = initialData?.preSelectedVehicleId || draft?.selectedVehicleId || 'dzire';
-      const found = vehicles.find(v => v.id === preferredId) || vehicles[0];
-      setSelectedVehicle(found);
-    }
-  }, [vehicles, selectedVehicle]);
-
   // Calculate estimated road distance
   const calculateDistance = (): number => {
     if (pickupCoords?.lat && pickupCoords?.lng && dropoffCoords?.lat && dropoffCoords?.lng) {
@@ -241,6 +184,85 @@ export const BookingPage: React.FC<BookingPageProps> = ({
   };
 
   const estimatedKm = calculateDistance();
+
+  // Persist draft to localStorage on any field change so refreshing never loses entered data
+  useEffect(() => {
+    try {
+      const currentDraft = {
+        pickupLocation,
+        dropoffLocation,
+        pickupCoords,
+        dropoffCoords,
+        travelDate,
+        pickupTime,
+        serviceType,
+        subType,
+        customerName,
+        customerPhone,
+        customerEmail,
+        additionalPassengers,
+        specialRequests,
+        selectedVehicleId: selectedVehicle?.id
+      };
+      localStorage.setItem('waltair_booking_draft', JSON.stringify(currentDraft));
+
+      // Real-time Footprint Tracking - captures partial field entries as live leads
+      if (pickupLocation || dropoffLocation || customerPhone || customerName || customerEmail) {
+        trackFieldFootprint({
+          source: 'booking_page',
+          pickupLocation,
+          dropoffLocation,
+          travelDate,
+          pickupTime,
+          serviceType,
+          subType,
+          customerName,
+          customerPhone,
+          customerEmail,
+          vehicleName: selectedVehicle?.name,
+          vehicleCategory: selectedVehicle?.category,
+          estimatedDistanceKm: estimatedKm,
+          lastFieldChanged: customerPhone ? `Phone: +91 ${customerPhone}` : (customerName ? `Name: ${customerName}` : `Location: ${pickupLocation || dropoffLocation}`),
+        });
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, [
+    pickupLocation, dropoffLocation, pickupCoords, dropoffCoords,
+    travelDate, pickupTime, serviceType, subType,
+    customerName, customerPhone, customerEmail, additionalPassengers,
+    specialRequests, selectedVehicle, estimatedKm
+  ]);
+
+  // Sync initialData changes from parent
+  useEffect(() => {
+    if (initialData) {
+      if (initialData.pickupLocation) setPickupLocation(initialData.pickupLocation);
+      if (initialData.dropoffLocation) setDropoffLocation(initialData.dropoffLocation);
+      if (initialData.travelDate) setTravelDate(initialData.travelDate);
+      if (initialData.pickupTime) setPickupTime(initialData.pickupTime);
+      if (initialData.serviceType) setServiceType(initialData.serviceType);
+      if (initialData.subType) setSubType(initialData.subType);
+      if (initialData.phone) setCustomerPhone(initialData.phone);
+      if (initialData.pickupCoords) setPickupCoords(initialData.pickupCoords);
+      if (initialData.dropoffCoords) setDropoffCoords(initialData.dropoffCoords);
+
+      if (initialData.preSelectedVehicleId && vehicles.length > 0) {
+        const found = vehicles.find(v => v.id === initialData.preSelectedVehicleId);
+        if (found) setSelectedVehicle(found);
+      }
+    }
+  }, [initialData, vehicles]);
+
+  // Select default vehicle if none selected
+  useEffect(() => {
+    if (vehicles.length > 0 && !selectedVehicle) {
+      const preferredId = initialData?.preSelectedVehicleId || draft?.selectedVehicleId || 'dzire';
+      const found = vehicles.find(v => v.id === preferredId) || vehicles[0];
+      setSelectedVehicle(found);
+    }
+  }, [vehicles, selectedVehicle]);
 
   // Swap pickup & dropoff
   const handleSwapLocations = () => {
@@ -314,6 +336,17 @@ export const BookingPage: React.FC<BookingPageProps> = ({
     const bookingRef = `WAL-${Math.floor(10000 + Math.random() * 90000)}`;
     const filteredPassengers = additionalPassengers.map(p => p.trim()).filter(Boolean);
 
+    const userSession = (() => {
+      try {
+        const u = localStorage.getItem('waltair_user_session');
+        return u ? JSON.parse(u) : null;
+      } catch {
+        return null;
+      }
+    })();
+
+    const activeLeadId = getOrCreateLeadSessionId();
+
     const newBooking: Booking = {
       bookingRef,
       customerName: customerName.trim(),
@@ -332,7 +365,10 @@ export const BookingPage: React.FC<BookingPageProps> = ({
       status: 'confirmed',
       specialRequests: specialRequests.trim() || undefined,
       createdAt: new Date().toISOString(),
-      city: currentCity
+      city: currentCity,
+      isRegistered: Boolean(userSession),
+      userId: userSession?.uid,
+      leadId: activeLeadId
     };
 
     try {
@@ -346,6 +382,22 @@ export const BookingPage: React.FC<BookingPageProps> = ({
       } catch (err) {
         newBooking.id = `local-${Date.now()}`;
       }
+
+      // Convert lead in real-time with full customer and route details
+      markLeadConverted(bookingRef, activeLeadId, {
+        customerName: customerName.trim(),
+        customerPhone: cleanPhone,
+        customerEmail: customerEmail.trim() || undefined,
+        pickupLocation: pickupLocation.trim(),
+        dropoffLocation: dropoffLocation.trim(),
+        travelDate: travelDate || new Date().toISOString().split('T')[0],
+        pickupTime: pickupTime || '10:30',
+        vehicleName: selectedVehicle?.name || 'Standard Cab',
+        vehicleCategory: selectedVehicle?.category || 'Sedan',
+        isRegistered: Boolean(userSession),
+        userId: userSession?.uid,
+        lastFieldChanged: 'Booking Confirmed'
+      });
 
       // 2. Save in localStorage so data survives refreshes!
       try {
@@ -453,7 +505,13 @@ export const BookingPage: React.FC<BookingPageProps> = ({
   };
 
   return (
-    <div className="animate-in fade-in duration-200 bg-slate-50 min-h-screen pb-28 sm:pb-16">
+    <div className="animate-in fade-in duration-200 bg-slate-50 min-h-screen pb-36 sm:pb-20">
+      <SEOHead
+        title="Book Cab Online in Vizag | Airport Taxi, Outstation & Sightseeing | Waltair Cabs"
+        description="Book verified cabs in Visakhapatnam online: Bhogapuram airport drops, Araku Valley packages, outstation one-way taxis and hourly rentals with zero advance payment."
+        canonicalUrl="/booking"
+        keywords={["book cab vizag", "online taxi booking visakhapatnam", "vizag airport cab booking", "waltair cabs booking"]}
+      />
       {/* Top Header Banner: Compact on Mobile (46-50px), Spacious Hero on Desktop */}
       <div className="relative overflow-hidden bg-slate-950 text-white border-b border-teal-900/60">
         <div className="hidden sm:block absolute inset-0 opacity-20 pointer-events-none">
@@ -705,7 +763,7 @@ export const BookingPage: React.FC<BookingPageProps> = ({
                   }`}
                 >
                   <Zap className={`w-3.5 h-3.5 ${bookingMode === 'express' ? 'fill-amber-300 text-amber-300' : 'text-slate-400'}`} />
-                  <span>⚡ Fast Book</span>
+                  <span>Express 1-Page</span>
                 </button>
 
                 <button
@@ -718,16 +776,21 @@ export const BookingPage: React.FC<BookingPageProps> = ({
                   }`}
                 >
                   <SlidersHorizontal className="w-3.5 h-3.5" />
-                  <span>☷ Detailed Steps</span>
+                  <span>Step-by-Step</span>
                 </button>
               </div>
             )}
 
             {/* Mobile Guarantee Reassurance Strip (34px) */}
             {step < 4 && (
-              <div className="sm:hidden flex items-center justify-center gap-1.5 text-[11px] font-semibold text-emerald-800 bg-emerald-50/90 h-[34px] px-3 rounded-lg border border-emerald-200/70">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>Guaranteed AC Cab • Pay Post-Ride</span>
+              <div className="sm:hidden flex items-center justify-between text-[11px] font-semibold text-emerald-800 bg-emerald-50/90 h-[34px] px-3 rounded-lg border border-emerald-200/70">
+                <span className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span>Guaranteed AC Cab • Pay Post-Ride</span>
+                </span>
+                <span className="text-[10px] text-teal-900 font-bold bg-emerald-200/70 px-1.5 py-0.5 rounded">
+                  Zero Surge
+                </span>
               </div>
             )}
 
@@ -874,7 +937,7 @@ export const BookingPage: React.FC<BookingPageProps> = ({
                     <span className="text-[11px] text-slate-500 font-medium">Click to select</span>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
                     {vehicles.map((v) => {
                       const isSelected = selectedVehicle?.id === v.id;
                       return (
@@ -883,30 +946,66 @@ export const BookingPage: React.FC<BookingPageProps> = ({
                           onClick={() => {
                             setSelectedVehicle(v);
                             setActiveExpressSection('cab');
+                            trackFieldFootprint({
+                              vehicleName: v.name,
+                              vehicleCategory: v.category,
+                              lastFieldChanged: `Selected cab: ${v.name}`
+                            });
                           }}
-                          className={`p-3 rounded-2xl border-2 cursor-pointer transition-all flex flex-col justify-between ${
+                          className={`p-3.5 sm:p-4 rounded-2xl border-2 cursor-pointer transition-all flex flex-col justify-between relative group ${
                             isSelected 
-                              ? 'border-teal-700 bg-teal-50/60 ring-2 ring-teal-600/20 shadow-sm' 
-                              : 'border-slate-200 hover:border-slate-300 bg-white'
+                              ? 'border-teal-700 bg-teal-50/70 ring-2 ring-teal-600/20 shadow-md' 
+                              : 'border-slate-200 hover:border-teal-400 bg-white hover:bg-slate-50/50'
                           }`}
                         >
-                          <div className="flex items-center gap-3">
+                          {isSelected && (
+                            <span className="absolute top-3 right-3 z-10 bg-teal-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-xs flex items-center gap-1">
+                              ✓ Selected
+                            </span>
+                          )}
+
+                          {/* Full Prominent Car Photo */}
+                          <div className="relative w-full h-44 sm:h-40 rounded-xl overflow-hidden border border-slate-100 bg-slate-100 shadow-inner mb-3">
                             <img 
                               src={v.image} 
                               alt={v.name} 
-                              className="w-16 h-12 object-cover rounded-xl border border-slate-100 bg-slate-50 shrink-0" 
+                              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
                             />
-                            <div>
-                              <div className="font-bold text-xs sm:text-sm text-slate-900 leading-tight">{v.name}</div>
-                              <div className="text-[11px] text-slate-500 mt-0.5">{v.seats} Seats • AC</div>
+                            <div className="absolute bottom-2 left-2 bg-slate-950/80 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
+                              <span>👥</span> {v.seats} Seats • AC
+                            </div>
+                            <div className="absolute bottom-2 right-2 bg-slate-950/80 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
+                              <span>🧳</span> {v.luggageCount} Bags
                             </div>
                           </div>
-                          <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between">
-                            <span className="text-[10px] text-teal-800 font-semibold">{v.luggageCount} Bags</span>
-                            <span className={`text-[11px] font-bold px-2 py-0.5 rounded-lg ${
-                              isSelected ? 'bg-teal-700 text-white' : 'bg-slate-100 text-slate-700'
+
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between">
+                              <h4 className="font-extrabold text-sm sm:text-base text-slate-900 leading-snug">
+                                {v.name}
+                              </h4>
+                              <span className="text-[10px] px-2 py-0.5 rounded-md bg-teal-100/70 text-teal-800 font-bold shrink-0">
+                                {v.category}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-slate-500 mt-1">
+                              {v.popularFor || 'Commercial verified fleet with professional chauffeur & clean AC interior'}
+                            </p>
+                          </div>
+
+                          {/* WhatsApp Quote & 1-Tap Select Action - ZERO PRICES SHOWN */}
+                          <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-1 text-emerald-700 font-bold text-[11px]">
+                              <MessageCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                              <span>Quote on WhatsApp</span>
+                            </div>
+
+                            <span className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                              isSelected 
+                                ? 'bg-teal-700 text-white shadow-xs' 
+                                : 'bg-slate-100 text-slate-700 group-hover:bg-teal-50 group-hover:text-teal-900'
                             }`}>
-                              {isSelected ? '✓ Selected' : 'Choose'}
+                              {isSelected ? '✓ Picked' : 'Select Cab'}
                             </span>
                           </div>
                         </div>
@@ -927,11 +1026,48 @@ export const BookingPage: React.FC<BookingPageProps> = ({
                         <span>Passenger & Schedule</span>
                       </div>
                     </div>
+                    <span className="text-[11px] text-emerald-700 font-semibold flex items-center gap-1">
+                      <Clock className="w-3.5 h-3.5" /> 24/7 Live Fleet
+                    </span>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="p-2.5 rounded-xl border border-slate-200 bg-slate-50/70">
-                      <label className="text-[10px] uppercase font-bold text-slate-500 block mb-1">Travel Date</label>
+                    
+                    {/* Travel Date with Quick Chips */}
+                    <div className="p-2.5 rounded-xl border border-slate-200 bg-slate-50/70 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[10px] uppercase font-bold text-slate-500 block">Travel Date *</label>
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const d = new Date().toISOString().split('T')[0];
+                              setTravelDate(d);
+                              trackFieldFootprint({ travelDate: d, lastFieldChanged: 'Quick date: Today' });
+                            }}
+                            className={`text-[9.5px] px-1.5 py-0.5 rounded font-bold transition-colors cursor-pointer ${
+                              travelDate === new Date().toISOString().split('T')[0]
+                                ? 'bg-teal-700 text-white'
+                                : 'bg-slate-200 text-slate-700 hover:bg-teal-100'
+                            }`}
+                          >
+                            Today
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const tm = new Date();
+                              tm.setDate(tm.getDate() + 1);
+                              const d = tm.toISOString().split('T')[0];
+                              setTravelDate(d);
+                              trackFieldFootprint({ travelDate: d, lastFieldChanged: 'Quick date: Tomorrow' });
+                            }}
+                            className="text-[9.5px] px-1.5 py-0.5 rounded font-bold bg-slate-200 text-slate-700 hover:bg-teal-100 transition-colors cursor-pointer"
+                          >
+                            Tomorrow
+                          </button>
+                        </div>
+                      </div>
                       <input
                         type="date"
                         min={new Date().toISOString().split('T')[0]}
@@ -942,8 +1078,47 @@ export const BookingPage: React.FC<BookingPageProps> = ({
                       />
                     </div>
 
-                    <div className="p-2.5 rounded-xl border border-slate-200 bg-slate-50/70">
-                      <label className="text-[10px] uppercase font-bold text-slate-500 block mb-1">Pickup Time</label>
+                    {/* Pickup Time with Quick Chips */}
+                    <div className="p-2.5 rounded-xl border border-slate-200 bg-slate-50/70 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[10px] uppercase font-bold text-slate-500 block">Pickup Time *</label>
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const now = new Date();
+                              const hh = String(now.getHours()).padStart(2, '0');
+                              const mm = String(Math.min(55, Math.ceil(now.getMinutes() / 5) * 5)).padStart(2, '0');
+                              const t = `${hh}:${mm}`;
+                              setPickupTime(t);
+                              trackFieldFootprint({ pickupTime: t, lastFieldChanged: 'Quick time: Now' });
+                            }}
+                            className="text-[9.5px] px-1.5 py-0.5 rounded font-bold bg-slate-200 text-slate-700 hover:bg-teal-100 transition-colors cursor-pointer"
+                          >
+                            Now
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPickupTime('06:00');
+                              trackFieldFootprint({ pickupTime: '06:00', lastFieldChanged: 'Quick time: 06:00 AM' });
+                            }}
+                            className="text-[9.5px] px-1.5 py-0.5 rounded font-bold bg-slate-200 text-slate-700 hover:bg-teal-100 transition-colors cursor-pointer"
+                          >
+                            06:00 AM
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPickupTime('18:00');
+                              trackFieldFootprint({ pickupTime: '18:00', lastFieldChanged: 'Quick time: 06:00 PM' });
+                            }}
+                            className="text-[9.5px] px-1.5 py-0.5 rounded font-bold bg-slate-200 text-slate-700 hover:bg-teal-100 transition-colors cursor-pointer"
+                          >
+                            06:00 PM
+                          </button>
+                        </div>
+                      </div>
                       <input
                         type="time"
                         value={pickupTime}
@@ -958,8 +1133,22 @@ export const BookingPage: React.FC<BookingPageProps> = ({
                       <input
                         type="text"
                         value={customerName}
-                        onChange={(e) => setCustomerName(e.target.value)}
-                        placeholder="Full Name"
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setCustomerName(val);
+                          trackFieldFootprint({
+                            customerName: val,
+                            customerPhone,
+                            pickupLocation,
+                            dropoffLocation,
+                            travelDate,
+                            pickupTime,
+                            vehicleName: selectedVehicle?.name,
+                            vehicleCategory: selectedVehicle?.category,
+                            lastFieldChanged: 'Primary passenger name updated'
+                          });
+                        }}
+                        placeholder="Full Name (e.g. Rajesh Kumar)"
                         className="w-full text-xs sm:text-sm font-semibold text-slate-900 bg-transparent outline-none placeholder:text-slate-400"
                         required
                       />
@@ -973,7 +1162,21 @@ export const BookingPage: React.FC<BookingPageProps> = ({
                           type="tel"
                           maxLength={10}
                           value={customerPhone}
-                          onChange={(e) => setCustomerPhone(e.target.value.replace(/\D/g, ''))}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, '');
+                            setCustomerPhone(val);
+                            trackFieldFootprint({
+                              customerPhone: val,
+                              customerName,
+                              pickupLocation,
+                              dropoffLocation,
+                              travelDate,
+                              pickupTime,
+                              vehicleName: selectedVehicle?.name,
+                              vehicleCategory: selectedVehicle?.category,
+                              lastFieldChanged: 'Mobile number entered'
+                            });
+                          }}
                           placeholder="98765 43210"
                           className="w-full text-xs sm:text-sm font-semibold text-slate-900 bg-transparent outline-none placeholder:text-slate-400"
                           required
@@ -1059,7 +1262,7 @@ export const BookingPage: React.FC<BookingPageProps> = ({
                       ) : (
                         <>
                           <Zap className="w-4 h-4 fill-white text-white" />
-                          <span>⚡ Confirm Booking & Dispatch Chauffeur</span>
+                          <span>Confirm Booking & Dispatch Chauffeur</span>
                         </>
                       )}
                     </motion.button>
@@ -1077,12 +1280,12 @@ export const BookingPage: React.FC<BookingPageProps> = ({
                     </a>
                   </div>
 
-                  <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1">
+                  <div className="flex flex-col xs:flex-row items-center justify-between text-[11px] text-slate-500 pt-1 gap-1.5 text-center xs:text-left">
                     <span className="flex items-center gap-1 text-emerald-700 font-semibold">
-                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                       <span>No prepayment • Guaranteed on-time pickup</span>
                     </span>
-                    <span className="text-slate-400">Fare quoted on request via WhatsApp</span>
+                    <span className="text-slate-500 font-medium">Fare quoted on request via WhatsApp</span>
                   </div>
                 </div>
               </form>
@@ -1980,7 +2183,7 @@ export const BookingPage: React.FC<BookingPageProps> = ({
             </div>
             <div className="text-[10px] font-semibold text-emerald-700 leading-none mt-0.5 truncate flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
-              <span>AC Cab • Pay Post-Ride</span>
+              <span>AC Cab • Fare on WhatsApp</span>
             </div>
           </div>
 

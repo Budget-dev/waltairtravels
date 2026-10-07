@@ -22,10 +22,12 @@ import {
   ChevronRight,
   Shield,
   HelpCircle,
-  Activity
+  Activity,
+  Mountain
 } from 'lucide-react';
 import { INITIAL_NOTIFICATIONS } from '../data/mockData';
 import { NotificationItem, AppUser } from '../types';
+import { trackPhoneClick } from '../services/analyticsService';
 
 interface NavbarProps {
   currentCity: string;
@@ -64,6 +66,52 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [notifications, setNotifications] = useState<NotificationItem[]>(INITIAL_NOTIFICATIONS);
 
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+
+  // Sync with session storage and custom auth change events so Navbar is 100% reactive
+  const [localSession, setLocalSession] = useState<AppUser | null>(() => {
+    try {
+      const saved = localStorage.getItem('waltair_user_session');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  useEffect(() => {
+    const syncSession = () => {
+      try {
+        const saved = localStorage.getItem('waltair_user_session');
+        setLocalSession(saved ? JSON.parse(saved) : null);
+      } catch {
+        setLocalSession(null);
+      }
+    };
+    window.addEventListener('storage', syncSession);
+    window.addEventListener('waltair_auth_change', syncSession);
+    return () => {
+      window.removeEventListener('storage', syncSession);
+      window.removeEventListener('waltair_auth_change', syncSession);
+    };
+  }, []);
+
+  const activeUser = user || localSession;
+  const isUserLoggedIn = Boolean(
+    activeUser &&
+    activeUser.isLoggedIn !== false &&
+    (activeUser.uid || activeUser.email || activeUser.name || activeUser.phone)
+  );
+
+  const handleSignOut = () => {
+    setIsProfileMenuOpen(false);
+    setIsMobileMenuOpen(false);
+    try {
+      localStorage.removeItem('waltair_user_session');
+      window.dispatchEvent(new Event('waltair_auth_change'));
+    } catch (e) {
+      console.warn('Session clear note:', e);
+    }
+    onLogout();
+  };
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
@@ -125,6 +173,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex items-center gap-4 shrink-0 font-medium">
             <a 
               href="tel:+919110510236" 
+              onClick={() => trackPhoneClick('navbar_top')}
               className="text-teal-300 hover:text-white font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <Phone className="w-3.5 h-3.5 text-teal-400" />
@@ -254,6 +303,19 @@ export const Navbar: React.FC<NavbarProps> = ({
                   </button>
 
                   <button 
+                    onClick={() => handleNav('vizag-to-araku-cab')}
+                    className="w-full text-left flex items-start gap-3 p-2.5 rounded-xl hover:bg-teal-50/70 text-slate-700 transition-colors cursor-pointer"
+                  >
+                    <div className="p-2 rounded-lg bg-emerald-100/80 text-emerald-900">
+                      <Mountain className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-xs sm:text-sm text-slate-900">Vizag to Araku Cab</div>
+                      <div className="text-[11px] text-slate-500">Borra Caves, Tyda & Hill Station Tour</div>
+                    </div>
+                  </button>
+
+                  <button 
                     onClick={() => handleNav('local-rentals')}
                     className="w-full text-left flex items-start gap-3 p-2.5 rounded-xl hover:bg-teal-50/70 text-slate-700 transition-colors cursor-pointer"
                   >
@@ -360,6 +422,17 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span className="text-[10px] text-teal-700 bg-white/90 px-1.5 py-0.5 rounded-full font-bold border border-teal-200/60 ml-0.5">Hub</span>
           </div>
 
+          {/* Admin Fleet & Lead Console Button */}
+          <button
+            onClick={onOpenAdmin}
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-teal-500 text-teal-300 text-xs font-bold transition-all shadow-xs cursor-pointer"
+            title="Open Fleet Operations & Lead Admin Console"
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-teal-400" />
+            <span>Admin Portal</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          </button>
+
           {/* Notification Bell */}
           <div className="relative">
             <button
@@ -421,17 +494,22 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           {/* User Profile or Login Button */}
-          {user && user.isLoggedIn ? (
+          {isUserLoggedIn && activeUser ? (
             <div className="relative shrink-0">
               <button 
                 id="user-profile-btn"
                 onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                className="whitespace-nowrap shrink-0 flex items-center gap-1.5 sm:gap-2 bg-slate-900 hover:bg-slate-800 text-white px-2.5 sm:px-3 py-1.5 rounded-xl font-medium text-xs sm:text-sm shadow-xs transition-all cursor-pointer"
+                className="whitespace-nowrap shrink-0 flex items-center gap-1.5 sm:gap-2 bg-slate-900 hover:bg-slate-800 text-white px-2.5 sm:px-3 py-1.5 rounded-xl font-medium text-xs sm:text-sm shadow-xs transition-all cursor-pointer border border-slate-700/60 hover:border-teal-500/50"
               >
-                <div className="w-5 h-5 rounded-full bg-teal-700 text-white flex items-center justify-center text-xs font-bold shrink-0">
-                  {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                <div className="relative">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-teal-600 text-white flex items-center justify-center text-[10px] sm:text-xs font-bold shrink-0">
+                    {activeUser.name ? activeUser.name.charAt(0).toUpperCase() : 'U'}
+                  </div>
+                  <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-1 ring-slate-900" />
                 </div>
-                <span className="hidden sm:inline font-semibold">{user.name.split(' ')[0]}</span>
+                <span className="font-semibold max-w-[100px] sm:max-w-[130px] truncate">
+                  {activeUser.name ? activeUser.name.split(' ')[0] : 'Rider'}
+                </span>
                 <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${isProfileMenuOpen ? 'rotate-180' : ''}`} />
               </button>
 
@@ -441,11 +519,20 @@ export const Navbar: React.FC<NavbarProps> = ({
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 8 }}
-                    className="fixed left-4 right-4 top-[72px] sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-60 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 z-50 whitespace-normal"
+                    className="fixed left-4 right-4 top-[72px] sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-64 bg-white rounded-2xl shadow-xl border border-slate-200 p-2.5 z-50 whitespace-normal"
                   >
-                    <div className="px-3 py-2 border-b border-slate-100">
-                      <div className="font-bold text-slate-900 text-xs sm:text-sm">{user.name}</div>
-                      <div className="text-[11px] text-slate-400 truncate">{user.email || user.phone || 'Verified Rider'}</div>
+                    <div className="px-3 py-2 border-b border-slate-100 flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-full bg-teal-800 text-white flex items-center justify-center text-sm font-bold shrink-0">
+                        {activeUser.name ? activeUser.name.charAt(0).toUpperCase() : 'U'}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="font-bold text-slate-900 text-xs sm:text-sm truncate">{activeUser.name || 'Waltair Rider'}</div>
+                        <div className="text-[11px] text-slate-500 truncate">{activeUser.email || activeUser.phone || 'Verified Account'}</div>
+                        <div className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded mt-0.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                          <span>Logged In</span>
+                        </div>
+                      </div>
                     </div>
 
                     <div className="py-1">
@@ -454,7 +541,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                           setIsProfileMenuOpen(false);
                           onOpenManageTrips();
                         }}
-                        className="w-full text-left px-3 py-2 text-xs rounded-xl text-slate-700 hover:bg-slate-50 flex items-center gap-2 cursor-pointer"
+                        className="w-full text-left px-3 py-2 text-xs rounded-xl text-slate-700 hover:bg-teal-50 hover:text-teal-900 flex items-center gap-2 cursor-pointer font-medium transition-colors"
                       >
                         <Car className="w-4 h-4 text-teal-700" />
                         <span>My Trips & Invoices</span>
@@ -463,11 +550,8 @@ export const Navbar: React.FC<NavbarProps> = ({
 
                     <div className="pt-1 border-t border-slate-100">
                       <button
-                        onClick={() => {
-                          setIsProfileMenuOpen(false);
-                          onLogout();
-                        }}
-                        className="w-full text-left px-3 py-2 text-xs rounded-xl text-rose-600 hover:bg-rose-50 flex items-center gap-2 font-medium cursor-pointer"
+                        onClick={handleSignOut}
+                        className="w-full text-left px-3 py-2 text-xs rounded-xl text-rose-600 hover:bg-rose-50 flex items-center gap-2 font-medium cursor-pointer transition-colors"
                       >
                         <LogOut className="w-4 h-4" />
                         <span>Sign Out</span>
@@ -593,6 +677,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       { id: 'services', label: 'Our Services', icon: Briefcase },
                       { id: 'airport-taxi', label: 'Airport Taxi (ASI Bhogapuram)', icon: Plane },
                       { id: 'outstation', label: 'Outstation Cabs', icon: Compass },
+                      { id: 'vizag-to-araku-cab', label: 'Vizag to Araku Cab (Borra Caves)', icon: Mountain },
                       { id: 'local-rentals', label: 'Hourly City Rentals', icon: Clock },
                       { id: 'packages', label: 'Holiday Tours (Araku & Lambasingi)', icon: Map },
                       { id: 'travel-blog', label: 'Travel Guides & Blog', icon: BookOpen },
@@ -632,6 +717,24 @@ export const Navbar: React.FC<NavbarProps> = ({
                         type="button"
                         onClick={() => {
                           setIsMobileMenuOpen(false);
+                          onOpenAdmin();
+                        }}
+                        className="p-3 rounded-xl bg-slate-900 border border-slate-700 hover:border-teal-500 text-teal-300 font-bold text-xs flex items-center justify-between transition-colors cursor-pointer shadow-xs"
+                      >
+                        <div className="flex items-center gap-2">
+                          <ShieldCheck className="w-4 h-4 text-teal-400" />
+                          <span>Admin & Lead Console</span>
+                        </div>
+                        <span className="flex items-center gap-1 text-[10px] bg-teal-500/20 text-teal-300 px-2 py-0.5 rounded-full font-mono">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          Live Hub
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsMobileMenuOpen(false);
                           onOpenManageTrips();
                         }}
                         className="p-3 rounded-xl bg-teal-850 hover:bg-teal-900 bg-teal-800 text-white font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs"
@@ -660,32 +763,45 @@ export const Navbar: React.FC<NavbarProps> = ({
                   </a>
 
                   {/* User Session Footer */}
-                  {user && user.isLoggedIn ? (
-                    <div className="pt-2">
+                  {isUserLoggedIn && activeUser ? (
+                    <div className="pt-2 space-y-2 border-t border-slate-100">
+                      <div className="p-3 bg-slate-900 text-white rounded-2xl flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-teal-700 text-white flex items-center justify-center text-sm font-bold shrink-0">
+                          {activeUser.name ? activeUser.name.charAt(0).toUpperCase() : 'U'}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="font-bold text-xs text-white truncate">{activeUser.name || 'Waltair Rider'}</div>
+                          <div className="text-[10px] text-teal-300 truncate">{activeUser.email || activeUser.phone || 'Active Session'}</div>
+                        </div>
+                        <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0">
+                          Online
+                        </span>
+                      </div>
+
                       <button
                         type="button"
-                        onClick={() => {
-                          setIsMobileMenuOpen(false);
-                          onLogout();
-                        }}
+                        onClick={handleSignOut}
                         className="w-full py-2.5 rounded-xl border border-rose-200 text-rose-600 bg-rose-50 text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-rose-100 transition-colors cursor-pointer"
                       >
                         <LogOut className="w-4 h-4" />
-                        <span>Sign Out ({user.name})</span>
+                        <span>Sign Out ({activeUser.name ? activeUser.name.split(' ')[0] : 'Rider'})</span>
                       </button>
                     </div>
                   ) : (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsMobileMenuOpen(false);
-                        onOpenAuth();
-                      }}
-                      className="w-full py-2.5 rounded-xl bg-teal-800 hover:bg-teal-900 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition-colors cursor-pointer"
-                    >
-                      <User className="w-4 h-4" />
-                      <span>Login or Register</span>
-                    </button>
+                    <div className="pt-2 border-t border-slate-100">
+                      <button
+                        type="button"
+                        id="mobile-drawer-login-btn"
+                        onClick={() => {
+                          setIsMobileMenuOpen(false);
+                          onOpenAuth();
+                        }}
+                        className="w-full py-2.5 rounded-xl bg-teal-800 hover:bg-teal-900 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition-colors cursor-pointer"
+                      >
+                        <User className="w-4 h-4" />
+                        <span>Login or Register</span>
+                      </button>
+                    </div>
                   )}
 
                 </div>

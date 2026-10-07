@@ -17,6 +17,8 @@ import {
   Check
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { SEOHead } from '../components/SEOHead';
+import { trackBookingStart } from '../services/analyticsService';
 
 interface LocalRentalsPageProps {
   onNavigateHome: () => void;
@@ -31,6 +33,25 @@ export const LocalRentalsPage: React.FC<LocalRentalsPageProps> = ({
 }) => {
   const [selectedDuration, setSelectedDuration] = useState<'4hr' | '8hr' | '12hr'>('8hr');
   const [activeCarType, setActiveCarType] = useState<'sedan' | 'suv' | 'crysta'>('sedan');
+
+  const localRentalFaqs = [
+    {
+      question: 'What packages are available for local car rental with driver in Vizag?',
+      answer: 'We offer 3 standardized flexible packages: 4 Hours / 40 KM (quick meetings & station drops), 8 Hours / 80 KM (standard full-day city sightseeing), and 12 Hours / 120 KM (extended day & industrial SEZ tours).'
+    },
+    {
+      question: 'What if I exceed the package hours or kilometers?',
+      answer: 'Extra usage beyond the package limits is billed transparently at standard nominal hourly and per-km rates without any surge penalty.'
+    },
+    {
+      question: 'Can the driver wait for me while I attend meetings or visit tourist spots?',
+      answer: 'Yes! When you hire an hourly package, the cab and dedicated chauffeur remain at your service throughout the booked duration. You can leave shopping bags and luggage safely in the car.'
+    },
+    {
+      question: 'Does the package price include fuel and air conditioning?',
+      answer: 'Yes, all our local rental packages include vehicle fuel, commercial driver charges, and full air conditioning for the entire journey.'
+    }
+  ];
 
   const rentalPackages = [
     {
@@ -113,16 +134,38 @@ export const LocalRentalsPage: React.FC<LocalRentalsPageProps> = ({
   const currentPkg = rentalPackages.find(p => p.id === selectedDuration) || rentalPackages[1];
 
   return (
-    <PageLayout
-      title="Hourly Local Car Rentals with Chauffeur"
-      subtitle="Keep a dedicated private car and veteran chauffeur at your command. Make unlimited stops across Visakhapatnam with zero surge pricing."
-      categoryBadge="Local City Rentals"
-      breadcrumbs={[{ label: 'Top Services', onClick: () => onNavigatePage('services') }, { label: 'Local Rentals' }]}
-      onNavigateHome={onNavigateHome}
-      onOpenBooking={onOpenBooking}
-      ctaText="Book Hourly Rental"
-      heroImage="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80"
-    >
+    <>
+      <SEOHead
+        title="Local Cab Rentals & Hourly Car Hire in Visakhapatnam | Waltair Cabs"
+        description="Rent a car with driver in Visakhapatnam for 4 hours, 8 hours, or 12 hours. Transparent hourly packages for city meetings, shopping, railway station drops, and sightseeing."
+        canonicalPath="/local-rentals-vizag"
+        keywords={[
+          'local cabs vizag',
+          'hourly cab rental vizag',
+          '8 hour cab vizag',
+          'car rental with driver vizag',
+          'full day cab vizag',
+          'local car hire vizag'
+        ]}
+        breadcrumbs={[
+          { name: 'Home', item: '/' },
+          { name: 'Local Rentals', item: '/local-rentals-vizag' }
+        ]}
+        faqs={localRentalFaqs}
+      />
+      <PageLayout
+        title="Hourly Local Car Rentals with Chauffeur"
+        subtitle="Keep a dedicated private car and veteran chauffeur at your command. Make unlimited stops across Visakhapatnam with zero surge pricing."
+        categoryBadge="Local City Rentals"
+        breadcrumbs={[{ label: 'Top Services', onClick: () => onNavigatePage('services') }, { label: 'Local Rentals' }]}
+        onNavigateHome={onNavigateHome}
+        onOpenBooking={() => {
+          trackBookingStart('local', 'local_rentals_hero');
+          onOpenBooking();
+        }}
+        ctaText="Book Hourly Rental"
+        heroImage="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80"
+      >
       <div className="space-y-16">
 
         {/* Value Proposition Highlights */}
@@ -486,7 +529,29 @@ export const LocalRentalsPage: React.FC<LocalRentalsPageProps> = ({
           </button>
         </div>
 
+        {/* Frequently Asked Questions */}
+        <div className="space-y-6">
+          <div className="max-w-2xl">
+            <span className="text-teal-700 font-bold text-xs uppercase tracking-wider">Local Hire Questions</span>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 mt-1">Frequently Asked Questions</h2>
+          </div>
+          <div className="divide-y divide-slate-200/80 rounded-2xl bg-white border border-slate-200/80 overflow-hidden shadow-xs">
+            {localRentalFaqs.map((faq, i) => (
+              <div key={i} className="p-5 sm:p-6 space-y-2">
+                <h3 className="text-sm sm:text-base font-bold text-slate-900 flex items-start gap-2">
+                  <span className="text-teal-600 font-black">Q.</span>
+                  <span>{faq.question}</span>
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed pl-6">
+                  {faq.answer}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
     </PageLayout>
+    </>
   );
 };

@@ -1,4 +1,5 @@
 import React from 'react';
+import { trackWhatsAppClick } from '../services/analyticsService';
 
 interface WhatsAppButtonProps {
   offsetForMobileCta?: boolean;
@@ -19,6 +20,7 @@ export const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({ offsetForMobileC
         href={whatsappUrl}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() => trackWhatsAppClick('floating_widget')}
         id="floating-whatsapp-btn"
         className="Btn"
         aria-label="Chat on WhatsApp"

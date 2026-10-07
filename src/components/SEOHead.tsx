@@ -1,12 +1,25 @@
 import React, { useEffect } from 'react';
 
+export interface BreadcrumbEntry {
+  name: string;
+  item: string;
+}
+
+export interface FAQEntry {
+  question: string;
+  answer: string;
+}
+
 export interface SEOHeadProps {
   title: string;
   description: string;
   keywords?: string[];
   canonicalPath?: string;
+  canonicalUrl?: string;
   ogType?: 'website' | 'article';
   ogImage?: string;
+  breadcrumbs?: BreadcrumbEntry[];
+  faqs?: FAQEntry[];
   structuredData?: object | object[];
 }
 
@@ -16,20 +29,33 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
   keywords = [
     'Visakhapatnam taxi',
     'Vizag cabs',
+    'Waltair Cabs',
     'Bhogapuram airport taxi',
-    'Waltair Travels',
+    'Airport taxi Vizag',
+    'Vizag to Araku cab',
     'Outstation cabs Vizag',
-    'Araku tour package cab',
+    'Local cabs Vizag',
     'Andhra Pradesh taxi service',
   ],
   canonicalPath,
+  canonicalUrl,
   ogType = 'website',
   ogImage = 'https://waltairtravelsandcabs.sirv.com/Glossy%20WT%20Road%20Trip%20App%20Icon.png',
+  breadcrumbs,
+  faqs,
   structuredData,
 }) => {
   useEffect(() => {
-    // 1. Update Title
-    const fullTitle = `${title} | Waltair Travels Visakhapatnam`;
+    const CANONICAL_BASE = 'https://waltaircabs.in';
+    const effectivePath = canonicalPath || canonicalUrl;
+    const formattedCanonical = effectivePath
+      ? `${CANONICAL_BASE}${effectivePath.startsWith('/') ? '' : '/'}${effectivePath}`
+      : `${CANONICAL_BASE}${window.location.pathname.length > 1 ? window.location.pathname : '/'}`;
+
+    // 1. Update Title (Human-first, localized)
+    const fullTitle = title.includes('Waltair Cabs')
+      ? title
+      : `${title} | Waltair Cabs Visakhapatnam`;
     document.title = fullTitle;
 
     // 2. Update Meta Description
@@ -50,27 +76,24 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
     }
     metaKeywords.setAttribute('content', keywords.join(', '));
 
-    // 4. OpenGraph Tags
+    // 4. Update Canonical Link
+    let linkCanonical = document.querySelector('link[rel="canonical"]');
+    if (!linkCanonical) {
+      linkCanonical = document.createElement('link');
+      linkCanonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(linkCanonical);
+    }
+    linkCanonical.setAttribute('href', formattedCanonical);
+
+    // 5. OpenGraph Tags
     const ogTags: Record<string, string> = {
       'og:title': fullTitle,
       'og:description': description,
       'og:type': ogType,
       'og:image': ogImage,
-      'og:site_name': 'Waltair Travels',
+      'og:url': formattedCanonical,
+      'og:site_name': 'Waltair Cabs',
     };
-
-    if (canonicalPath) {
-      const canonicalUrl = `${window.location.origin}${canonicalPath.startsWith('/') ? '' : '/'}${canonicalPath}`;
-      ogTags['og:url'] = canonicalUrl;
-
-      let linkCanonical = document.querySelector('link[rel="canonical"]');
-      if (!linkCanonical) {
-        linkCanonical = document.createElement('link');
-        linkCanonical.setAttribute('rel', 'canonical');
-        document.head.appendChild(linkCanonical);
-      }
-      linkCanonical.setAttribute('href', canonicalUrl);
-    }
 
     Object.entries(ogTags).forEach(([property, content]) => {
       let tag = document.querySelector(`meta[property="${property}"]`);
@@ -82,7 +105,25 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       tag.setAttribute('content', content);
     });
 
-    // 5. JSON-LD Structured Data Schema for Google Search Engine Bot / Crawlers
+    // 6. Twitter / X Cards
+    const twitterTags: Record<string, string> = {
+      'twitter:card': 'summary_large_image',
+      'twitter:title': fullTitle,
+      'twitter:description': description,
+      'twitter:image': ogImage,
+    };
+
+    Object.entries(twitterTags).forEach(([name, content]) => {
+      let tag = document.querySelector(`meta[name="${name}"]`);
+      if (!tag) {
+        tag = document.createElement('meta');
+        tag.setAttribute('name', name);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute('content', content);
+    });
+
+    // 7. Structured Data Graph Generation (JSON-LD)
     const scriptId = 'waltair-page-jsonld';
     let scriptTag = document.getElementById(scriptId) as HTMLScriptElement | null;
     if (!scriptTag) {
@@ -92,14 +133,44 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       document.head.appendChild(scriptTag);
     }
 
-    const defaultOrganizationSchema = {
-      '@context': 'https://schema.org',
+    const graphEntities: object[] = [];
+
+    // Core TaxiService Entity
+    graphEntities.push({
       '@type': 'TaxiService',
-      'name': 'Waltair Travels Visakhapatnam',
-      'logo': 'https://waltairtravelsandcabs.sirv.com/Glossy%20WT%20Road%20Trip%20App%20Icon.png',
+      '@id': 'https://waltaircabs.in/#service',
+      'name': 'Waltair Cabs Visakhapatnam',
+      'url': formattedCanonical,
+      'provider': {
+        '@id': 'https://waltaircabs.in/#organization',
+      },
+      'serviceType': 'Cab and Taxi Service',
+      'telephone': '+91-9110510236',
+      'priceRange': '₹₹',
+      'areaServed': [
+        { '@type': 'City', 'name': 'Visakhapatnam' },
+        { '@type': 'AdministrativeArea', 'name': 'Bhogapuram' },
+        { '@type': 'City', 'name': 'Araku Valley' },
+        { '@type': 'City', 'name': 'Vizianagaram' },
+        { '@type': 'City', 'name': 'Srikakulam' },
+        { '@type': 'City', 'name': 'Anakapalle' },
+      ],
+      'offers': {
+        '@type': 'Offer',
+        'priceCurrency': 'INR',
+        'availability': 'https://schema.org/InStock',
+        'priceValidUntil': '2027-12-31',
+      },
+    });
+
+    // Core LocalBusiness Entity
+    graphEntities.push({
+      '@type': 'LocalBusiness',
+      '@id': 'https://waltaircabs.in/#organization',
+      'name': 'Waltair Cabs',
+      'url': 'https://waltaircabs.in',
+      'logo': 'https://waltaircabs.in/logo.png',
       'image': ogImage,
-      '@id': 'https://waltairtravels.com',
-      'url': 'https://waltairtravels.com',
       'telephone': '+91-9110510236',
       'priceRange': '₹₹',
       'address': {
@@ -129,30 +200,55 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
         'opens': '00:00',
         'closes': '23:59',
       },
-      'areaServed': [
-        'Visakhapatnam',
-        'Bhogapuram',
-        'Vizianagaram',
-        'Srikakulam',
-        'Anakapalle',
-        'Araku Valley',
-        'Rajahmundry',
-        'Vijayawada',
-        'Hyderabad',
-      ],
-    };
+    });
 
-    const finalSchema = structuredData
-      ? Array.isArray(structuredData)
-        ? [defaultOrganizationSchema, ...structuredData]
-        : [defaultOrganizationSchema, structuredData]
-      : defaultOrganizationSchema;
+    // Breadcrumbs Schema if provided
+    if (breadcrumbs && breadcrumbs.length > 0) {
+      graphEntities.push({
+        '@type': 'BreadcrumbList',
+        'itemListElement': breadcrumbs.map((crumb, idx) => ({
+          '@type': 'ListItem',
+          'position': idx + 1,
+          'name': crumb.name,
+          'item': crumb.item.startsWith('http')
+            ? crumb.item
+            : `${CANONICAL_BASE}${crumb.item.startsWith('/') ? '' : '/'}${crumb.item}`,
+        })),
+      });
+    }
 
-    scriptTag.textContent = JSON.stringify(finalSchema);
+    // FAQPage Schema if provided
+    if (faqs && faqs.length > 0) {
+      graphEntities.push({
+        '@type': 'FAQPage',
+        'mainEntity': faqs.map((faq) => ({
+          '@type': 'Question',
+          'name': faq.question,
+          'acceptedAnswer': {
+            '@type': 'Answer',
+            'text': faq.answer,
+          },
+        })),
+      });
+    }
 
-    // Scroll to top upon page navigation
+    // Additional custom structured data if passed
+    if (structuredData) {
+      if (Array.isArray(structuredData)) {
+        graphEntities.push(...structuredData);
+      } else {
+        graphEntities.push(structuredData);
+      }
+    }
+
+    scriptTag.textContent = JSON.stringify({
+      '@context': 'https://schema.org',
+      '@graph': graphEntities,
+    });
+
+    // Smooth scroll to top on navigation
     window.scrollTo({ top: 0, behavior: 'instant' });
-  }, [title, description, keywords, canonicalPath, ogType, ogImage, structuredData]);
+  }, [title, description, keywords, canonicalPath, ogType, ogImage, breadcrumbs, faqs, structuredData]);
 
   return null;
 };

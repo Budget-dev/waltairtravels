@@ -1,12 +1,9 @@
 {
-  "projectId": "gen-lang-client-0120232698",
-  "appId": "1:81591145012:web:9cb0f31908729a60e73061",
-  "apiKey": "AIzaSyB7I6CeBgjvAaw65DjkADVk-EEQklI0Hio",
-  "authDomain": "gen-lang-client-0120232698.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-waltairtravels-c20e2943-2c23-497d-8246-de3a5fcb0531",
-  "storageBucket": "gen-lang-client-0120232698.firebasestorage.app",
-  "messagingSenderId": "81591145012",
-  "measurementId": "",
-  "oAuthClientId": "81591145012-nbkehsk2e3lceb0ek24ai0qmo3m9r0qt.apps.googleusercontent.com",
-  "recaptchaSiteKey": ""
+  "projectId": "waltaircabs-58d0d",
+  "appId": "1:821723482456:web:8daea51c8f6a5427167d2d",
+  "apiKey": "AIzaSyBpgYE2OzLBDgwHdgoT6brXR9hXVGyHzr8",
+  "authDomain": "waltaircabs-58d0d.firebaseapp.com",
+  "storageBucket": "waltaircabs-58d0d.firebasestorage.app",
+  "messagingSenderId": "821723482456",
+  "measurementId": "G-4MX7ZXV2JW"
 }

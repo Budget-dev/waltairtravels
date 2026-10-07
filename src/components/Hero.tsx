@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { ServiceCategory, TripSubType } from '../types';
 import { GooglePlacesAutocompleteInput } from './GooglePlacesAutocompleteInput';
+import { trackFieldFootprint } from '../services/leadTrackingService';
 
 interface HeroProps {
   currentCity: string;
@@ -65,6 +66,29 @@ export const Hero: React.FC<HeroProps> = ({
   const [mobileNumber, setMobileNumber] = useState<string>('');
   const [phoneError, setPhoneError] = useState<string>('');
 
+  const syncFootprint = (overrides?: {
+    field?: string;
+    phone?: string;
+    pickup?: string;
+    dropoff?: string;
+    date?: string;
+    time?: string;
+    service?: ServiceCategory;
+    sub?: TripSubType;
+  }) => {
+    trackFieldFootprint({
+      source: 'hero',
+      customerPhone: overrides?.phone !== undefined ? overrides.phone : mobileNumber,
+      pickupLocation: overrides?.pickup !== undefined ? overrides.pickup : pickupLocation,
+      dropoffLocation: overrides?.dropoff !== undefined ? overrides.dropoff : dropoffLocation,
+      travelDate: overrides?.date !== undefined ? overrides.date : travelDate,
+      pickupTime: overrides?.time !== undefined ? overrides.time : pickupTime,
+      serviceType: overrides?.service !== undefined ? overrides.service : serviceType,
+      subType: overrides?.sub !== undefined ? overrides.sub : subType,
+      lastFieldChanged: overrides?.field || 'Hero form interaction',
+    });
+  };
+
   // Swap pickup & dropoff
   const handleSwapLocations = () => {
     const tempLoc = pickupLocation;
@@ -73,30 +97,44 @@ export const Hero: React.FC<HeroProps> = ({
     setPickupCoords(dropoffCoords);
     setDropoffLocation(tempLoc);
     setDropoffCoords(tempCoords);
+    syncFootprint({ field: 'Swapped pickup and dropoff locations', pickup: dropoffLocation, dropoff: tempLoc });
   };
 
   // Change Service Category
   const handleServiceChange = (category: ServiceCategory) => {
     setServiceType(category);
+    let newPickup = pickupLocation;
+    let newDropoff = dropoffLocation;
+    let newSub: TripSubType = subType;
     if (category === 'airport') {
+      newSub = 'pickup';
+      newPickup = 'Alluri Sitharama Raju International Airport ASI , Bhogapuram';
       setSubType('pickup');
-      setPickupLocation('Alluri Sitharama Raju International Airport ASI , Bhogapuram');
+      setPickupLocation(newPickup);
       setPickupCoords({ lat: 18.0267, lng: 83.4984 });
-      setDropoffLocation('Siripuram Circle & Waltair Uplands, Visakhapatnam');
+      newDropoff = 'Siripuram Circle & Waltair Uplands, Visakhapatnam';
+      setDropoffLocation(newDropoff);
       setDropoffCoords({ lat: 17.7217, lng: 83.3150 });
     } else if (category === 'outstation') {
+      newSub = 'oneway';
+      newPickup = 'Visakhapatnam City Center';
       setSubType('oneway');
-      setPickupLocation('Visakhapatnam City Center');
+      setPickupLocation(newPickup);
       setPickupCoords({ lat: 17.7217, lng: 83.2929 });
-      setDropoffLocation('Araku Valley (Hill Station)');
+      newDropoff = 'Araku Valley (Hill Station)';
+      setDropoffLocation(newDropoff);
       setDropoffCoords({ lat: 18.3273, lng: 82.8775 });
     } else if (category === 'local') {
+      newSub = 'local_8hr';
+      newPickup = 'Visakhapatnam (Within City Limits)';
       setSubType('local_8hr');
-      setPickupLocation('Visakhapatnam (Within City Limits)');
+      setPickupLocation(newPickup);
       setPickupCoords({ lat: 17.7217, lng: 83.2929 });
-      setDropoffLocation('City Sightseeing & Full Day Rental (80 km / 8 hrs)');
+      newDropoff = 'City Sightseeing & Full Day Rental (80 km / 8 hrs)';
+      setDropoffLocation(newDropoff);
       setDropoffCoords({ lat: 17.7819, lng: 83.3853 });
     }
+    syncFootprint({ field: `Selected ${category.toUpperCase()} service`, service: category, sub: newSub, pickup: newPickup, dropoff: newDropoff });
   };
 
   const handleFormSubmit = (e: React.FormEvent) => {
@@ -286,12 +324,16 @@ export const Hero: React.FC<HeroProps> = ({
                       id="hero-pickup-input"
                       label="Pickup Location"
                       value={pickupLocation}
-                      onChange={setPickupLocation}
+                      onChange={(val) => {
+                        setPickupLocation(val);
+                        syncFootprint({ pickup: val, field: `Typed pickup location: ${val}` });
+                      }}
                       onPlaceSelect={(place) => {
                         setPickupLocation(place.address);
                         if (place.lat && place.lng) {
                           setPickupCoords({ lat: place.lat, lng: place.lng });
                         }
+                        syncFootprint({ pickup: place.address, field: `Selected pickup: ${place.address}` });
                       }}
                       placeholder="Enter pickup address, airport or hotel..."
                       iconType="pickup"
@@ -322,12 +364,16 @@ export const Hero: React.FC<HeroProps> = ({
                       id="hero-dropoff-input"
                       label="Drop-off Destination"
                       value={dropoffLocation}
-                      onChange={setDropoffLocation}
+                      onChange={(val) => {
+                        setDropoffLocation(val);
+                        syncFootprint({ dropoff: val, field: `Typed drop-off destination: ${val}` });
+                      }}
                       onPlaceSelect={(place) => {
                         setDropoffLocation(place.address);
                         if (place.lat && place.lng) {
                           setDropoffCoords({ lat: place.lat, lng: place.lng });
                         }
+                        syncFootprint({ dropoff: place.address, field: `Selected drop-off: ${place.address}` });
                       }}
                       placeholder="Enter destination, landmark or village..."
                       iconType="dropoff"
@@ -356,9 +402,11 @@ export const Hero: React.FC<HeroProps> = ({
                           if (!pickupLocation || pickupLocation.includes('Airport')) {
                             setDropoffLocation(hub.loc);
                             setDropoffCoords(hub.coords);
+                            syncFootprint({ dropoff: hub.loc, field: `Selected popular hub: ${hub.name}` });
                           } else {
                             setPickupLocation(hub.loc);
                             setPickupCoords(hub.coords);
+                            syncFootprint({ pickup: hub.loc, field: `Selected popular hub: ${hub.name}` });
                           }
                         }}
                         className="text-[11px] px-2.5 py-1 rounded-full bg-white hover:bg-teal-50 border border-slate-200 hover:border-teal-300 text-slate-700 whitespace-nowrap transition-colors cursor-pointer shrink-0 shadow-2xs font-medium active:scale-95"
@@ -381,7 +429,10 @@ export const Hero: React.FC<HeroProps> = ({
                       id="hero-date-input"
                       min={today}
                       value={travelDate}
-                      onChange={(e) => setTravelDate(e.target.value)}
+                      onChange={(e) => {
+                        setTravelDate(e.target.value);
+                        syncFootprint({ date: e.target.value, field: `Selected travel date: ${e.target.value}` });
+                      }}
                       className="w-full min-w-0 bg-transparent text-xs sm:text-sm font-bold text-slate-900 outline-none cursor-pointer"
                       required
                     />
@@ -396,7 +447,10 @@ export const Hero: React.FC<HeroProps> = ({
                       type="time"
                       id="hero-time-input"
                       value={pickupTime}
-                      onChange={(e) => setPickupTime(e.target.value)}
+                      onChange={(e) => {
+                        setPickupTime(e.target.value);
+                        syncFootprint({ time: e.target.value, field: `Selected pickup time: ${e.target.value}` });
+                      }}
                       className="w-full min-w-0 bg-transparent text-xs sm:text-sm font-bold text-slate-900 outline-none cursor-pointer"
                       required
                     />
@@ -419,8 +473,10 @@ export const Hero: React.FC<HeroProps> = ({
                       maxLength={10}
                       value={mobileNumber}
                       onChange={(e) => {
-                        setMobileNumber(e.target.value.replace(/\D/g, ''));
+                        const val = e.target.value.replace(/\D/g, '');
+                        setMobileNumber(val);
                         setPhoneError('');
+                        syncFootprint({ phone: val, field: val ? `Entered phone: +91 ${val}` : 'Cleared phone' });
                       }}
                       placeholder="98765 43210"
                       className="w-full min-w-0 bg-transparent text-xs sm:text-sm font-bold text-slate-900 outline-none placeholder:text-slate-400"
@@ -432,18 +488,18 @@ export const Hero: React.FC<HeroProps> = ({
                 </div>
 
                 {/* Real-time Availability & Transparency Badge */}
-                <div className="p-2 sm:p-2.5 rounded-xl bg-teal-50/80 border border-teal-200/80 flex items-center justify-between gap-2 text-xs w-full">
+                <div className="p-2 sm:p-2.5 rounded-xl bg-teal-50/90 border border-teal-200/90 flex items-center justify-between gap-2 text-xs w-full shadow-2xs">
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="relative flex h-2 w-2 shrink-0">
+                    <span className="relative flex h-2.5 w-2.5 shrink-0">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
                     </span>
                     <span className="font-bold text-slate-800 text-[11px] sm:text-xs truncate">
-                      Cabs Available Now + Fare Quote
+                      ⚡ 12 Cabs Nearby • 4 Min Arrival
                     </span>
                   </div>
                   <span className="text-[10px] uppercase tracking-wider font-extrabold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-md border border-emerald-300 shrink-0 whitespace-nowrap">
-                    ON REQUEST
+                    Zero Surge
                   </span>
                 </div>
 

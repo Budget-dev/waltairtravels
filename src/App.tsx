@@ -12,6 +12,7 @@ import { Footer } from './components/Footer';
 import { WhatsAppButton } from './components/WhatsAppButton';
 import { ManageBookingModal } from './components/ManageBookingModal';
 import { AdminDashboardModal } from './components/AdminDashboardModal';
+import { AdminPanel } from './components/AdminPanel';
 import { AuthModal } from './components/AuthModal';
 import { BackendTelemetryModal } from './components/BackendTelemetryModal';
 import { AiTripPlannerModal } from './components/AiTripPlannerModal';
@@ -35,51 +36,115 @@ import { CancellationPolicyPage } from './pages/CancellationPolicyPage';
 import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
 import { TermsConditionsPage } from './pages/TermsConditionsPage';
 import { BookingPage } from './pages/BookingPage';
+import { VizagToArakuPage } from './pages/VizagToArakuPage';
+import { SEOHead } from './components/SEOHead';
+import { trackEvent } from './services/analyticsService';
 
 import { ServiceCategory, TripSubType, Booking, TourPackage, AppUser } from './types';
 import { db, auth, onAuthStateChanged, signOut, collection, getDocs, onSnapshot, query, orderBy } from './firebase';
+
+export const PAGE_URL_MAP: Record<string, string> = {
+  'home': '/',
+  'airport-taxi': '/airport-taxi-vizag',
+  'vizag-to-araku-cab': '/vizag-to-araku-cab',
+  'outstation-cabs': '/outstation-cabs-vizag',
+  'local-rentals': '/local-rentals-vizag',
+  'packages': '/packages',
+  'one-way-trips': '/one-way-trips',
+  'round-trips': '/round-trips',
+  'services': '/services',
+  'outstation': '/outstation',
+  'travel-blog': '/travel-blog',
+  'about-us': '/about-us',
+  'contact-us': '/contact-us',
+  'faqs': '/faqs',
+  'help-center': '/help-center',
+  'cancellation-policy': '/cancellation-policy',
+  'privacy-policy': '/privacy-policy',
+  'terms-and-conditions': '/terms-and-conditions',
+  'booking': '/booking',
+  'admin': '/admin',
+};
+
+export const resolveRouteFromLocation = (): string => {
+  if (typeof window === 'undefined') return 'home';
+
+  // 1. Resolve from standard clean pathname first
+  const pathname = window.location.pathname.replace(/^\/|\/$/g, '');
+  if (pathname) {
+    if (pathname === 'airport-taxi-vizag' || pathname === 'airport-taxi') return 'airport-taxi';
+    if (pathname === 'vizag-to-araku-cab' || pathname === 'araku-cab') return 'vizag-to-araku-cab';
+    if (pathname === 'outstation-cabs-vizag' || pathname === 'outstation-cabs') return 'outstation-cabs';
+    if (pathname === 'local-rentals-vizag' || pathname === 'local-rentals') return 'local-rentals';
+    if (pathname === 'packages' || pathname === 'tour-packages') return 'packages';
+    if (pathname === 'one-way-trips' || pathname === 'one-way-cabs-vizag') return 'one-way-trips';
+    if (pathname === 'round-trips' || pathname === 'round-trip-cabs-vizag') return 'round-trips';
+    if (pathname === 'services' || pathname === 'our-services' || pathname === 'cab-service-vizag') return 'services';
+    if (pathname === 'outstation') return 'outstation';
+    if (pathname === 'travel-blog' || pathname === 'blog') return 'travel-blog';
+    if (pathname === 'about-us') return 'about-us';
+    if (pathname === 'contact-us') return 'contact-us';
+    if (pathname === 'faqs') return 'faqs';
+    if (pathname === 'help-center') return 'help-center';
+    if (pathname === 'cancellation-policy') return 'cancellation-policy';
+    if (pathname === 'privacy-policy') return 'privacy-policy';
+    if (pathname === 'terms-and-conditions') return 'terms-and-conditions';
+    if (pathname === 'booking') return 'booking';
+    if (pathname === 'admin') return 'admin';
+  }
+
+  // 2. Resolve from hash fallback second
+  if (window.location.hash) {
+    const hash = window.location.hash.replace('#', '');
+    if (hash === 'airport-taxi-vizag') return 'airport-taxi';
+    if (hash === 'vizag-to-araku-cab') return 'vizag-to-araku-cab';
+    if (hash === 'outstation-cabs-vizag') return 'outstation-cabs';
+    if (hash === 'local-rentals-vizag') return 'local-rentals';
+    const validPages = [
+      'home', 'about-us', 'services', 'outstation', 'packages', 'travel-blog',
+      'contact-us', 'airport-taxi', 'vizag-to-araku-cab', 'outstation-cabs', 'local-rentals',
+      'one-way-trips', 'round-trips', 'help-center', 'faqs',
+      'cancellation-policy', 'privacy-policy', 'terms-and-conditions', 'booking', 'admin'
+    ];
+    if (validPages.includes(hash)) return hash;
+  }
+
+  return 'home';
+};
 
 export default function App() {
   const [currentCity, setCurrentCity] = useState<string>('Visakhapatnam, IN');
   const [allBookings, setAllBookings] = useState<Booking[]>([]);
 
-  // Page Routing State (e.g., 'home', 'about-us', 'airport-taxi', etc.)
-  const getInitialPage = (): string => {
-    if (typeof window !== 'undefined' && window.location.hash) {
-      const hash = window.location.hash.replace('#', '');
-      const validPages = [
-        'home', 'about-us', 'services', 'outstation', 'packages', 'travel-blog',
-        'contact-us', 'airport-taxi', 'outstation-cabs', 'local-rentals',
-        'one-way-trips', 'round-trips', 'help-center', 'faqs',
-        'cancellation-policy', 'privacy-policy', 'terms-and-conditions', 'booking'
-      ];
-      if (validPages.includes(hash)) return hash;
-    }
-    return 'home';
-  };
-
-  const [currentPage, setCurrentPage] = useState<string>(getInitialPage);
+  // Page Routing State (resolved from pathname or hash)
+  const [currentPage, setCurrentPage] = useState<string>(resolveRouteFromLocation);
 
   const navigateToPage = (page: string) => {
     setCurrentPage(page);
-    window.location.hash = page;
+    const targetPath = PAGE_URL_MAP[page] || `/${page}`;
+    try {
+      window.history.pushState(null, '', targetPath);
+    } catch {
+      window.location.hash = page;
+    }
+    trackEvent('page_view', { page, path: targetPath });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Sync with browser back/forward buttons and hash changes
+  // Sync with browser back/forward buttons, pushState popstate, and hash changes
   useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash.replace('#', '');
-      if (hash) {
-        setCurrentPage(hash);
-      } else {
-        setCurrentPage('home');
-      }
+    const handleLocationChange = () => {
+      const resolved = resolveRouteFromLocation();
+      setCurrentPage(resolved);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    window.addEventListener('popstate', handleLocationChange);
+    window.addEventListener('hashchange', handleLocationChange);
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange);
+      window.removeEventListener('hashchange', handleLocationChange);
+    };
   }, []);
   
   // Modals state
@@ -106,11 +171,56 @@ export default function App() {
   const [user, setUser] = useState<AppUser | null>(() => {
     try {
       const saved = localStorage.getItem('waltair_user_session');
-      return saved ? JSON.parse(saved) : null;
+      if (!saved) return null;
+      const parsed = JSON.parse(saved);
+      if (parsed && (parsed.uid || parsed.email || parsed.name || parsed.phone)) {
+        return {
+          uid: parsed.uid || 'usr_' + Date.now(),
+          name: parsed.name || parsed.displayName || 'Rider',
+          email: parsed.email || null,
+          phone: parsed.phone || undefined,
+          photoURL: parsed.photoURL || null,
+          isLoggedIn: parsed.isLoggedIn !== false,
+        };
+      }
+      return null;
     } catch {
       return null;
     }
   });
+
+  // Listen to storage & custom auth changes across tabs and components
+  useEffect(() => {
+    const handleAuthSync = () => {
+      try {
+        const saved = localStorage.getItem('waltair_user_session');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && (parsed.uid || parsed.email || parsed.name || parsed.phone)) {
+            setUser({
+              uid: parsed.uid || 'usr_' + Date.now(),
+              name: parsed.name || parsed.displayName || 'Rider',
+              email: parsed.email || null,
+              phone: parsed.phone || undefined,
+              photoURL: parsed.photoURL || null,
+              isLoggedIn: parsed.isLoggedIn !== false,
+            });
+            return;
+          }
+        }
+        setUser(null);
+      } catch {
+        setUser(null);
+      }
+    };
+
+    window.addEventListener('storage', handleAuthSync);
+    window.addEventListener('waltair_auth_change', handleAuthSync);
+    return () => {
+      window.removeEventListener('storage', handleAuthSync);
+      window.removeEventListener('waltair_auth_change', handleAuthSync);
+    };
+  }, []);
 
   // Listen to Firebase Auth state changes
   useEffect(() => {
@@ -127,6 +237,7 @@ export default function App() {
           };
           setUser(appUser);
           localStorage.setItem('waltair_user_session', JSON.stringify(appUser));
+          window.dispatchEvent(new Event('waltair_auth_change'));
         }
       });
       return () => unsubscribe();
@@ -297,6 +408,7 @@ export default function App() {
       console.warn('Sign out info:', e);
     }
     localStorage.removeItem('waltair_user_session');
+    window.dispatchEvent(new Event('waltair_auth_change'));
     setUser(null);
   };
 
@@ -324,7 +436,7 @@ export default function App() {
         }}
         onOpenTrackTrip={() => setIsManageOpen(true)}
         onOpenManageTrips={() => setIsManageOpen(true)}
-        onOpenAdmin={() => setIsAdminOpen(true)}
+        onOpenAdmin={() => navigateToPage('admin')}
         onOpenAuth={() => setIsAuthOpen(true)}
         onOpenTelemetry={() => setIsTelemetryOpen(true)}
         onOpenAiPlanner={() => setIsAiPlannerOpen(true)}
@@ -340,6 +452,23 @@ export default function App() {
         >
             {currentPage === 'home' && (
               <>
+                <SEOHead
+                  title="Waltair Cabs | Premier Taxi & Cab Service in Visakhapatnam (Vizag)"
+                  description="Book verified cabs in Visakhapatnam with Waltair Cabs. 24/7 airport taxi to VTZ & Bhogapuram ASI, outstation rides to Araku, local hourly rentals, and zero surge pricing."
+                  canonicalPath="/"
+                  keywords={[
+                    'cab service in vizag',
+                    'taxi in visakhapatnam',
+                    'vizag cabs',
+                    'airport taxi vizag',
+                    'bhogapuram airport cab',
+                    'vizag to araku cab',
+                    'outstation cab vizag',
+                    'local cabs vizag',
+                    'taxi near me vizag'
+                  ]}
+                  breadcrumbs={[{ name: 'Home', item: '/' }]}
+                />
                 <Hero
                   currentCity={currentCity}
                   onOpenCitySelector={() => {
@@ -484,6 +613,25 @@ export default function App() {
               />
             )}
 
+            {currentPage === 'vizag-to-araku-cab' && (
+              <VizagToArakuPage
+                onNavigateHome={() => navigateToPage('home')}
+                onOpenBooking={() => {
+                  setBookingInitialData({
+                    serviceType: 'outstation',
+                    subType: 'roundtrip',
+                    pickupLocation: 'Visakhapatnam City Center',
+                    dropoffLocation: 'Araku Valley & Borra Caves (Sightseeing Tour)',
+                    travelDate: new Date().toISOString().split('T')[0],
+                    pickupTime: '06:00',
+                    phone: user?.phone
+                  });
+                  setCurrentPage('booking');
+                }}
+                onNavigatePage={navigateToPage}
+              />
+            )}
+
             {currentPage === 'local-rentals' && (
               <LocalRentalsPage
                 onNavigateHome={() => navigateToPage('home')}
@@ -568,6 +716,16 @@ export default function App() {
                   handleBookingSuccess(booking);
                 }}
                 onOpenBookingHistory={() => setIsManageOpen(true)}
+              />
+            )}
+
+            {currentPage === 'admin' && (
+              <AdminPanel
+                isOpen={true}
+                onClose={() => navigateToPage('home')}
+                allBookings={allBookings}
+                onRefresh={fetchBookings}
+                isFullPage={true}
               />
             )}
         </div>

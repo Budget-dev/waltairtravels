@@ -9,6 +9,7 @@ import {
   HelpCircle,
   CreditCard
 } from 'lucide-react';
+import { SEOHead } from '../components/SEOHead';
 
 interface CancellationPolicyPageProps {
   onNavigateHome: () => void;
@@ -34,7 +35,13 @@ export const CancellationPolicyPage: React.FC<CancellationPolicyPageProps> = ({
 
   return (
     <>
-      
+      <SEOHead
+        title="Cancellation & Refund Policy | Waltair Cabs Visakhapatnam"
+        description="Learn about Waltair Cabs cancellation rules, refund timelines, and zero cancellation fee options for airport and outstation taxi bookings."
+        canonicalUrl="/cancellation-policy"
+        keywords={["waltair cabs cancellation policy", "taxi refund vizag", "cab cancellation terms visakhapatnam"]}
+        structuredData={structuredData}
+      />
       <PageLayout
         title="Cancellation & Refund Policy"
         subtitle="Transparent, flexible, and customer-first cancellation rules designed to accommodate unexpected schedule changes."

@@ -17,6 +17,7 @@ import {
   FileCheck
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { SEOHead } from '../components/SEOHead';
 
 interface AboutUsPageProps {
   onNavigateHome: () => void;
@@ -67,7 +68,7 @@ export const AboutUsPage: React.FC<AboutUsPageProps> = ({
     },
     {
       title: 'Commercial Badge Licensed',
-      desc: 'Only drivers holding valid commercial transport badges with minimum 5 years highway experience.'
+      desc: 'Only drivers holding valid commercial transport badges with extensive highway experience.'
     },
     {
       title: 'Ghat Road Specialists',
@@ -75,7 +76,7 @@ export const AboutUsPage: React.FC<AboutUsPageProps> = ({
     },
     {
       title: 'Zero-Tolerance Policy',
-      desc: 'Strict zero-alcohol, non-smoking policy enforced with random breathalyzer checks before dispatch.'
+      desc: 'Strict zero-alcohol, non-smoking policy enforced with random checks before dispatch.'
     }
   ];
 
@@ -103,11 +104,28 @@ export const AboutUsPage: React.FC<AboutUsPageProps> = ({
   ];
 
   return (
-    <PageLayout
-      title="About Waltair Travels"
-      subtitle="The trusted mobility partner of Visakhapatnam. Delivering punctual airport transfers, premium outstation travel, and transparent fares since 2018."
-      categoryBadge="Our Story & Vision"
-      breadcrumbs={[{ label: 'About Us' }]}
+    <>
+      <SEOHead
+        title="About Waltair Cabs | Visakhapatnam's Trusted Taxi Service"
+        description="Learn about Waltair Cabs, Visakhapatnam's premier taxi company. Serving travelers with zero surge pricing, verified commercial drivers, and punctual 24/7 airport transfers."
+        canonicalPath="/about-us"
+        keywords={[
+          'waltair cabs visakhapatnam',
+          'about waltair cabs',
+          'taxi company vizag',
+          'visakhapatnam cab service provider',
+          'reliable taxi vizag'
+        ]}
+        breadcrumbs={[
+          { name: 'Home', item: '/' },
+          { name: 'About Us', item: '/about-us' }
+        ]}
+      />
+      <PageLayout
+        title="About Waltair Cabs"
+        subtitle="The trusted mobility partner of Visakhapatnam. Delivering punctual airport transfers, premium outstation travel, and transparent fares with verified local chauffeurs."
+        categoryBadge="Our Story & Standards"
+        breadcrumbs={[{ label: 'About Us' }]}
       onNavigateHome={onNavigateHome}
       onOpenBooking={onOpenBooking}
       ctaText="Book a Verified Ride"
@@ -365,5 +383,6 @@ export const AboutUsPage: React.FC<AboutUsPageProps> = ({
 
       </div>
     </PageLayout>
+    </>
   );
 };

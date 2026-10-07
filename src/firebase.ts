@@ -1,4 +1,5 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getAnalytics, isSupported } from 'firebase/analytics';
 import { 
   initializeFirestore,
   getFirestore,
@@ -40,41 +41,43 @@ import {
   sendPasswordResetEmail,
   type User as FirebaseUser
 } from 'firebase/auth';
-import firebaseAppletConfig from '../firebase-applet-config.json';
 
-const firebaseConfig = {
-  apiKey: firebaseAppletConfig.apiKey,
-  authDomain: firebaseAppletConfig.authDomain,
-  projectId: firebaseAppletConfig.projectId,
-  storageBucket: firebaseAppletConfig.storageBucket,
-  messagingSenderId: firebaseAppletConfig.messagingSenderId,
-  appId: firebaseAppletConfig.appId,
-  firestoreDatabaseId: firebaseAppletConfig.firestoreDatabaseId || "ai-studio-waltairtravels-c20e2943-2c23-497d-8246-de3a5fcb0531"
-} as any;
+// Web app's Firebase configuration
+export const firebaseConfig = {
+  apiKey: "AIzaSyBpgYE2OzLBDgwHdgoT6brXR9hXVGyHzr8",
+  authDomain: "waltaircabs-58d0d.firebaseapp.com",
+  projectId: "waltaircabs-58d0d",
+  storageBucket: "waltaircabs-58d0d.firebasestorage.app",
+  messagingSenderId: "821723482456",
+  appId: "1:821723482456:web:8daea51c8f6a5427167d2d",
+  measurementId: "G-4MX7ZXV2JW"
+};
 
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+// Initialize Firebase
+export const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-// Initialize Firestore with robust long-polling support to eliminate WebChannel 10s timeout warnings in iframes/proxies
+// Initialize Analytics safely for browser environments
+export let analytics: any = null;
+if (typeof window !== 'undefined') {
+  isSupported().then((supported) => {
+    if (supported) {
+      analytics = getAnalytics(app);
+    }
+  }).catch((err) => {
+    console.debug('Firebase Analytics initialization note:', err);
+  });
+}
+
+// Initialize Firestore with persistent caching and long-polling support
 let dbInstance;
 try {
-  if (firebaseConfig.firestoreDatabaseId) {
-    dbInstance = initializeFirestore(app, {
-      experimentalAutoDetectLongPolling: true,
-      localCache: persistentLocalCache({tabManager: persistentMultipleTabManager()})
-    }, firebaseConfig.firestoreDatabaseId);
-  } else {
-    dbInstance = initializeFirestore(app, {
-      experimentalAutoDetectLongPolling: true,
-      localCache: persistentLocalCache({tabManager: persistentMultipleTabManager()})
-    });
-  }
+  dbInstance = initializeFirestore(app, {
+    experimentalAutoDetectLongPolling: true,
+    localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+  });
 } catch {
   try {
-    if (firebaseConfig.firestoreDatabaseId) {
-      dbInstance = getFirestore(app, firebaseConfig.firestoreDatabaseId);
-    } else {
-      dbInstance = getFirestore(app);
-    }
+    dbInstance = getFirestore(app);
   } catch (err) {
     console.warn("Fallback to default Firestore instance:", err);
     dbInstance = getFirestore(app);
@@ -140,32 +143,32 @@ testConnection();
 export {
   collection, 
   addDoc, 
-  setDoc,
+  setDoc, 
   getDocs, 
-  getDoc,
+  getDoc, 
   doc, 
   updateDoc, 
   deleteDoc, 
   query, 
-  where,
+  where, 
   orderBy, 
-  limit,
-  startAfter,
-  startAt,
-  endBefore,
-  limitToLast,
-  getCountFromServer,
+  limit, 
+  startAfter, 
+  startAt, 
+  endBefore, 
+  limitToLast, 
+  getCountFromServer, 
   onSnapshot, 
-  serverTimestamp,
+  serverTimestamp, 
   signInWithPopup, 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   signOut, 
-  onAuthStateChanged,
-  updateProfile,
-  sendPasswordResetEmail,
-  type FirebaseUser,
-  type QueryDocumentSnapshot,
-  type DocumentData,
-  type QueryConstraint
+  onAuthStateChanged, 
+  updateProfile, 
+  sendPasswordResetEmail, 
+  type FirebaseUser, 
+  type QueryDocumentSnapshot, 
+  type DocumentData, 
+  type QueryConstraint 
 };

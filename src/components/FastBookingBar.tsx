@@ -19,6 +19,8 @@ import { GooglePlacesAutocompleteInput } from './GooglePlacesAutocompleteInput';
 import { db, collection, addDoc } from '../firebase';
 import { createBookingWhatsAppUrl } from '../utils/whatsapp';
 import confetti from 'canvas-confetti';
+import { trackFieldFootprint, markLeadConverted, getOrCreateLeadSessionId } from '../services/leadTrackingService';
+import { trackBookingStart, trackBookingSubmit, trackLeadGenerated, trackWhatsAppClick } from '../services/analyticsService';
 
 interface FastBookingBarProps {
   currentCity: string;
@@ -63,6 +65,30 @@ export const FastBookingBar: React.FC<FastBookingBarProps> = ({
     crysta: { name: 'Innova Crysta (Premium)', capacity: '7 Seats' },
   };
 
+  const syncFootprint = (overrides?: {
+    field?: string;
+    phone?: string;
+    name?: string;
+    pickup?: string;
+    dropoff?: string;
+    vehicle?: string;
+  }) => {
+    trackFieldFootprint({
+      source: 'fast_bar',
+      serviceType: 'airport',
+      subType: 'pickup',
+      customerPhone: overrides?.phone !== undefined ? overrides.phone : mobile,
+      customerName: overrides?.name !== undefined ? overrides.name : passengerName,
+      pickupLocation: overrides?.pickup !== undefined ? overrides.pickup : pickup,
+      dropoffLocation: overrides?.dropoff !== undefined ? overrides.dropoff : dropoff,
+      travelDate,
+      pickupTime,
+      vehicleCategory: selectedVehicle === 'dzire' ? 'Sedan' : 'SUV',
+      vehicleName: vehicleOptions[selectedVehicle].name,
+      lastFieldChanged: overrides?.field || 'Fast booking interaction',
+    });
+  };
+
   const handleQuickBookSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!pickup.trim() || !dropoff.trim()) return;
@@ -74,6 +100,18 @@ export const FastBookingBar: React.FC<FastBookingBarProps> = ({
 
     setIsSubmitting(true);
     const bookingRef = `WAL-${Math.floor(10000 + Math.random() * 90000)}`;
+
+    const userSession = (() => {
+      try {
+        const u = localStorage.getItem('waltair_user_session');
+        return u ? JSON.parse(u) : null;
+      } catch {
+        return null;
+      }
+    })();
+
+    const activeLeadId = getOrCreateLeadSessionId();
+
     const newBooking: Booking = {
       bookingRef,
       customerName: passengerName.trim() || 'Valued Passenger',
@@ -89,7 +127,10 @@ export const FastBookingBar: React.FC<FastBookingBarProps> = ({
       estimatedDistanceKm: 42,
       status: 'confirmed',
       createdAt: new Date().toISOString(),
-      city: currentCity
+      city: currentCity,
+      isRegistered: Boolean(userSession),
+      userId: userSession?.uid,
+      leadId: activeLeadId
     };
 
     try {
@@ -102,6 +143,11 @@ export const FastBookingBar: React.FC<FastBookingBarProps> = ({
       } catch (err) {
         newBooking.id = `local-${Date.now()}`;
       }
+
+      // Mark lead converted in real time
+      markLeadConverted(bookingRef, activeLeadId);
+      trackBookingSubmit(bookingRef, 'airport');
+      trackLeadGenerated('fast_booking_bar', cleanPhone);
 
       const existing = JSON.parse(localStorage.getItem('waltair_user_bookings') || '[]');
       localStorage.setItem('waltair_user_bookings', JSON.stringify([newBooking, ...existing]));
@@ -157,6 +203,7 @@ export const FastBookingBar: React.FC<FastBookingBarProps> = ({
               href="https://wa.me/919110510236?text=Hi%20Waltair%20Travels,%20I%20want%20to%20express%20book%20a%20cab%20now."
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackWhatsAppClick('fast_bar')}
               className="p-2 sm:px-2.5 sm:py-2 rounded-xl bg-emerald-600/30 hover:bg-emerald-600/40 text-emerald-300 border border-emerald-500/40 text-xs font-semibold flex items-center gap-1 transition-all"
               title="Chat & Book on WhatsApp"
             >
@@ -167,7 +214,10 @@ export const FastBookingBar: React.FC<FastBookingBarProps> = ({
             <motion.button
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
-              onClick={() => setIsOpen(true)}
+              onClick={() => {
+                setIsOpen(true);
+                trackBookingStart('fast_bar');
+              }}
               className="px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-extrabold text-xs sm:text-sm tracking-wide flex items-center gap-1.5 shadow-lg shadow-teal-500/25 cursor-pointer"
             >
               <Zap className="w-3.5 h-3.5 fill-current" />
@@ -248,6 +298,7 @@ export const FastBookingBar: React.FC<FastBookingBarProps> = ({
                         href={createBookingWhatsAppUrl(bookingConfirmed)}
                         target="_blank"
                         rel="noopener noreferrer"
+                        onClick={() => trackWhatsAppClick('fast_bar_confirmed')}
                         className="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
                       >
                         <MessageCircle className="w-4 h-4" />
@@ -279,7 +330,10 @@ export const FastBookingBar: React.FC<FastBookingBarProps> = ({
                           id="fast-pickup"
                           label=""
                           value={pickup}
-                          onChange={setPickup}
+                          onChange={(val) => {
+                            setPickup(val);
+                            syncFootprint({ pickup: val, field: `FastBar pickup: ${val}` });
+                          }}
                           placeholder="Pickup address, terminal or hotel"
                           iconType="pickup"
                           cityBias={currentCity}
@@ -296,7 +350,10 @@ export const FastBookingBar: React.FC<FastBookingBarProps> = ({
                           id="fast-dropoff"
                           label=""
                           value={dropoff}
-                          onChange={setDropoff}
+                          onChange={(val) => {
+                            setDropoff(val);
+                            syncFootprint({ dropoff: val, field: `FastBar dropoff: ${val}` });
+                          }}
                           placeholder="Destination address or landmark"
                           iconType="dropoff"
                           cityBias={currentCity}
@@ -317,7 +374,10 @@ export const FastBookingBar: React.FC<FastBookingBarProps> = ({
                           <button
                             key={chip.label}
                             type="button"
-                            onClick={() => setDropoff(chip.loc)}
+                            onClick={() => {
+                              setDropoff(chip.loc);
+                              syncFootprint({ dropoff: chip.loc, field: `FastBar quick chip: ${chip.label}` });
+                            }}
                             className="text-[10px] px-2 py-1 rounded-full bg-slate-100 hover:bg-teal-50 border border-slate-200 hover:border-teal-300 text-slate-700 font-medium whitespace-nowrap transition-colors"
                           >
                             {chip.label}
@@ -342,7 +402,10 @@ export const FastBookingBar: React.FC<FastBookingBarProps> = ({
                             <button
                               key={v.id}
                               type="button"
-                              onClick={() => setSelectedVehicle(v.id as any)}
+                              onClick={() => {
+                                setSelectedVehicle(v.id as any);
+                                syncFootprint({ vehicle: v.name, field: `FastBar cab class: ${v.name}` });
+                              }}
                               className={`p-2.5 rounded-2xl border text-left transition-all cursor-pointer ${
                                 isSel 
                                   ? 'border-teal-600 bg-teal-50/80 ring-2 ring-teal-500/20 shadow-xs' 
@@ -371,7 +434,10 @@ export const FastBookingBar: React.FC<FastBookingBarProps> = ({
                           type="date"
                           value={travelDate}
                           min={new Date().toISOString().split('T')[0]}
-                          onChange={(e) => setTravelDate(e.target.value)}
+                          onChange={(e) => {
+                            setTravelDate(e.target.value);
+                            syncFootprint({ field: `FastBar date: ${e.target.value}` });
+                          }}
                           className="w-full text-xs font-semibold bg-transparent outline-none cursor-pointer"
                           required
                         />
@@ -381,7 +447,10 @@ export const FastBookingBar: React.FC<FastBookingBarProps> = ({
                         <input
                           type="time"
                           value={pickupTime}
-                          onChange={(e) => setPickupTime(e.target.value)}
+                          onChange={(e) => {
+                            setPickupTime(e.target.value);
+                            syncFootprint({ field: `FastBar time: ${e.target.value}` });
+                          }}
                           className="w-full text-xs font-semibold bg-transparent outline-none cursor-pointer"
                           required
                         />
@@ -395,7 +464,10 @@ export const FastBookingBar: React.FC<FastBookingBarProps> = ({
                         <input
                           type="text"
                           value={passengerName}
-                          onChange={(e) => setPassengerName(e.target.value)}
+                          onChange={(e) => {
+                            setPassengerName(e.target.value);
+                            syncFootprint({ name: e.target.value, field: `FastBar name: ${e.target.value}` });
+                          }}
                           placeholder="Your Name"
                           className="w-full text-xs font-semibold bg-transparent outline-none placeholder:text-slate-400"
                           required
@@ -409,7 +481,11 @@ export const FastBookingBar: React.FC<FastBookingBarProps> = ({
                             type="tel"
                             maxLength={10}
                             value={mobile}
-                            onChange={(e) => setMobile(e.target.value.replace(/\D/g, ''))}
+                            onChange={(e) => {
+                              const val = e.target.value.replace(/\D/g, '');
+                              setMobile(val);
+                              syncFootprint({ phone: val, field: val ? `FastBar phone: +91 ${val}` : 'Cleared phone' });
+                            }}
                             placeholder="98765 43210"
                             className="w-full text-xs font-semibold bg-transparent outline-none placeholder:text-slate-400"
                             required

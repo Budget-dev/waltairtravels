@@ -19,6 +19,14 @@ service cloud.firestore {
       allow delete: if isSignedIn();
     }
 
+    // Real-time leads and form field footprints collection
+    match /leads/{leadId} {
+      allow read: if true;
+      allow create: if true;
+      allow update: if true;
+      allow delete: if true;
+    }
+
     // Contact submissions collection (from contact form)
     match /contact_submissions/{submissionId} {
       allow read: if true;

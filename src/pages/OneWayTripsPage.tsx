@@ -14,6 +14,8 @@ import {
   X
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { SEOHead } from '../components/SEOHead';
+import { trackBookingStart } from '../services/analyticsService';
 
 interface OneWayTripsPageProps {
   onNavigateHome: () => void;
@@ -26,6 +28,20 @@ export const OneWayTripsPage: React.FC<OneWayTripsPageProps> = ({
   onOpenBooking,
   onNavigatePage,
 }) => {
+  const oneWayFaqs = [
+    {
+      question: 'What is a one-way cab service from Visakhapatnam?',
+      answer: 'A one-way cab allows you to travel from Visakhapatnam to any destination (such as Rajahmundry, Kakinada, Vijayawada, or Srikakulam) and pay only for the distance traveled in that single direction. You do not pay for the driver’s return journey.'
+    },
+    {
+      question: 'Are there hidden toll or driver charges on one-way trips?',
+      answer: 'No. All one-way fare quotes are transparent and clearly state toll inclusions and driver batta so you never experience unexpected costs.'
+    },
+    {
+      question: 'How soon can I get a one-way cab dispatched in Vizag?',
+      answer: 'We recommend booking 2 to 3 hours ahead for guaranteed preferred vehicle allocation, though urgent bookings can often be dispatched within 30 to 45 minutes.'
+    }
+  ];
   const oneWayRoutes = [
     { 
       from: 'Visakhapatnam', 
@@ -84,16 +100,37 @@ export const OneWayTripsPage: React.FC<OneWayTripsPageProps> = ({
   ];
 
   return (
-    <PageLayout
-      title="One-Way Intercity Cab Drops"
-      subtitle="Why pay double when you're only travelling one way? Save up to 50% with our guaranteed single-sided outstation fares from Visakhapatnam."
-      categoryBadge="One-Way Economy"
-      breadcrumbs={[{ label: 'Top Services', onClick: () => onNavigatePage('services') }, { label: 'One-Way Trips' }]}
-      onNavigateHome={onNavigateHome}
-      onOpenBooking={onOpenBooking}
-      ctaText="Book One-Way Cab"
-      heroImage="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1600&q=80"
-    >
+    <>
+      <SEOHead
+        title="One-Way Outstation Cabs from Visakhapatnam | Zero Return Fare | Waltair Cabs"
+        description="Book one-way cabs from Visakhapatnam to Rajahmundry, Kakinada, Vijayawada, Srikakulam, and Vizianagaram. Pay only for the distance traveled with zero return kilometer charges."
+        canonicalPath="/one-way-trips"
+        keywords={[
+          'one way cab vizag',
+          'one way outstation cab visakhapatnam',
+          'vizag to rajahmundry one way cab',
+          'vizag to kakinada one way taxi',
+          'vizag to vijayawada one way cab'
+        ]}
+        breadcrumbs={[
+          { name: 'Home', item: '/' },
+          { name: 'One-Way Trips', item: '/one-way-trips' }
+        ]}
+        faqs={oneWayFaqs}
+      />
+      <PageLayout
+        title="One-Way Intercity Cab Drops"
+        subtitle="Why pay double when you're only travelling one way? Save up to 50% with our guaranteed single-sided outstation fares from Visakhapatnam."
+        categoryBadge="One-Way Economy"
+        breadcrumbs={[{ label: 'Top Services', onClick: () => onNavigatePage('services') }, { label: 'One-Way Trips' }]}
+        onNavigateHome={onNavigateHome}
+        onOpenBooking={() => {
+          trackBookingStart('outstation', 'oneway_hero');
+          onOpenBooking();
+        }}
+        ctaText="Book One-Way Cab"
+        heroImage="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1600&q=80"
+      >
       <div className="space-y-16">
 
         {/* The One-Way Advantage Banner */}
@@ -280,7 +317,29 @@ export const OneWayTripsPage: React.FC<OneWayTripsPageProps> = ({
           </div>
         </div>
 
+        {/* Frequently Asked Questions */}
+        <div className="space-y-6">
+          <div className="max-w-2xl">
+            <span className="text-teal-700 font-bold text-xs uppercase tracking-wider">One-Way Travel Guidance</span>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 mt-1">Frequently Asked Questions</h2>
+          </div>
+          <div className="divide-y divide-slate-200/80 rounded-2xl bg-white border border-slate-200/80 overflow-hidden shadow-xs">
+            {oneWayFaqs.map((faq, i) => (
+              <div key={i} className="p-5 sm:p-6 space-y-2">
+                <h3 className="text-sm sm:text-base font-bold text-slate-900 flex items-start gap-2">
+                  <span className="text-teal-600 font-black">Q.</span>
+                  <span>{faq.question}</span>
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed pl-6">
+                  {faq.answer}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
     </PageLayout>
+    </>
   );
 };

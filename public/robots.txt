@@ -1,0 +1,9 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin
+
+# Host & Sitemap Specification
+Host: https://waltaircabs.in
+Sitemap: https://waltaircabs.in/sitemap.xml

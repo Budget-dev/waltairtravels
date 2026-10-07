@@ -9,6 +9,7 @@ import {
   Linkedin,
   ShieldCheck
 } from 'lucide-react';
+import { trackPhoneClick } from '../services/analyticsService';
 
 interface FooterProps {
   onNavigatePage?: (page: string) => void;
@@ -35,6 +36,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigatePage }) => {
           <div className="flex items-center gap-2">
             <a
               href="tel:+919110510236"
+              onClick={() => trackPhoneClick('footer_banner')}
               className="px-4 py-2.5 rounded-xl bg-white text-teal-900 font-bold text-xs hover:bg-teal-50"
             >
               Call +91 91105 10236
@@ -149,6 +151,9 @@ export const Footer: React.FC<FooterProps> = ({ onNavigatePage }) => {
                 <a href="#airport-taxi" onClick={(e) => handleLinkClick(e, 'airport-taxi')} className="hover:text-teal-300 transition-colors cursor-pointer">Airport Taxi</a>
               </li>
               <li>
+                <a href="#vizag-to-araku-cab" onClick={(e) => handleLinkClick(e, 'vizag-to-araku-cab')} className="hover:text-teal-300 text-teal-400 font-semibold transition-colors cursor-pointer">Vizag to Araku Cab</a>
+              </li>
+              <li>
                 <a href="#outstation-cabs" onClick={(e) => handleLinkClick(e, 'outstation-cabs')} className="hover:text-teal-300 transition-colors cursor-pointer">Outstation Cabs</a>
               </li>
               <li>
@@ -215,7 +220,11 @@ export const Footer: React.FC<FooterProps> = ({ onNavigatePage }) => {
 
             {/* Direct Contact Links */}
             <div className="pt-1 space-y-1.5 text-xs">
-              <a href="tel:+919110510236" className="flex items-center gap-2 text-slate-300 hover:text-teal-300 transition-colors">
+              <a 
+                href="tel:+919110510236" 
+                onClick={() => trackPhoneClick('footer_contact')}
+                className="flex items-center gap-2 text-slate-300 hover:text-teal-300 transition-colors"
+              >
                 <Phone className="w-3.5 h-3.5 text-teal-400 shrink-0" />
                 <span>+91 91105 10236</span>
               </a>
@@ -246,6 +255,14 @@ export const Footer: React.FC<FooterProps> = ({ onNavigatePage }) => {
             <button onClick={(e) => handleLinkClick(e, 'cancellation-policy')} className="hover:text-teal-300 transition-colors cursor-pointer">Cancellation</button>
             <span>•</span>
             <button onClick={(e) => handleLinkClick(e, 'faqs')} className="hover:text-teal-300 transition-colors cursor-pointer">FAQs</button>
+            <span>•</span>
+            <button 
+              onClick={(e) => handleLinkClick(e, 'admin')} 
+              className="text-teal-400 hover:text-teal-300 font-bold transition-colors cursor-pointer flex items-center gap-1"
+            >
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>Admin Portal</span>
+            </button>
           </div>
         </div>
 

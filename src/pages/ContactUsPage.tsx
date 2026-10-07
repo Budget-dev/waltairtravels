@@ -17,6 +17,8 @@ import {
 } from 'lucide-react';
 import { db, collection, addDoc } from '../firebase';
 import { motion } from 'framer-motion';
+import { SEOHead } from '../components/SEOHead';
+import { trackPhoneClick, trackWhatsAppClick, trackBookingStart } from '../services/analyticsService';
 
 interface ContactUsPageProps {
   onNavigateHome: () => void;
@@ -90,16 +92,36 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
   ];
 
   return (
-    <PageLayout
-      title="Contact Waltair Travels"
-      subtitle="24/7 Operations Desk, Airport Transit Dispatch, and Dedicated Corporate Mobility Support. Always a call or message away."
-      categoryBadge="Customer Support & Office"
-      breadcrumbs={[{ label: 'Contact Us' }]}
-      onNavigateHome={onNavigateHome}
-      onOpenBooking={onOpenBooking}
-      ctaText="Book Instant Taxi"
-      heroImage="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1600&q=80"
-    >
+    <>
+      <SEOHead
+        title="Contact Waltair Cabs | 24/7 Taxi Booking Visakhapatnam"
+        description="Contact Waltair Cabs in Visakhapatnam. 24/7 taxi booking hotline +91 91105 10236, WhatsApp dispatch desk, and office located at Waltair Uplands, Siripuram."
+        canonicalPath="/contact-us"
+        keywords={[
+          'contact waltair cabs vizag',
+          'vizag cab booking phone number',
+          'taxi office visakhapatnam',
+          'waltair cabs customer care',
+          'visakhapatnam airport taxi booking number'
+        ]}
+        breadcrumbs={[
+          { name: 'Home', item: '/' },
+          { name: 'Contact Us', item: '/contact-us' }
+        ]}
+      />
+      <PageLayout
+        title="Contact Waltair Cabs"
+        subtitle="24/7 Operations Desk, Airport Transit Dispatch, and Dedicated Corporate Mobility Support. Always a call or message away."
+        categoryBadge="Customer Support & Office"
+        breadcrumbs={[{ label: 'Contact Us' }]}
+        onNavigateHome={onNavigateHome}
+        onOpenBooking={() => {
+          trackBookingStart('local', 'contact_hero');
+          onOpenBooking();
+        }}
+        ctaText="Book Instant Taxi"
+        heroImage="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1600&q=80"
+      >
       <div className="space-y-16">
 
         {/* Quick Contact Action Banner */}
@@ -328,5 +350,6 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
 
       </div>
     </PageLayout>
+    </>
   );
 };

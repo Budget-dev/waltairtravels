@@ -14,6 +14,8 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { SEOHead } from '../components/SEOHead';
+import { trackBookingStart } from '../services/analyticsService';
 
 interface RoundTripsPageProps {
   onNavigateHome: () => void;
@@ -26,6 +28,20 @@ export const RoundTripsPage: React.FC<RoundTripsPageProps> = ({
   onOpenBooking,
   onNavigatePage,
 }) => {
+  const roundTripFaqs = [
+    {
+      question: 'How do multi-day round-trip cab rentals work from Visakhapatnam?',
+      answer: 'When you book a round-trip outstation cab, the vehicle and assigned commercial chauffeur stay with you throughout the duration of your trip. There is no need to switch cabs or drivers at intermediate destinations.'
+    },
+    {
+      question: 'What are the popular round-trip circuits from Vizag?',
+      answer: 'Top round-trip circuits include the 2-Day Araku Valley & Borra Caves circuit, 1-Day Annavaram & Pithapuram pilgrimage, 1-Day Srikakulam Arasavalli temple tour, and coastal Bheemili beach drives.'
+    },
+    {
+      question: 'Are night driver halt charges included for multi-day trips?',
+      answer: 'Night driver allowances (batta) for trips extending past 10:00 PM or multi-day stays are transparently quoted upfront so you know the full cost before booking.'
+    }
+  ];
   const roundTripCircuits = [
     {
       id: 'araku-circuit',
@@ -84,16 +100,36 @@ export const RoundTripsPage: React.FC<RoundTripsPageProps> = ({
   ];
 
   return (
-    <PageLayout
-      title="Round-Trip Outstation Cabs"
-      subtitle="Enjoy seamless multi-day or same-day return trips with the same dedicated vehicle and chauffeur throughout your entire journey. Explore Andhra Pradesh at your own leisure."
-      categoryBadge="Family & Multi-Day Tours"
-      breadcrumbs={[{ label: 'Top Services', onClick: () => onNavigatePage('services') }, { label: 'Round Trips' }]}
-      onNavigateHome={onNavigateHome}
-      onOpenBooking={onOpenBooking}
-      ctaText="Book Round Trip"
-      heroImage="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=80"
-    >
+    <>
+      <SEOHead
+        title="Round-Trip Outstation Cabs from Visakhapatnam | Waltair Cabs"
+        description="Book round-trip cabs from Visakhapatnam for Araku Valley, Annavaram, and coastal circuits. Same verified chauffeur and dedicated vehicle throughout your entire family vacation."
+        canonicalPath="/round-trips"
+        keywords={[
+          'round trip cabs vizag',
+          'outstation round trip visakhapatnam',
+          'araku 2 day round trip cab',
+          'vizag car rental for round trip'
+        ]}
+        breadcrumbs={[
+          { name: 'Home', item: '/' },
+          { name: 'Round Trips', item: '/round-trips' }
+        ]}
+        faqs={roundTripFaqs}
+      />
+      <PageLayout
+        title="Round-Trip Outstation Cabs"
+        subtitle="Enjoy seamless multi-day or same-day return trips with the same dedicated vehicle and chauffeur throughout your entire journey. Explore Andhra Pradesh at your own leisure."
+        categoryBadge="Family & Multi-Day Tours"
+        breadcrumbs={[{ label: 'Top Services', onClick: () => onNavigatePage('services') }, { label: 'Round Trips' }]}
+        onNavigateHome={onNavigateHome}
+        onOpenBooking={() => {
+          trackBookingStart('outstation', 'roundtrip_hero');
+          onOpenBooking();
+        }}
+        ctaText="Book Round Trip"
+        heroImage="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=80"
+      >
       <div className="space-y-16">
 
         {/* Key Advantages */}
@@ -241,7 +277,29 @@ export const RoundTripsPage: React.FC<RoundTripsPageProps> = ({
           </button>
         </div>
 
+        {/* Frequently Asked Questions */}
+        <div className="space-y-6">
+          <div className="max-w-2xl">
+            <span className="text-teal-700 font-bold text-xs uppercase tracking-wider">Round-Trip Travel Advice</span>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 mt-1">Frequently Asked Questions</h2>
+          </div>
+          <div className="divide-y divide-slate-200/80 rounded-2xl bg-white border border-slate-200/80 overflow-hidden shadow-xs">
+            {roundTripFaqs.map((faq, i) => (
+              <div key={i} className="p-5 sm:p-6 space-y-2">
+                <h3 className="text-sm sm:text-base font-bold text-slate-900 flex items-start gap-2">
+                  <span className="text-teal-600 font-black">Q.</span>
+                  <span>{faq.question}</span>
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed pl-6">
+                  {faq.answer}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
     </PageLayout>
+    </>
   );
 };

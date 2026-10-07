@@ -17,6 +17,7 @@ import {
 import { INITIAL_BLOG_POSTS } from '../data/mockData';
 import { BlogPost, AppUser } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
+import { SEOHead } from '../components/SEOHead';
 
 interface TravelBlogPageProps {
   onNavigateHome: () => void;
@@ -70,6 +71,12 @@ export const TravelBlogPage: React.FC<TravelBlogPageProps> = ({
       ctaText="Book a Tour Cab"
       heroImage="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1600&q=80"
     >
+      <SEOHead
+        title={selectedPost ? `${selectedPost.title} | Waltair Cabs Travel Guides` : "Vizag Travel Guides, Bhogapuram Airport Updates & Road Trips | Waltair Cabs"}
+        description={selectedPost ? (selectedPost.excerpt || selectedPost.content.slice(0, 155)) : "Read expert Vizag travel guides, Araku Valley itineraries, Bhogapuram ASI airport transit advice, and road trip tips by Waltair Cabs Visakhapatnam."}
+        canonicalUrl="/travel-blog"
+        keywords={["vizag travel guide", "araku valley cab itinerary", "bhogapuram airport updates", "vizag road trips", "visakhapatnam sightseeing advice"]}
+      />
       {selectedPost ? (
         /* Single Blog Post Reading View */
         <motion.article 

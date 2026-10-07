@@ -17,6 +17,7 @@ import {
   Compass
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { SEOHead } from '../components/SEOHead';
 
 interface HelpCenterPageProps {
   onNavigateHome: () => void;
@@ -91,6 +92,12 @@ export const HelpCenterPage: React.FC<HelpCenterPageProps> = ({
       ctaText="Book a Cab"
       heroImage="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1600&q=80"
     >
+      <SEOHead
+        title="Help Center & 24x7 Customer Support | Waltair Cabs Visakhapatnam"
+        description="Need help with your cab booking, driver contact, refund status, or Bhogapuram airport transit? Contact Waltair Cabs 24x7 support desk in Vizag."
+        canonicalUrl="/help-center"
+        keywords={["waltair cabs help center", "vizag taxi customer care", "taxi booking support vizag", "cab helpline visakhapatnam"]}
+      />
       <div className="space-y-16">
 
         {/* Search Hero Box */}

@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { POPULAR_ROUTES, VEHICLES } from '../data/mockData';
 import { motion } from 'framer-motion';
+import { SEOHead } from '../components/SEOHead';
 
 interface OutstationPageProps {
   onNavigateHome: () => void;
@@ -39,6 +40,12 @@ export const OutstationPage: React.FC<OutstationPageProps> = ({
       ctaText="Book Outstation Cab"
       heroImage="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1600&q=80"
     >
+      <SEOHead
+        title="Outstation Cabs from Vizag | One-Way & Round Trip Taxis | Waltair Cabs"
+        description="Book reliable outstation cabs from Visakhapatnam to Vijayawada, Rajahmundry, Kakinada, Srikakulam, Jagdalpur & Bhubaneswar. AC sedans, Ertiga & Crysta with expert drivers."
+        canonicalUrl="/outstation"
+        keywords={["outstation cab vizag", "outstation taxi visakhapatnam", "vizag outstation car rental", "one way outstation cab", "intercity taxi vizag"]}
+      />
       <div className="space-y-16">
 
         {/* 3 Core Value Pillars */}

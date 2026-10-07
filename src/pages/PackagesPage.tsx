@@ -18,9 +18,11 @@ import {
   ChevronUp,
   Camera
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { SEOHead } from '../components/SEOHead';
+import { trackBookingStart } from '../services/analyticsService';
 import { TOUR_PACKAGES } from '../data/mockData';
 import { TourPackage } from '../types';
-import { motion, AnimatePresence } from 'framer-motion';
 
 interface PackagesPageProps {
   onNavigateHome: () => void;
@@ -36,6 +38,21 @@ export const PackagesPage: React.FC<PackagesPageProps> = ({
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'hills' | 'temples' | 'beaches'>('all');
   const [expandedPackageId, setExpandedPackageId] = useState<string | null>(null);
 
+  const packageFaqs = [
+    {
+      question: 'What is included in Waltair Cabs holiday tour packages?',
+      answer: 'Our tour packages include doorstep pickup and drop anywhere in Visakhapatnam, air-conditioned vehicle hire, commercial driver allowance, fuel, and standard parking/toll charges. Entry tickets to monuments/museums and meals are paid directly by guests.'
+    },
+    {
+      question: 'Can we customize the sightseeing spots in our package?',
+      answer: 'Yes! Our packages are fully customizable. If you wish to spend more time at Rushikonda Beach or add an extra stop like Thotlakonda Buddhist ruins or Katiki waterfalls, your chauffeur will gladly accommodate the adjustment.'
+    },
+    {
+      question: 'Do you offer multi-day packages for Araku Valley and Lambasingi?',
+      answer: 'Yes, we provide 1-day, 2-day, and 3-day customized hill station packages covering overnight stays in Araku, Katiki waterfalls, and morning mist viewing in Lambasingi.'
+    }
+  ];
+
   const filteredPackages = selectedFilter === 'all'
     ? TOUR_PACKAGES
     : TOUR_PACKAGES.filter((p) => p.category === selectedFilter);
@@ -48,16 +65,38 @@ export const PackagesPage: React.FC<PackagesPageProps> = ({
   ];
 
   return (
-    <PageLayout
-      title="Curated Sightseeing Packages"
-      subtitle="Unforgettable journeys to the Eastern Ghats, mist-covered valleys, tribal coffee plantations, and coastal heritage temples."
-      categoryBadge="Holiday & Tour Specials"
-      breadcrumbs={[{ label: 'Packages' }]}
-      onNavigateHome={onNavigateHome}
-      onOpenBooking={onOpenBooking}
-      ctaText="Plan Custom Tour"
-      heroImage="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=80"
-    >
+    <>
+      <SEOHead
+        title="Vizag Sightseeing Cabs & Holiday Tour Packages | Waltair Cabs"
+        description="Explore Visakhapatnam, Araku Valley, and Lambasingi with curated cab tour packages. Transparent all-inclusive fares covering Kailasagiri, Submarine Museum, Rushikonda, and Borra Caves."
+        canonicalPath="/packages"
+        keywords={[
+          'vizag sightseeing cab',
+          'vizag tour packages cab',
+          'araku tour package from vizag',
+          'vizag city tour cab',
+          'lambasingi tour cab',
+          'vizag holiday cabs'
+        ]}
+        breadcrumbs={[
+          { name: 'Home', item: '/' },
+          { name: 'Tour Packages', item: '/packages' }
+        ]}
+        faqs={packageFaqs}
+      />
+      <PageLayout
+        title="Curated Sightseeing Packages"
+        subtitle="Unforgettable journeys to the Eastern Ghats, mist-covered valleys, tribal coffee plantations, and coastal heritage temples."
+        categoryBadge="Holiday & Tour Specials"
+        breadcrumbs={[{ label: 'Packages' }]}
+        onNavigateHome={onNavigateHome}
+        onOpenBooking={() => {
+          trackBookingStart('packages', 'packages_hero');
+          onOpenBooking();
+        }}
+        ctaText="Plan Custom Tour"
+        heroImage="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=80"
+      >
       <div className="space-y-16">
 
         {/* Filter Pills */}
@@ -275,7 +314,29 @@ export const PackagesPage: React.FC<PackagesPageProps> = ({
           </div>
         </div>
 
+        {/* Frequently Asked Questions */}
+        <div className="space-y-6">
+          <div className="max-w-2xl">
+            <span className="text-teal-700 font-bold text-xs uppercase tracking-wider">Sightseeing Questions</span>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 mt-1">Frequently Asked Questions</h2>
+          </div>
+          <div className="divide-y divide-slate-200/80 rounded-2xl bg-white border border-slate-200/80 overflow-hidden shadow-xs">
+            {packageFaqs.map((faq, i) => (
+              <div key={i} className="p-5 sm:p-6 space-y-2">
+                <h3 className="text-sm sm:text-base font-bold text-slate-900 flex items-start gap-2">
+                  <span className="text-teal-600 font-black">Q.</span>
+                  <span>{faq.question}</span>
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed pl-6">
+                  {faq.answer}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
     </PageLayout>
+    </>
   );
 };

@@ -16,6 +16,9 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+import { SEOHead } from '../components/SEOHead';
+import { trackBookingStart } from '../services/analyticsService';
+
 interface OutstationCabsPageProps {
   onNavigateHome: () => void;
   onOpenBooking: () => void;
@@ -28,6 +31,25 @@ export const OutstationCabsPage: React.FC<OutstationCabsPageProps> = ({
   onNavigatePage,
 }) => {
   const [activeTab, setActiveTab] = useState<'all' | 'oneway' | 'roundtrip'>('all');
+
+  const outstationFaqs = [
+    {
+      question: 'How are outstation cab fares calculated from Visakhapatnam?',
+      answer: 'Our outstation fares are calculated based on transparent per-kilometer rates with clear minimum daily kilometer thresholds. For designated one-way routes (such as Rajahmundry, Kakinada, or Vijayawada), we offer fixed one-way tariffs with zero return kilometer charges.'
+    },
+    {
+      question: 'Are driver allowance (batta), night charges, and tolls included?',
+      answer: 'Yes. Waltair Cabs operates with zero hidden charges. Day driver allowances are included in our base quotation. Highway toll plazas and interstate taxes are clearly outlined prior to trip commencement.'
+    },
+    {
+      question: 'Can I book a cab from Visakhapatnam to Araku Valley or Borra Caves?',
+      answer: 'Yes! Araku Valley is our most popular hill route. We provide dedicated same-day sightseeing packages as well as one-way drops with experienced ghat-road chauffeurs.'
+    },
+    {
+      question: 'Can I modify my drop location or add intermediate stops during the journey?',
+      answer: 'Absolutely. Our chauffeurs accommodate customary en-route halts (such as breakfast stops or temple visits). Additional distances outside the planned itinerary are billed strictly at standard per-km rates.'
+    }
+  ];
 
   const popularRoutes = [
     {
@@ -111,16 +133,39 @@ export const OutstationCabsPage: React.FC<OutstationCabsPageProps> = ({
   ];
 
   return (
-    <PageLayout
-      title="Outstation Cabs & Intercity Travel"
-      subtitle="Travel outside Visakhapatnam with absolute safety and comfort. Choose economical one-way drops or multi-day family round trips with verified highway chauffeurs."
-      categoryBadge="Highway & Interstate"
-      breadcrumbs={[{ label: 'Top Services', onClick: () => onNavigatePage('services') }, { label: 'Outstation Cabs' }]}
-      onNavigateHome={onNavigateHome}
-      onOpenBooking={onOpenBooking}
-      ctaText="Book Outstation Cab"
-      heroImage="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1600&q=80"
-    >
+    <>
+      <SEOHead
+        title="Outstation Cabs from Visakhapatnam | One-Way & Round Trips"
+        description="Book verified outstation cabs from Visakhapatnam to Rajahmundry, Kakinada, Vijayawada, Srikakulam, and Araku. Transparent per-km rates with zero return charges on one-way drops."
+        canonicalPath="/outstation-cabs-vizag"
+        keywords={[
+          'outstation cab vizag',
+          'one way cab vizag',
+          'intercity taxi visakhapatnam',
+          'vizag outstation car rental with driver',
+          'round trip cabs vizag',
+          'vizag to rajahmundry cab',
+          'vizag to vijayawada cab'
+        ]}
+        breadcrumbs={[
+          { name: 'Home', item: '/' },
+          { name: 'Outstation Cabs', item: '/outstation-cabs-vizag' }
+        ]}
+        faqs={outstationFaqs}
+      />
+      <PageLayout
+        title="Outstation Cabs & Intercity Travel"
+        subtitle="Travel outside Visakhapatnam with absolute safety and comfort. Choose economical one-way drops or multi-day family round trips with verified highway chauffeurs."
+        categoryBadge="Highway & Interstate"
+        breadcrumbs={[{ label: 'Top Services', onClick: () => onNavigatePage('services') }, { label: 'Outstation Cabs' }]}
+        onNavigateHome={onNavigateHome}
+        onOpenBooking={() => {
+          trackBookingStart('outstation', 'outstation_page_hero');
+          onOpenBooking();
+        }}
+        ctaText="Book Outstation Cab"
+        heroImage="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1600&q=80"
+      >
       <div className="space-y-16">
 
         {/* Benefits Grid */}
@@ -315,7 +360,49 @@ export const OutstationCabsPage: React.FC<OutstationCabsPageProps> = ({
           </button>
         </div>
 
+        {/* Special Spotlight: Vizag to Araku Valley Route */}
+        <div className="p-8 rounded-3xl bg-gradient-to-r from-teal-900 via-slate-900 to-teal-950 text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border border-teal-700/40">
+          <div className="space-y-2 max-w-xl">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-400/20 text-teal-300 font-bold text-xs uppercase tracking-wider">
+              ⭐ Top Tourist Corridor
+            </span>
+            <h3 className="text-xl sm:text-2xl font-black">Planning an Araku Valley or Borra Caves Trip?</h3>
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              Explore our dedicated Araku cab service with seasoned ghat-road drivers, morning stopovers at Tyda Nature Camp, and flexible sightseeing itineraries.
+            </p>
+          </div>
+          <button
+            onClick={() => onNavigatePage('vizag-to-araku-cab')}
+            className="px-6 py-3 rounded-xl bg-teal-400 hover:bg-teal-300 text-slate-950 font-black text-xs uppercase tracking-wider shrink-0 transition-all shadow-md flex items-center gap-2 cursor-pointer"
+          >
+            <span>Explore Araku Cab Details</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Frequently Asked Questions */}
+        <div className="space-y-6">
+          <div className="max-w-2xl">
+            <span className="text-teal-700 font-bold text-xs uppercase tracking-wider">Outstation Travel Advice</span>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 mt-1">Frequently Asked Questions</h2>
+          </div>
+          <div className="divide-y divide-slate-200/80 rounded-2xl bg-white border border-slate-200/80 overflow-hidden shadow-xs">
+            {outstationFaqs.map((faq, i) => (
+              <div key={i} className="p-5 sm:p-6 space-y-2">
+                <h3 className="text-sm sm:text-base font-bold text-slate-900 flex items-start gap-2">
+                  <span className="text-teal-600 font-black">Q.</span>
+                  <span>{faq.question}</span>
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed pl-6">
+                  {faq.answer}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
     </PageLayout>
+    </>
   );
 };

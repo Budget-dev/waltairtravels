@@ -64,6 +64,40 @@ export interface Booking {
   specialRequests?: string;
   createdAt: any;
   city: string;
+  isRegistered?: boolean;
+  userId?: string;
+  leadId?: string;
+}
+
+export type LeadStatus = 'filling' | 'partial' | 'abandoned' | 'converted' | 'contacted' | 'lost';
+
+export interface LeadFootprint {
+  id?: string;
+  leadSessionId: string;
+  customerPhone?: string;
+  customerName?: string;
+  customerEmail?: string;
+  isRegistered: boolean;
+  userId?: string;
+  serviceType?: ServiceCategory;
+  subType?: TripSubType;
+  pickupLocation?: string;
+  dropoffLocation?: string;
+  travelDate?: string;
+  pickupTime?: string;
+  vehicleCategory?: string;
+  vehicleName?: string;
+  estimatedDistanceKm?: number;
+  estimatedFare?: number;
+  lastFieldChanged?: string;
+  filledFields: string[];
+  status: LeadStatus;
+  source: 'hero' | 'fast_bar' | 'booking_page' | 'booking_modal' | 'booking_confirmed';
+  device: 'mobile' | 'desktop' | 'tablet';
+  createdAt: string;
+  updatedAt: string;
+  convertedBookingRef?: string;
+  notes?: string;
 }
 
 export interface Vehicle {
@@ -167,6 +201,19 @@ export interface AppUser {
   phone?: string;
   photoURL?: string | null;
   isLoggedIn: boolean;
+}
+
+export interface RegisteredUserProfile {
+  uid: string;
+  name: string;
+  email: string | null;
+  phone?: string;
+  photoURL?: string | null;
+  role?: string;
+  createdAt?: any;
+  lastLoginAt?: any;
+  totalBookings?: number;
+  totalLeads?: number;
 }
 
 export interface NotificationItem {
