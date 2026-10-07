@@ -41,7 +41,8 @@ import { SEOHead } from './components/SEOHead';
 import { trackEvent } from './services/analyticsService';
 
 import { ServiceCategory, TripSubType, Booking, TourPackage, AppUser } from './types';
-import { db, auth, onAuthStateChanged, signOut, collection, getDocs, onSnapshot, query, orderBy } from './firebase';
+import { db, auth, onAuthStateChanged, signOut, collection, getDocs, onSnapshot, query, orderBy, getRedirectResult } from './firebase';
+
 
 export const PAGE_URL_MAP: Record<string, string> = {
   'home': '/',
@@ -222,6 +223,35 @@ export default function App() {
     };
   }, []);
 
+  // Handle redirect result from Google OAuth redirect fallback
+  useEffect(() => {
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result?.user) {
+          const fbUser = result.user;
+          const appUser: AppUser = {
+            uid: fbUser.uid,
+            name: fbUser.displayName || fbUser.email?.split('@')[0] || 'Rider',
+            email: fbUser.email,
+            phone: fbUser.phoneNumber || undefined,
+            photoURL: fbUser.photoURL,
+            isLoggedIn: true,
+          };
+          setUser(appUser);
+          try {
+            localStorage.setItem('waltair_user_session', JSON.stringify(appUser));
+            window.dispatchEvent(new Event('waltair_auth_change'));
+          } catch (storageErr) {
+            console.warn('Redirect storage note:', storageErr);
+          }
+          setIsAuthOpen(false);
+        }
+      })
+      .catch((err) => {
+        console.warn('Google redirect result note:', err);
+      });
+  }, []);
+
   // Listen to Firebase Auth state changes
   useEffect(() => {
     try {
@@ -236,8 +266,13 @@ export default function App() {
             isLoggedIn: true,
           };
           setUser(appUser);
-          localStorage.setItem('waltair_user_session', JSON.stringify(appUser));
-          window.dispatchEvent(new Event('waltair_auth_change'));
+          try {
+            localStorage.setItem('waltair_user_session', JSON.stringify(appUser));
+            window.dispatchEvent(new Event('waltair_auth_change'));
+          } catch (storageErr) {
+            console.warn('Session save note:', storageErr);
+          }
+          setIsAuthOpen(false);
         }
       });
       return () => unsubscribe();

@@ -33,6 +33,8 @@ import {
   getAuth, 
   GoogleAuthProvider, 
   signInWithPopup, 
+  signInWithRedirect,
+  getRedirectResult,
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   signOut, 
@@ -127,7 +129,7 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
   return errInfo;
 }
 
-// Connection test with graceful offline resilience
+// Connection test with graceful offline resilience (exported for optional manual health check)
 export async function testConnection() {
   try {
     await getDocFromServer(doc(db, 'test', 'connection'));
@@ -138,7 +140,6 @@ export async function testConnection() {
   }
 }
 
-testConnection();
 
 export {
   collection, 
@@ -161,6 +162,8 @@ export {
   onSnapshot, 
   serverTimestamp, 
   signInWithPopup, 
+  signInWithRedirect,
+  getRedirectResult,
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   signOut, 

@@ -25,6 +25,12 @@ async function startServer() {
   app.use(express.json({ limit: '2mb' }));
   app.use(express.urlencoded({ extended: true, limit: '2mb' }));
 
+  // Allow OAuth Popups (Prevents Cross-Origin-Opener-Policy popup communication isolation)
+  app.use((_req, res, next) => {
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+    next();
+  });
+
   // 2. Request Correlation & Observability Middleware
   app.use(requestIdMiddleware);
   app.use(metricsMiddleware);

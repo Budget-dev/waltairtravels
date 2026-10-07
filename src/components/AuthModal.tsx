@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   X, 
   Mail, 
@@ -16,8 +16,10 @@ import {
   auth, 
   googleProvider, 
   signInWithPopup, 
+  signInWithRedirect,
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
+  onAuthStateChanged,
   updateProfile,
   sendPasswordResetEmail,
   db,
@@ -51,13 +53,71 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [error, setError] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
 
+  // Auto-close modal if user is already authenticated or becomes authenticated
+  useEffect(() => {
+    if (!isOpen) return;
+    const unsubscribe = onAuthStateChanged(auth, (fbUser) => {
+      if (fbUser) {
+        const appUser: AppUser = {
+          uid: fbUser.uid,
+          name: fbUser.displayName || fbUser.email?.split('@')[0] || 'Rider',
+          email: fbUser.email,
+          phone: fbUser.phoneNumber || undefined,
+          photoURL: fbUser.photoURL,
+          isLoggedIn: true,
+        };
+        try {
+          localStorage.setItem('waltair_user_session', JSON.stringify(appUser));
+          window.dispatchEvent(new Event('waltair_auth_change'));
+        } catch {
+          // ignore localStorage error
+        }
+        onLoginSuccess(appUser);
+        onClose();
+      }
+    });
+    return () => unsubscribe();
+  }, [isOpen, onClose, onLoginSuccess]);
+
   if (!isOpen) return null;
 
   const getCleanErrorMessage = (err: any): string => {
     const code = err?.code || '';
-    if (code === 'auth/invalid-email') return 'Please enter a valid email address.';
-    if (code === 'auth/user-not-found' || code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
-      return 'Invalid email or password. Please check your credentials.';
+    const rawMsg = err?.message || '';
+
+    // 1. Firebase Domain Authorization
+    if (code === 'auth/unauthorized-domain' || rawMsg.includes('unauthorized-domain')) {
+      const hostname = typeof window !== 'undefined' ? window.location.hostname : 'current domain';
+      return `Domain "${hostname}" is not authorized in Firebase Console. Please add "${hostname}" to Firebase Console -> Authentication -> Settings -> Authorized Domains.`;
+    }
+
+    // 2. Google Provider Disabled
+    if (code === 'auth/operation-not-allowed' || rawMsg.includes('operation-not-allowed')) {
+      return 'Google Sign-in is not enabled in Firebase Console. Please enable the Google provider in Firebase Console -> Authentication -> Sign-in method.';
+    }
+
+    // 3. Popup Issues
+    if (code === 'auth/popup-blocked') {
+      return 'Google sign-in popup was blocked by your browser. Please allow popups or use email sign-in.';
+    }
+    if (code === 'auth/popup-closed-by-user') {
+      return 'Google sign-in popup was closed before completion. Please try again.';
+    }
+    if (code === 'auth/cancelled-popup-request') {
+      return 'Sign-in was cancelled. Please try again.';
+    }
+
+    // 4. Credentials & Password Errors
+    if (code === 'auth/invalid-email') {
+      return 'Please enter a valid email address.';
+    }
+    if (
+      code === 'auth/user-not-found' || 
+      code === 'auth/wrong-password' || 
+      code === 'auth/invalid-credential' ||
+      code === 'auth/invalid-login-credentials'
+    ) {
+      return 'Invalid email or password. Please verify your credentials or reset your password.';
     }
     if (code === 'auth/email-already-in-use') {
       return 'An account with this email already exists. Please sign in instead.';
@@ -65,16 +125,26 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     if (code === 'auth/weak-password') {
       return 'Password should be at least 6 characters long.';
     }
-    if (code === 'auth/popup-closed-by-user') {
-      return 'Google sign-in popup was closed before completion.';
+    if (code === 'auth/too-many-requests') {
+      return 'Too many login attempts. Access temporarily locked. Please reset password or try again later.';
     }
-    if (code === 'auth/cancelled-popup-request') {
-      return 'Only one popup request allowed at a time.';
+    if (code === 'auth/user-disabled') {
+      return 'This account has been disabled. Please contact support.';
     }
     if (code === 'auth/network-request-failed') {
       return 'Network connection issue. Please check your internet connection.';
     }
-    return err?.message || 'Authentication error. Please try again.';
+
+    // Strip ugly Firebase technical wrappers for user presentation
+    if (typeof rawMsg === 'string' && rawMsg.length > 0) {
+      const cleaned = rawMsg
+        .replace(/^Firebase:\s*/i, '')
+        .replace(/\(auth\/[^)]+\)\.?/i, '')
+        .trim();
+      if (cleaned) return cleaned;
+    }
+
+    return 'Authentication error. Please try again.';
   };
 
   // 1. Google Direct Sign-In
@@ -82,8 +152,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setError('');
     setSuccessMessage('');
     setIsLoading(true);
+
     try {
-      const result = await signInWithPopup(auth, googleProvider);
+      let result;
+      try {
+        result = await signInWithPopup(auth, googleProvider);
+      } catch (popupErr: any) {
+        if (popupErr?.code === 'auth/popup-blocked') {
+          console.warn('Popup blocked, switching to redirect...');
+          await signInWithRedirect(auth, googleProvider);
+          return;
+        }
+        throw popupErr;
+      }
+
       const fbUser = result.user;
       const appUser: AppUser = {
         uid: fbUser.uid,
@@ -94,28 +176,33 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         isLoggedIn: true,
       };
 
+      // 1. Instantly save session & complete login UI flow (zero lag)
       try {
-        await setDoc(
-          doc(db, 'users', fbUser.uid),
-          {
-            uid: fbUser.uid,
-            name: appUser.name,
-            email: fbUser.email,
-            photoURL: fbUser.photoURL,
-            role: 'user',
-            lastLoginAt: serverTimestamp(),
-            createdAt: serverTimestamp(),
-          },
-          { merge: true }
-        );
-      } catch (dbErr) {
-        console.warn('Firestore user profile sync note:', dbErr);
+        localStorage.setItem('waltair_user_session', JSON.stringify(appUser));
+        window.dispatchEvent(new Event('waltair_auth_change'));
+      } catch (storageErr) {
+        console.warn('Local session storage note:', storageErr);
       }
 
-      localStorage.setItem('waltair_user_session', JSON.stringify(appUser));
-      window.dispatchEvent(new Event('waltair_auth_change'));
       onLoginSuccess(appUser);
       onClose();
+
+      // 2. Fire-and-forget sync to Firestore in background (never blocks user)
+      setDoc(
+        doc(db, 'users', fbUser.uid),
+        {
+          uid: fbUser.uid,
+          name: appUser.name,
+          email: fbUser.email,
+          photoURL: fbUser.photoURL,
+          role: 'user',
+          lastLoginAt: serverTimestamp(),
+          createdAt: serverTimestamp(),
+        },
+        { merge: true }
+      ).catch((dbErr) => {
+        console.warn('Firestore user profile sync note (offline/cache resilient):', dbErr);
+      });
     } catch (err: any) {
       console.warn('Google Auth note:', err);
       setError(getCleanErrorMessage(err));
@@ -148,26 +235,32 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         isLoggedIn: true,
       };
 
+      // 1. Instantly save session & complete login UI flow (zero lag)
       try {
-        await setDoc(
-          doc(db, 'users', fbUser.uid),
-          {
-            uid: fbUser.uid,
-            name: appUser.name,
-            email: fbUser.email,
-            lastLoginAt: serverTimestamp(),
-          },
-          { merge: true }
-        );
-      } catch (dbErr) {
-        console.warn('Firestore user profile sync note:', dbErr);
+        localStorage.setItem('waltair_user_session', JSON.stringify(appUser));
+        window.dispatchEvent(new Event('waltair_auth_change'));
+      } catch (storageErr) {
+        console.warn('Local session storage note:', storageErr);
       }
 
-      localStorage.setItem('waltair_user_session', JSON.stringify(appUser));
-      window.dispatchEvent(new Event('waltair_auth_change'));
       onLoginSuccess(appUser);
       onClose();
+
+      // 2. Fire-and-forget sync to Firestore in background (never blocks user)
+      setDoc(
+        doc(db, 'users', fbUser.uid),
+        {
+          uid: fbUser.uid,
+          name: appUser.name,
+          email: fbUser.email,
+          lastLoginAt: serverTimestamp(),
+        },
+        { merge: true }
+      ).catch((dbErr) => {
+        console.warn('Firestore user profile sync note (offline/cache resilient):', dbErr);
+      });
     } catch (err: any) {
+      console.warn('Email Sign-in note:', err);
       setError(getCleanErrorMessage(err));
     } finally {
       setIsLoading(false);
@@ -199,23 +292,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       const fbUser = userCredential.user;
       const finalName = displayName.trim();
 
-      try {
-        await updateProfile(fbUser, { displayName: finalName });
-      } catch (profileErr) {
+      // Update profile displayName asynchronously in background
+      updateProfile(fbUser, { displayName: finalName }).catch((profileErr) => {
         console.warn('Profile update note:', profileErr);
-      }
-
-      try {
-        await setDoc(doc(db, 'users', fbUser.uid), {
-          uid: fbUser.uid,
-          name: finalName,
-          email: email.trim(),
-          role: 'user',
-          createdAt: serverTimestamp(),
-        });
-      } catch (dbErr) {
-        console.warn('Firestore user profile creation note:', dbErr);
-      }
+      });
 
       const appUser: AppUser = {
         uid: fbUser.uid,
@@ -225,11 +305,30 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         photoURL: fbUser.photoURL,
         isLoggedIn: true,
       };
-      localStorage.setItem('waltair_user_session', JSON.stringify(appUser));
-      window.dispatchEvent(new Event('waltair_auth_change'));
+
+      // 1. Instantly save session & complete login UI flow (zero lag)
+      try {
+        localStorage.setItem('waltair_user_session', JSON.stringify(appUser));
+        window.dispatchEvent(new Event('waltair_auth_change'));
+      } catch (storageErr) {
+        console.warn('Local session storage note:', storageErr);
+      }
+
       onLoginSuccess(appUser);
       onClose();
+
+      // 2. Fire-and-forget user record creation in Firestore in background
+      setDoc(doc(db, 'users', fbUser.uid), {
+        uid: fbUser.uid,
+        name: finalName,
+        email: email.trim(),
+        role: 'user',
+        createdAt: serverTimestamp(),
+      }).catch((dbErr) => {
+        console.warn('Firestore user profile creation note (offline/cache resilient):', dbErr);
+      });
     } catch (err: any) {
+      console.warn('Email Sign-up note:', err);
       setError(getCleanErrorMessage(err));
     } finally {
       setIsLoading(false);
@@ -253,6 +352,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         setAuthMode('signin');
       }, 4000);
     } catch (err: any) {
+      console.warn('Password reset note:', err);
       setError(getCleanErrorMessage(err));
     } finally {
       setIsLoading(false);
