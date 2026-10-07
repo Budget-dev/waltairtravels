@@ -63,7 +63,7 @@ export const AboutSection: React.FC = () => {
             </h2>
 
             <p className="text-slate-600 text-xs sm:text-sm sm:leading-relaxed leading-normal">
-              Founded to eliminate last-minute ride cancellations and opaque surge charges, <strong>Waltair Travels</strong> has grown into the region's preferred cab service. Whether landing at Bhogapuram International Airport (ASI) or touring Araku Valley, we guarantee punctuality, safety, and fixed transparent tariffs.
+              Founded to eliminate last-minute ride cancellations and opaque surge charges, <strong>Waltair Cabs</strong> has grown into the region's preferred cab service. Whether landing at Bhogapuram International Airport (ASI) or touring Araku Valley, we guarantee punctuality, safety, and fixed transparent tariffs.
             </p>
 
             {/* 4 Trust Pillars */}

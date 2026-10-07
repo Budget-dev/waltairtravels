@@ -2,7 +2,7 @@
   "entities": {
     "Booking": {
       "title": "Booking",
-      "description": "A taxi or rental booking reservation for Waltair Travels.",
+      "description": "A taxi or rental booking reservation for Waltair Cabs.",
       "type": "object",
       "properties": {
         "bookingRef": { "type": "string", "description": "Unique booking reference ID (e.g. WAL-84920)" },

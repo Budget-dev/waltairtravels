@@ -86,7 +86,7 @@ export const LiveTrackingModal: React.FC<LiveTrackingModalProps> = ({
 
   const handleShareTrip = () => {
     if (!activeBooking) return;
-    const shareText = `Live Tracking: My Waltair Travels taxi (${activeBooking.driver?.vehicleNumber || 'AP31'}) is en route. Booking Ref: ${activeBooking.bookingRef}. Track live at: ${window.location.origin}`;
+    const shareText = `Live Tracking: My Waltair Cabs taxi (${activeBooking.driver?.vehicleNumber || 'AP31'}) is en route. Booking Ref: ${activeBooking.bookingRef}. Track live at: ${window.location.origin}`;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(shareText);
       setIsCopied(true);
@@ -284,7 +284,7 @@ export const LiveTrackingModal: React.FC<LiveTrackingModalProps> = ({
                   </div>
                   <div>
                     <div className="flex items-center gap-1.5">
-                      <h4 className="font-bold text-slate-900 text-sm">Waltair Travels Operations</h4>
+                      <h4 className="font-bold text-slate-900 text-sm">Waltair Cabs Operations</h4>
                       <span className="text-xs bg-emerald-100 text-emerald-900 font-bold px-1.5 py-0.2 rounded-md">
                         Verified Dispatch
                       </span>
@@ -301,7 +301,7 @@ export const LiveTrackingModal: React.FC<LiveTrackingModalProps> = ({
                 <div className="flex items-center gap-2">
                   <a
                     href={`https://wa.me/${WHATSAPP_PHONE_NUMBER}?text=${encodeURIComponent(
-                      `Hi Waltair Travels, checking on status for Booking ID ${activeBooking.bookingRef} (${activeBooking.customerName}).`
+                      `Hi Waltair Cabs, checking on status for Booking ID ${activeBooking.bookingRef} (${activeBooking.customerName}).`
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"

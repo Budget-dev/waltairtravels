@@ -1,5 +1,5 @@
 /**
- * Open-Source Geocoding & Leaflet Map Service for Waltair Travels
+ * Open-Source Geocoding & Leaflet Map Service for Waltair Cabs
  * Integrates:
  * 1. OpenStreetMap Photon Geocoder (Open-source, covers all Indian villages, towns, mandals, cities)
  * 2. OpenStreetMap Nominatim Geocoder (Open-source, detailed administrative village/district breakdown)

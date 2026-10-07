@@ -146,7 +146,7 @@ export const AboutUsPage: React.FC<AboutUsPageProps> = ({
 
             <div className="space-y-4 text-slate-600 text-sm sm:text-base leading-relaxed">
               <p>
-                Founded in Visakhapatnam, <strong className="text-slate-900">Waltair Travels</strong> was born out of frustration with predatory surge pricing, unexpected ride cancellations, and substandard vehicles.
+                Founded in Visakhapatnam, <strong className="text-slate-900">Waltair Cabs</strong> was born out of frustration with predatory surge pricing, unexpected ride cancellations, and substandard vehicles.
               </p>
               <p>
                 Today, as Visakhapatnam gears up with the world-class <strong className="text-teal-700">Alluri Sitharama Raju International Airport (ASI) in Bhogapuram</strong> and continues to grow as Andhra Pradesh’s economic capital, our fleet of 150+ commercially certified vehicles provides seamless connectivity 24 hours a day, 365 days a year.
@@ -174,22 +174,22 @@ export const AboutUsPage: React.FC<AboutUsPageProps> = ({
             <div className="rounded-3xl overflow-hidden border border-slate-200 shadow-2xl relative group">
               <img
                 src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=800&q=80"
-                alt="Waltair Travels Fleet and Professional Chauffeurs"
+                alt="Waltair Cabs Fleet and Professional Chauffeurs"
                 className="w-full h-80 sm:h-96 object-cover group-hover:scale-105 transition-transform duration-500"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
               <div className="absolute top-4 left-4 p-2.5 rounded-2xl bg-slate-900/90 backdrop-blur-md border border-teal-500/30 flex items-center gap-2.5 shadow-xl">
                 <img 
                   src="/logo.png" 
-                  alt="Waltair Travels Official Mark" 
+                  alt="Waltair Cabs Official Mark" 
                   className="w-9 h-9 rounded-xl object-cover" 
                   onError={(e) => {
-                    e.currentTarget.src = 'https://waltairtravelsandcabs.sirv.com/Glossy%20WT%20Road%20Trip%20App%20Icon.png';
+                    e.currentTarget.src = 'https://waltairtravelsandcabs.sirv.com/Waltair%20Cabs%20Coastal%20Travel%20Badge.png';
                   }}
                 />
                 <div>
                   <div className="text-[10px] text-teal-300 font-bold uppercase tracking-wider">Official Mark</div>
-                  <div className="text-xs font-extrabold text-white">Waltair Travels</div>
+                  <div className="text-xs font-extrabold text-white">Waltair Cabs</div>
                 </div>
               </div>
               <div className="absolute bottom-4 left-4 right-4 p-4 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200">

@@ -144,7 +144,7 @@ export const OneWayTripsPage: React.FC<OneWayTripsPageProps> = ({
               Pay Only for the Kilometers You Actually Ride
             </h2>
             <p className="text-slate-600 text-sm leading-relaxed">
-              Traditional offline operators and taxi stands charge round-trip fare even when you are relocating or staying at your destination. With Waltair Travels One-Way Drops, you pay strictly for the single journey.
+              Traditional offline operators and taxi stands charge round-trip fare even when you are relocating or staying at your destination. With Waltair Cabs One-Way Drops, you pay strictly for the single journey.
             </p>
 
             <div className="grid grid-cols-2 gap-4 pt-2">
@@ -178,7 +178,7 @@ export const OneWayTripsPage: React.FC<OneWayTripsPageProps> = ({
                 <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-1.5">
                   <div className="flex items-center gap-2 text-xs font-bold text-emerald-800">
                     <Check className="w-4 h-4" />
-                    <span>Waltair Travels Guaranteed One-Way:</span>
+                    <span>Waltair Cabs Guaranteed One-Way:</span>
                   </div>
                   <p className="text-xs text-slate-700 pl-6">
                     Fixed flat rate based only on one-way distance. Doorstep pickup in Vizag, direct drop to exact address, tolls & driver included.

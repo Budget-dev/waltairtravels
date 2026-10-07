@@ -303,7 +303,7 @@ export const INITIAL_REVIEWS: CustomerReview[] = [
     location: 'Siripuram, Vizag',
     serviceUsed: 'Bhogapuram Airport Drop',
     date: '2 days ago',
-    comment: 'Booked Waltair Travels for my early 5:30 AM flight to Bhogapuram Airport. Driver Satish arrived 15 minutes before time, sanitized cab, smooth expressway drive. No surge pricing like other apps. Truly top notch!',
+    comment: 'Booked Waltair Cabs for my early 5:30 AM flight to Bhogapuram Airport. Driver Satish arrived 15 minutes before time, sanitized cab, smooth expressway drive. No surge pricing like other apps. Truly top notch!',
     verified: true,
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80'
   },
@@ -336,7 +336,7 @@ export const INITIAL_REVIEWS: CustomerReview[] = [
     location: 'Gajuwaka, Vizag',
     serviceUsed: 'Simhachalam & Annavaram Darshan',
     date: '3 weeks ago',
-    comment: 'Smooth and devotional trip to Simhachalam & Annavaram. The driver knew exact temple timings, parking spots, and assisted our parents with wheelchairs. God bless Waltair Travels team!',
+    comment: 'Smooth and devotional trip to Simhachalam & Annavaram. The driver knew exact temple timings, parking spots, and assisted our parents with wheelchairs. God bless Waltair Cabs team!',
     verified: true,
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'
   },
@@ -369,7 +369,7 @@ export const INITIAL_REVIEWS: CustomerReview[] = [
     location: 'Seethammadhara, Vizag',
     serviceUsed: 'Vizag to Kakinada Outstation',
     date: '1 week ago',
-    comment: 'Frequent business commuter between Vizag and Kakinada. Waltair Travels is my trusted cab partner. Well-maintained cars, professional drivers in uniform, and courteous customer support 24/7.',
+    comment: 'Frequent business commuter between Vizag and Kakinada. Waltair Cabs is my trusted cab partner. Well-maintained cars, professional drivers in uniform, and courteous customer support 24/7.',
     verified: true,
     avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=120&q=80'
   },
@@ -422,7 +422,7 @@ export const INITIAL_BLOG_POSTS: BlogPost[] = [
 
 ### Why Pre-Booking Your Airport Cab Matters
 1. **Distance & Travel Time:** The commute from Siripuram, Gajuwaka, or Rushikonda takes roughly 45 to 65 minutes depending on traffic. Pre-booking guarantees on-time doorstep pickup.
-2. **Fixed Toll-Inclusive Pricing:** Waltair Travels offers transparent upfront pricing with zero surge charges and toll inclusions for the Tagarapuvalasa plaza.
+2. **Fixed Toll-Inclusive Pricing:** Waltair Cabs offers transparent upfront pricing with zero surge charges and toll inclusions for the Tagarapuvalasa plaza.
 3. **Flight Delay Adjustments:** Our dispatch team monitors incoming flight tracking so your chauffeur is stationed at the arrivals bay even if your flight lands ahead or behind schedule.
 
 ### Recommended Vehicle Classes
@@ -489,7 +489,7 @@ export const FAQS = [
   },
   {
     q: 'Are toll charges, parking, and driver allowances included in the fare?',
-    a: 'Yes! Waltair Travels believes in 100% transparent pricing. The estimated fare displayed includes base fare, distance, estimated tolls, and GST. There are no hidden surcharges or surprise extra fees at the end of the trip.'
+    a: 'Yes! Waltair Cabs believes in 100% transparent pricing. The estimated fare displayed includes base fare, distance, estimated tolls, and GST. There are no hidden surcharges or surprise extra fees at the end of the trip.'
   },
   {
     q: 'What if my flight arrives late at the airport?',

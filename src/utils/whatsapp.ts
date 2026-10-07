@@ -13,7 +13,7 @@ export const createBookingWhatsAppUrl = (booking: Partial<Booking>): string => {
     : 1;
 
   const lines = [
-    `*NEW CAB BOOKING - WALTAIR TRAVELS*`,
+    `*NEW CAB BOOKING - WALTAIR CABS*`,
     `--------------------------------`,
     `*Booking ID:* ${booking.bookingRef || 'N/A'}`,
     `*Primary Contact:* ${booking.customerName || ''}`,

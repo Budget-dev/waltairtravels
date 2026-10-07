@@ -65,16 +65,16 @@ export const Footer: React.FC<FooterProps> = ({ onNavigatePage }) => {
               <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md border border-teal-500/30 shrink-0 group-hover:scale-105 transition-transform bg-slate-900 flex items-center justify-center">
                 <img 
                   src="/logo.png" 
-                  alt="Waltair Travels" 
+                  alt="Waltair Cabs" 
                   className="w-full h-full object-cover" 
                   onError={(e) => {
-                    e.currentTarget.src = 'https://waltairtravelsandcabs.sirv.com/Glossy%20WT%20Road%20Trip%20App%20Icon.png';
+                    e.currentTarget.src = 'https://waltairtravelsandcabs.sirv.com/Waltair%20Cabs%20Coastal%20Travel%20Badge.png';
                   }}
                 />
               </div>
               <div className="text-xl font-bold tracking-tight text-white flex items-center">
                 <span>Waltair</span>
-                <span className="text-teal-400 ml-1 font-extrabold">Travels</span>
+                <span className="text-teal-400 ml-1 font-extrabold">Cabs</span>
               </div>
             </div>
 
@@ -245,7 +245,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigatePage }) => {
         {/* Bottom Copyright */}
         <div className="pt-8 border-t border-slate-900 text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div>
-            © {new Date().getFullYear()} Waltair Travels. All rights reserved. Registered Commercial Fleet Partner.
+            © {new Date().getFullYear()} Waltair Cabs. All rights reserved. Registered Commercial Fleet Partner.
           </div>
           <div className="flex items-center gap-3 text-[11px] text-slate-400">
             <button onClick={(e) => handleLinkClick(e, 'privacy-policy')} className="hover:text-teal-300 transition-colors cursor-pointer">Privacy</button>

@@ -310,10 +310,10 @@ export const BookingModal: React.FC<BookingModalProps> = ({
             <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md border border-cyan-400/30 shrink-0 bg-slate-900 flex items-center justify-center">
               <img 
                 src="/logo.png" 
-                alt="Waltair Travels" 
+                alt="Waltair Cabs" 
                 className="w-full h-full object-cover"
                 onError={(e) => {
-                  e.currentTarget.src = 'https://waltairtravelsandcabs.sirv.com/Glossy%20WT%20Road%20Trip%20App%20Icon.png';
+                  e.currentTarget.src = 'https://waltairtravelsandcabs.sirv.com/Waltair%20Cabs%20Coastal%20Travel%20Badge.png';
                 }}
               />
             </div>
@@ -793,7 +793,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                   <span className="font-extrabold text-sm text-teal-300">Quote on Request via WhatsApp</span>
                 </div>
                 <p className="text-[11px] text-slate-400 leading-relaxed border-t border-slate-800 pt-2">
-                  Highway toll charges, parking, and driver allowances will be confirmed directly with you by the Waltair Travels team over WhatsApp upon receiving this booking request.
+                  Highway toll charges, parking, and driver allowances will be confirmed directly with you by the Waltair Cabs team over WhatsApp upon receiving this booking request.
                 </p>
               </div>
 
@@ -939,7 +939,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
               <div>
                 <h4 className="text-xl font-extrabold text-slate-900">Your Ride is Confirmed!</h4>
                 <p className="text-xs text-slate-500 mt-1">
-                  Booking details sent to Waltair Travels. Please share details on WhatsApp below.
+                  Booking details sent to Waltair Cabs. Please share details on WhatsApp below.
                 </p>
               </div>
 
@@ -957,10 +957,10 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                   <div className="flex items-center gap-2.5">
                     <img 
                       src="/logo.png" 
-                      alt="Waltair Travels" 
+                      alt="Waltair Cabs" 
                       className="w-9 h-9 rounded-lg border border-teal-500/30 object-cover shrink-0" 
                       onError={(e) => {
-                        e.currentTarget.src = 'https://waltairtravelsandcabs.sirv.com/Glossy%20WT%20Road%20Trip%20App%20Icon.png';
+                        e.currentTarget.src = 'https://waltairtravelsandcabs.sirv.com/Waltair%20Cabs%20Coastal%20Travel%20Badge.png';
                       }}
                     />
                     <div>
@@ -977,7 +977,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                 </div>
 
                 <div className="p-3.5 bg-teal-50 rounded-xl border border-teal-200 text-teal-950 text-xs">
-                  <strong>Vehicle & Chauffeur Coordination:</strong> Waltair Travels operations team will confirm your booking on WhatsApp, provide your fare quote upon request, and coordinate chauffeur details.
+                  <strong>Vehicle & Chauffeur Coordination:</strong> Waltair Cabs operations team will confirm your booking on WhatsApp, provide your fare quote upon request, and coordinate chauffeur details.
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-600">

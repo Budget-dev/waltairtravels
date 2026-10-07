@@ -40,7 +40,7 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
   canonicalPath,
   canonicalUrl,
   ogType = 'website',
-  ogImage = 'https://waltairtravelsandcabs.sirv.com/Glossy%20WT%20Road%20Trip%20App%20Icon.png',
+  ogImage = 'https://waltairtravelsandcabs.sirv.com/Waltair%20Cabs%20Coastal%20Travel%20Badge.png',
   breadcrumbs,
   faqs,
   structuredData,

@@ -35,7 +35,7 @@ While the application features a modern, responsive user experience with real-ti
 - **Remediation Plan:** Support clean HTML5 paths (e.g., `/airport-taxi-vizag/`, `/outstation-cabs-vizag/`, `/vizag-to-araku-cab/`) while maintaining 100% backward compatibility with internal state and hash links. Pre-render metadata and provide full crawlability.
 
 ### 2.3 Metadata Implementation
-- **Index HTML:** Contains generic fallback metadata (`Waltair Travels | Reliable Airport Taxi, Outstation & City Cabs in Visakhapatnam`).
+- **Index HTML:** Contains optimized metadata (`Waltair Cabs | Premier Taxi & Cab Service in Visakhapatnam (Vizag)`).
 - **Dynamic Head Management:** `SEOHead.tsx` exists but was only instantiated on `FaqsPage.tsx`. All other 16 pages and the homepage lacked dynamic page-level titles, meta descriptions, canonical URLs, and Open Graph tags.
 - **Canonical URLs:** No canonical tag in `index.html`; in `SEOHead.tsx` it used `window.location.origin` or had fallback references to `.com`.
 

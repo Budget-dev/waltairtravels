@@ -163,7 +163,7 @@ export const Hero: React.FC<HeroProps> = ({
       <div className="absolute inset-0 z-0">
         <img
           src="/hero-banner.png"
-          alt="Waltair Travels Golden-Hour Airport Taxi Arrival"
+          alt="Waltair Cabs Golden-Hour Airport Taxi Arrival"
           className="w-full h-full object-cover object-center scale-100"
           onError={(e) => {
             e.currentTarget.src = 'https://waltairtravelsandcabs.sirv.com/Golden-Hour%20Airport%20Taxi%20Arrival%20(1).png';

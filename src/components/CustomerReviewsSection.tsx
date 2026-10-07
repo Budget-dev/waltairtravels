@@ -93,7 +93,7 @@ export const CustomerReviewsSection: React.FC = () => {
               Trusted by 50,000+ Travelers in Vizag
             </h2>
             <p className="text-slate-600 text-xs sm:text-sm mt-2 leading-relaxed">
-              Read authentic feedback from families, airport commuters, corporate executives, and tourists who ride with Waltair Travels.
+              Read authentic feedback from families, airport commuters, corporate executives, and tourists who ride with Waltair Cabs.
             </p>
           </div>
 

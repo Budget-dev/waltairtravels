@@ -369,16 +369,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <div className="w-8 h-8 rounded-lg overflow-hidden shadow-xs border border-teal-400/30 shrink-0 bg-slate-900 flex items-center justify-center">
               <img 
                 src="/logo.png" 
-                alt="Waltair Travels" 
+                alt="Waltair Cabs" 
                 className="w-full h-full object-cover"
                 onError={(e) => {
-                  e.currentTarget.src = 'https://waltairtravelsandcabs.sirv.com/Glossy%20WT%20Road%20Trip%20App%20Icon.png';
+                  e.currentTarget.src = 'https://waltairtravelsandcabs.sirv.com/Waltair%20Cabs%20Coastal%20Travel%20Badge.png';
                 }}
               />
             </div>
             <div>
               <div className="text-[10px] text-teal-300 font-bold uppercase tracking-wider leading-none mb-0.5">
-                Waltair Rider Portal
+                Waltair Cabs Rider Portal
               </div>
               <h3 className="font-bold text-sm sm:text-base text-white leading-tight">
                 {authMode === 'signin' && 'Sign In to Your Account'}

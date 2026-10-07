@@ -64,7 +64,7 @@ async function startServer() {
   // 7. Bind Server to Host 0.0.0.0 and Port 3000
   const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`======================================================`);
-    console.log(`🚀 Waltair Travels Enterprise Backend Engine Online`);
+    console.log(`🚀 Waltair Cabs Enterprise Backend Engine Online`);
     console.log(`⚡ Listening on: http://0.0.0.0:${PORT}`);
     console.log(`📊 Health Endpoint: http://localhost:${PORT}/api/health`);
     console.log(`📈 Metrics Endpoint: http://localhost:${PORT}/api/metrics`);

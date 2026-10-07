@@ -137,7 +137,7 @@ export const ContactSection: React.FC = () => {
                   <CheckCircle2 className="w-10 h-10 text-emerald-400 mx-auto" />
                   <h4 className="text-base font-bold text-emerald-200">Inquiry Received!</h4>
                   <p className="text-xs text-emerald-300">
-                    A Waltair Travels trip coordinator will call you shortly on your provided mobile number.
+                    A Waltair Cabs trip coordinator will call you shortly on your provided mobile number.
                   </p>
                 </div>
               ) : (

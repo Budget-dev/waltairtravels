@@ -22,7 +22,7 @@ interface PageLayoutProps {
 export const PageLayout: React.FC<PageLayoutProps> = ({
   title,
   subtitle,
-  categoryBadge = 'Waltair Travels Official',
+  categoryBadge = 'Waltair Cabs Official',
   breadcrumbs,
   children,
   onNavigateHome,

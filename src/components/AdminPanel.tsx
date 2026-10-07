@@ -540,16 +540,16 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 <div className="w-10 h-10 rounded-xl overflow-hidden shadow-xs border border-slate-200 shrink-0 bg-white flex items-center justify-center">
                   <img 
                     src="/logo.png" 
-                    alt="Waltair Travels" 
+                    alt="Waltair Cabs" 
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      e.currentTarget.src = 'https://waltairtravelsandcabs.sirv.com/Glossy%20WT%20Road%20Trip%20App%20Icon.png';
+                      e.currentTarget.src = 'https://waltairtravelsandcabs.sirv.com/Waltair%20Cabs%20Coastal%20Travel%20Badge.png';
                     }}
                   />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className="font-extrabold text-base sm:text-lg text-slate-900 tracking-tight">Waltair Operations & Lead Dispatch Center</h2>
+                    <h2 className="font-extrabold text-base sm:text-lg text-slate-900 tracking-tight">Waltair Cabs Operations & Lead Dispatch Center</h2>
                     <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-300 text-[10.5px] font-bold text-emerald-800">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                       Live Sync Active
@@ -862,7 +862,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                                     <Phone className="w-3.5 h-3.5" />
                                   </a>
                                   <a
-                                    href={`https://wa.me/91${lead.customerPhone}?text=${encodeURIComponent(`Hi ${lead.customerName || 'there'}! Waltair Travels customer support here. We noticed you were looking for a cab from ${lead.pickupLocation || 'Vizag'} to ${lead.dropoffLocation || 'destination'}. Would you like us to confirm a cab for you?`)}`}
+                                    href={`https://wa.me/91${lead.customerPhone}?text=${encodeURIComponent(`Hi ${lead.customerName || 'there'}! Waltair Cabs customer support here. We noticed you were looking for a cab from ${lead.pickupLocation || 'Vizag'} to ${lead.dropoffLocation || 'destination'}. Would you like us to confirm a cab for you?`)}`}
                                     target="_blank"
                                     rel="noreferrer"
                                     className="p-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 transition-colors cursor-pointer"
@@ -1072,7 +1072,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                                   </a>
 
                                   <a
-                                    href={`https://wa.me/91${lead.customerPhone}?text=${encodeURIComponent(`Hello ${lead.customerName || 'Sir/Madam'}, Waltair Travels Dispatch here. We saw your inquiry for a cab from ${lead.pickupLocation || 'Vizag'} to ${lead.dropoffLocation || 'destination'} on ${lead.travelDate || 'planned date'}. Our driver is ready. Would you like to confirm this trip?`)}`}
+                                    href={`https://wa.me/91${lead.customerPhone}?text=${encodeURIComponent(`Hello ${lead.customerName || 'Sir/Madam'}, Waltair Cabs Dispatch here. We saw your inquiry for a cab from ${lead.pickupLocation || 'Vizag'} to ${lead.dropoffLocation || 'destination'} on ${lead.travelDate || 'planned date'}. Our driver is ready. Would you like to confirm this trip?`)}`}
                                     target="_blank"
                                     rel="noreferrer"
                                     className="flex-1 sm:flex-initial px-3 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"

@@ -17,11 +17,11 @@ export const TermsConditionsPage: React.FC<TermsConditionsPageProps> = ({
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
-    'name': 'Waltair Travels Terms and Conditions',
-    'description': 'Standard operating terms, passenger codes of conduct, luggage limits, and legal service agreements for Waltair Travels.',
+    'name': 'Waltair Cabs Terms and Conditions',
+    'description': 'Standard operating terms, passenger codes of conduct, luggage limits, and legal service agreements for Waltair Cabs.',
     'publisher': {
       '@type': 'Organization',
-      'name': 'Waltair Travels',
+      'name': 'Waltair Cabs',
     },
   };
 
@@ -36,7 +36,7 @@ export const TermsConditionsPage: React.FC<TermsConditionsPageProps> = ({
       />
       <PageLayout
         title="Terms & Conditions"
-        subtitle="Standard operating rules, user guidelines, luggage allowances, and legal provisions governing services provided by Waltair Travels."
+        subtitle="Standard operating rules, user guidelines, luggage allowances, and legal provisions governing services provided by Waltair Cabs."
         categoryBadge="Service Agreement"
         breadcrumbs={[{ label: 'Support', onClick: () => onNavigatePage('help-center') }, { label: 'Terms & Conditions' }]}
         onNavigateHome={onNavigateHome}
@@ -51,7 +51,7 @@ export const TermsConditionsPage: React.FC<TermsConditionsPageProps> = ({
             <div>
               <div className="font-bold text-slate-900 text-sm">Agreement Overview</div>
               <p className="text-xs text-slate-600 mt-0.5">
-                By confirming a reservation with Waltair Travels, passengers agree to the operational guidelines and tariff provisions outlined below.
+                By confirming a reservation with Waltair Cabs, passengers agree to the operational guidelines and tariff provisions outlined below.
               </p>
             </div>
           </div>
@@ -89,7 +89,7 @@ export const TermsConditionsPage: React.FC<TermsConditionsPageProps> = ({
           <section className="space-y-3 bg-white border border-slate-200 p-6 sm:p-8 rounded-3xl">
             <h2 className="text-lg sm:text-xl font-bold text-slate-900">5. Force Majeure & Route Diversions</h2>
             <p>
-              Waltair Travels is not liable for travel delays caused by unavoidable natural calamities, road blockades, sudden heavy monsoon floods in ghat sectors, or severe traffic congestion. Alternative routes or replacement vehicles will be coordinated promptly.
+              Waltair Cabs is not liable for travel delays caused by unavoidable natural calamities, road blockades, sudden heavy monsoon floods in ghat sectors, or severe traffic congestion. Alternative routes or replacement vehicles will be coordinated promptly.
             </p>
           </section>
 

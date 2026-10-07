@@ -40,7 +40,7 @@ const INITIAL_SEED_POSTS: BlogPost[] = [
 
 ### Why Pre-Booking Your Airport Cab Matters
 1. **Distance & Travel Time:** The commute from Siripuram, Gajuwaka, or Rushikonda takes roughly 45 to 65 minutes depending on traffic. Pre-booking guarantees on-time doorstep pickup.
-2. **Fixed Toll-Inclusive Pricing:** Waltair Travels offers transparent upfront pricing with zero surge charges and toll inclusions for the Tagarapuvalasa plaza.
+2. **Fixed Toll-Inclusive Pricing:** Waltair Cabs offers transparent upfront pricing with zero surge charges and toll inclusions for the Tagarapuvalasa plaza.
 3. **Flight Delay Adjustments:** Our dispatch team monitors incoming flight tracking so your chauffeur is stationed at the arrivals bay even if your flight lands ahead or behind schedule.
 
 ### Recommended Vehicle Classes
@@ -69,7 +69,7 @@ const INITIAL_SEED_POSTS: BlogPost[] = [
 
 ### Travel Tips from Our Drivers:
 * Start early by 6:00 AM from Vizag to beat city traffic and catch the morning mist atop Galikonda viewpoint.
-* Ask your Waltair Travels driver to stop for authentic bamboo chicken and Araku honey tastings!`,
+* Ask your Waltair Cabs driver to stop for authentic bamboo chicken and Araku honey tastings!`,
     author: 'K. Satish',
     authorEmail: 'satish.driver@waltairtravels.com',
     date: '2025-05-02',
@@ -84,7 +84,7 @@ const INITIAL_SEED_POSTS: BlogPost[] = [
     content: `When booking intercity cabs between Vizag, Vijayawada, Rajahmundry, Kakinada, or Bhubaneswar, having complete clarity on fare structures ensures a relaxed journey.
 
 ### 1. Inquire About Driver Batta & Night Allowances
-Always confirm whether the quoted fare includes driver night allowances (typically applied between 10 PM and 6 AM) and daily food batta. At Waltair Travels, all outstation quotes clearly separate base per-km rates from optional driver allowances.
+Always confirm whether the quoted fare includes driver night allowances (typically applied between 10 PM and 6 AM) and daily food batta. At Waltair Cabs, all outstation quotes clearly separate base per-km rates from optional driver allowances.
 
 ### 2. Check Vehicle Fitness & Commercial Permits
 Ensure your cab holds a valid commercial yellow plate (AP 31 / AP 39 registration) with active tourist road tax and comprehensive insurance. This prevents unexpected checkpoints delays at state borders.
@@ -327,7 +327,7 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ currentUser, onOpenAut
               <span>Travel Guides & Driver Insights</span>
             </div>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
-              Waltair Travels Blog & Road Guides
+              Waltair Cabs Blog & Road Guides
             </h2>
             <p className="text-slate-600 text-xs sm:text-sm mt-2 leading-relaxed">
               Practical airport transfers, scenic Araku itineraries, and local Vizag travel secrets written by our chauffeurs.

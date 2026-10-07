@@ -7,7 +7,7 @@ interface WhatsAppButtonProps {
 
 export const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({ offsetForMobileCta = false }) => {
   const whatsappNumber = '919110510236';
-  const defaultText = encodeURIComponent('Hello Waltair Travels! I would like to book a cab.');
+  const defaultText = encodeURIComponent('Hello Waltair Cabs! I would like to book a cab.');
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${defaultText}`;
 
   return (
@@ -24,7 +24,7 @@ export const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({ offsetForMobileC
         id="floating-whatsapp-btn"
         className="Btn"
         aria-label="Chat on WhatsApp"
-        title="Chat with Waltair Travels on WhatsApp"
+        title="Chat with Waltair Cabs on WhatsApp"
       >
         <div className="sign">
           <svg className="socialSvg whatsappSvg" viewBox="0 0 16 16" aria-hidden="true">

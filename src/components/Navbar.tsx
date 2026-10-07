@@ -200,20 +200,20 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl overflow-hidden shadow-xs group-hover:scale-105 transition-transform shrink-0 border border-teal-500/20 bg-slate-900 flex items-center justify-center">
             <img 
               src="/logo.png" 
-              alt="Waltair Travels Logo" 
+              alt="Waltair Cabs Logo" 
               className="w-full h-full object-cover"
               onError={(e) => {
-                e.currentTarget.src = 'https://waltairtravelsandcabs.sirv.com/Glossy%20WT%20Road%20Trip%20App%20Icon.png';
+                e.currentTarget.src = 'https://waltairtravelsandcabs.sirv.com/Waltair%20Cabs%20Coastal%20Travel%20Badge.png';
               }}
             />
           </div>
           <div className="flex flex-col min-w-0">
             <div className="text-base sm:text-lg font-extrabold tracking-tight text-slate-900 flex items-center leading-none whitespace-nowrap">
               <span>Waltair</span>
-              <span className="text-teal-800 ml-1 font-black">Travels</span>
+              <span className="text-teal-800 ml-1 font-black">Cabs</span>
             </div>
             <span className="text-[8px] sm:text-[9px] tracking-wider uppercase font-semibold text-slate-400 mt-0.5 whitespace-nowrap">
-              Visakhapatnam Cabs
+              Vizag & Outstation Taxi
             </span>
           </div>
         </div>
@@ -623,15 +623,15 @@ export const Navbar: React.FC<NavbarProps> = ({
                     <div className="w-8 h-8 rounded-lg overflow-hidden border border-teal-400/40 shadow-xs shrink-0 bg-slate-900 flex items-center justify-center">
                       <img 
                         src="/logo.png" 
-                        alt="Waltair Travels" 
+                        alt="Waltair Cabs" 
                         className="w-full h-full object-cover" 
                         onError={(e) => {
-                          e.currentTarget.src = 'https://waltairtravelsandcabs.sirv.com/Glossy%20WT%20Road%20Trip%20App%20Icon.png';
+                          e.currentTarget.src = 'https://waltairtravelsandcabs.sirv.com/Waltair%20Cabs%20Coastal%20Travel%20Badge.png';
                         }}
                       />
                     </div>
                     <div>
-                      <div className="font-bold text-sm text-white">Waltair Travels</div>
+                      <div className="font-bold text-sm text-white">Waltair Cabs</div>
                       <div className="text-[10px] text-teal-200">Visakhapatnam & Coastal AP</div>
                     </div>
                   </div>

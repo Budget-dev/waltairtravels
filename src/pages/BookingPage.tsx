@@ -517,7 +517,7 @@ export const BookingPage: React.FC<BookingPageProps> = ({
         <div className="hidden sm:block absolute inset-0 opacity-20 pointer-events-none">
           <img 
             src="/hero-banner.png" 
-            alt="Waltair Travels Golden-Hour Airport Taxi Arrival" 
+            alt="Waltair Cabs Golden-Hour Airport Taxi Arrival" 
             className="w-full h-full object-cover" 
             onError={(e) => {
               e.currentTarget.src = 'https://waltairtravelsandcabs.sirv.com/Golden-Hour%20Airport%20Taxi%20Arrival%20(1).png';
@@ -665,16 +665,16 @@ export const BookingPage: React.FC<BookingPageProps> = ({
               <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl overflow-hidden shadow-md border border-teal-400/30 shrink-0 bg-slate-900 flex items-center justify-center">
                 <img 
                   src="/logo.png" 
-                  alt="Waltair Travels" 
+                  alt="Waltair Cabs" 
                   className="w-full h-full object-cover"
                   onError={(e) => {
-                    e.currentTarget.src = 'https://waltairtravelsandcabs.sirv.com/Glossy%20WT%20Road%20Trip%20App%20Icon.png';
+                    e.currentTarget.src = 'https://waltairtravelsandcabs.sirv.com/Waltair%20Cabs%20Coastal%20Travel%20Badge.png';
                   }}
                 />
               </div>
               <div>
                 <div className="flex items-center gap-1.5 text-teal-400 text-xs font-bold uppercase tracking-wider mb-0.5">
-                  <span>Waltair Travels Booking Desk</span>
+                  <span>Waltair Cabs Booking Desk</span>
                 </div>
                 <h1 className="text-xl sm:text-3xl font-extrabold text-white">
                   {step === 4 ? '🎉 Booking Received!' : 'Book Your Cab'}
@@ -1269,7 +1269,7 @@ export const BookingPage: React.FC<BookingPageProps> = ({
 
                     <a
                       href={`https://wa.me/919110510236?text=${encodeURIComponent(
-                        `Hi Waltair Travels, I want to book a ${selectedVehicle?.name || 'Cab'}.\nPickup: ${pickupLocation}\nDrop: ${dropoffLocation}\nDate: ${travelDate} at ${pickupTime}\nName: ${customerName || 'Passenger'}`
+                        `Hi Waltair Cabs, I want to book a ${selectedVehicle?.name || 'Cab'}.\nPickup: ${pickupLocation}\nDrop: ${dropoffLocation}\nDate: ${travelDate} at ${pickupTime}\nName: ${customerName || 'Passenger'}`
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -1764,7 +1764,7 @@ export const BookingPage: React.FC<BookingPageProps> = ({
                   {/* Payment Info Note */}
                   <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 text-xs flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-teal-700 shrink-0" />
-                    <span>No online advance needed. Fare is quoted upon request and discussed directly with Waltair Travels via WhatsApp.</span>
+                    <span>No online advance needed. Fare is quoted upon request and discussed directly with Waltair Cabs via WhatsApp.</span>
                   </div>
 
                   {formError && (
@@ -1849,10 +1849,10 @@ export const BookingPage: React.FC<BookingPageProps> = ({
                     <div className="flex items-center gap-2.5">
                       <img 
                         src="/logo.png" 
-                        alt="Waltair Travels" 
+                        alt="Waltair Cabs" 
                         className="w-10 h-10 rounded-xl border border-teal-500/30 object-cover shrink-0" 
                         onError={(e) => {
-                          e.currentTarget.src = 'https://waltairtravelsandcabs.sirv.com/Glossy%20WT%20Road%20Trip%20App%20Icon.png';
+                          e.currentTarget.src = 'https://waltairtravelsandcabs.sirv.com/Waltair%20Cabs%20Coastal%20Travel%20Badge.png';
                         }}
                       />
                       <div>
@@ -1924,7 +1924,7 @@ export const BookingPage: React.FC<BookingPageProps> = ({
 
                   {/* Dispatch Notice */}
                   <div className="p-3 rounded-xl bg-teal-50/70 border border-teal-200/70 text-teal-950 text-xs">
-                    <strong>Vehicle & Reservation Coordination:</strong> Waltair Travels operations team will confirm your booking via WhatsApp, provide your customized fare quote on request, and coordinate vehicle dispatch.
+                    <strong>Vehicle & Reservation Coordination:</strong> Waltair Cabs operations team will confirm your booking via WhatsApp, provide your customized fare quote on request, and coordinate vehicle dispatch.
                   </div>
                 </div>
 

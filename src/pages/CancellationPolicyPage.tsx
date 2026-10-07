@@ -25,11 +25,11 @@ export const CancellationPolicyPage: React.FC<CancellationPolicyPageProps> = ({
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
-    'name': 'Waltair Travels Cancellation & Refund Policy',
+    'name': 'Waltair Cabs Cancellation & Refund Policy',
     'description': 'Clear and customer-friendly cancellation guidelines, advance token refund schedules, and rescheduling policy.',
     'publisher': {
       '@type': 'Organization',
-      'name': 'Waltair Travels',
+      'name': 'Waltair Cabs',
     },
   };
 

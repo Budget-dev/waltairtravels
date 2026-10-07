@@ -100,10 +100,10 @@ export const FaqsPage: React.FC<FaqsPageProps> = ({
   return (
     <>
       <SEOHead
-        title="Frequently Asked Questions (FAQs) - Waltair Travels Visakhapatnam"
+        title="Frequently Asked Questions (FAQs) - Waltair Cabs Visakhapatnam"
         description="Got questions about booking cabs, Bhogapuram airport transit, outstation per-km rates, GST invoicing, or payment methods? Browse our comprehensive FAQ guide."
         keywords={[
-          'Waltair Travels FAQs',
+          'Waltair Cabs FAQs',
           'Vizag taxi booking questions',
           'Bhogapuram cab fare questions',
           'outstation taxi policies Visakhapatnam',

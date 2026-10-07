@@ -144,10 +144,10 @@ export const ManageBookingModal: React.FC<ManageBookingModalProps> = ({
                 <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md border border-cyan-400/30 shrink-0 bg-slate-900 flex items-center justify-center">
                   <img 
                     src="/logo.png" 
-                    alt="Waltair Travels" 
+                    alt="Waltair Cabs" 
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      e.currentTarget.src = 'https://waltairtravelsandcabs.sirv.com/Glossy%20WT%20Road%20Trip%20App%20Icon.png';
+                      e.currentTarget.src = 'https://waltairtravelsandcabs.sirv.com/Waltair%20Cabs%20Coastal%20Travel%20Badge.png';
                     }}
                   />
                 </div>

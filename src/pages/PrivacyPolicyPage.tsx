@@ -17,11 +17,11 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
-    'name': 'Waltair Travels Privacy Policy',
-    'description': 'Information on how Waltair Travels collects, stores, protects, and handles personal passenger data and GPS information.',
+    'name': 'Waltair Cabs Privacy Policy',
+    'description': 'Information on how Waltair Cabs collects, stores, protects, and handles personal passenger data and GPS information.',
     'publisher': {
       '@type': 'Organization',
-      'name': 'Waltair Travels',
+      'name': 'Waltair Cabs',
     },
   };
 
@@ -51,7 +51,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
             <div>
               <div className="font-bold text-slate-900 text-sm">Last Updated: August 2026</div>
               <p className="text-xs text-slate-600 mt-0.5">
-                This Privacy Policy applies to all services offered by Waltair Travels across our website, mobile booking engines, and customer support channels.
+                This Privacy Policy applies to all services offered by Waltair Cabs across our website, mobile booking engines, and customer support channels.
               </p>
             </div>
           </div>

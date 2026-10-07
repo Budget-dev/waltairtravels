@@ -323,7 +323,7 @@ export const BackendTelemetryModal: React.FC<BackendTelemetryModalProps> = ({ is
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-slate-800 bg-slate-950/80 flex items-center justify-between text-xs text-slate-400">
-          <span>Waltair Travels Enterprise Service v2.4</span>
+          <span>Waltair Cabs Enterprise Service v2.4</span>
           <button
             onClick={onClose}
             className="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold transition-all cursor-pointer"
