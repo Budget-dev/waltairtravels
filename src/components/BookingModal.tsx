@@ -562,7 +562,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                         value={travelDate}
                         min={new Date().toISOString().split('T')[0]}
                         onChange={(e) => setTravelDate(e.target.value)}
-                        className="w-full bg-transparent outline-none font-medium text-slate-900"
+                        className="w-full bg-transparent outline-none font-medium text-slate-900 text-base sm:text-sm"
                         required
                       />
                     </div>
@@ -579,7 +579,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                         id="modal-pickup-time"
                         value={pickupTime}
                         onChange={(e) => setPickupTime(e.target.value)}
-                        className="w-full bg-transparent outline-none font-medium text-slate-900"
+                        className="w-full bg-transparent outline-none font-medium text-slate-900 text-base sm:text-sm"
                         required
                       />
                     </div>
@@ -800,7 +800,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                         value={customerName}
                         onChange={(e) => setCustomerName(e.target.value)}
                         placeholder="e.g. Ramesh Varma"
-                        className="w-full bg-transparent text-xs sm:text-sm text-slate-900 outline-none"
+                        className="w-full bg-transparent text-base sm:text-sm text-slate-900 outline-none"
                         required
                       />
                     </div>
@@ -820,7 +820,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                         value={customerPhone}
                         onChange={(e) => setCustomerPhone(e.target.value.replace(/\D/g, ''))}
                         placeholder="9876543210"
-                        className="w-full bg-transparent text-xs sm:text-sm text-slate-900 outline-none"
+                        className="w-full bg-transparent text-base sm:text-sm text-slate-900 outline-none"
                         required
                       />
                     </div>

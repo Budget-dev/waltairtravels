@@ -6,7 +6,7 @@ import { FareEngineService } from './services/fareEngine';
 import { RouteService } from './services/routeService';
 import { bookingEngine, BookingStatus } from './services/bookingEngine';
 import { AiTravelService } from './services/aiService';
-import { requireAdminAuth } from './middleware';
+import { requireAdminAuth, AUTHORIZED_ADMIN_EMAIL, verifyTokenEmail } from './middleware';
 
 export const apiRouter = Router();
 
@@ -155,9 +155,45 @@ apiRouter.post('/bookings', (req: Request, res: Response) => {
   });
 });
 
-apiRouter.get('/bookings', requireAdminAuth, (_req: Request, res: Response) => {
-  const list = FileDatabase.getAllBookings();
-  res.json({ success: true, count: list.length, bookings: list });
+apiRouter.get('/bookings', async (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+  const { email, phone, userId } = req.query;
+
+  // Check if bearer token belongs to authorized admin
+  let requesterEmail: string | null = null;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    requesterEmail = await verifyTokenEmail(authHeader);
+  }
+
+  const isAdmin = requesterEmail === AUTHORIZED_ADMIN_EMAIL;
+
+  if (isAdmin) {
+    const list = FileDatabase.getAllBookings();
+    return res.json({ success: true, count: list.length, bookings: list });
+  }
+
+  // Non-admin: allow logged-in user or customer identifier to retrieve ONLY their own bookings
+  const queryEmail = typeof email === 'string' ? email.toLowerCase().trim() : '';
+  const queryPhone = typeof phone === 'string' ? phone.replace(/\D/g, '') : '';
+  const queryUserId = typeof userId === 'string' ? userId.trim() : '';
+  const effectiveEmail = requesterEmail || queryEmail;
+
+  if (!effectiveEmail && !queryPhone && !queryUserId) {
+    return res.status(401).json({
+      error: 'Admin access restricted',
+      message: 'Authentication credentials or customer identifier required.',
+    });
+  }
+
+  const allBookings = FileDatabase.getAllBookings();
+  const userBookings = allBookings.filter((b: any) => {
+    if (queryUserId && b.userId === queryUserId) return true;
+    if (effectiveEmail && b.customerEmail && b.customerEmail.toLowerCase().trim() === effectiveEmail) return true;
+    if (queryPhone && b.customerPhone && b.customerPhone.replace(/\D/g, '').endsWith(queryPhone.slice(-10))) return true;
+    return false;
+  });
+
+  return res.json({ success: true, count: userBookings.length, bookings: userBookings });
 });
 
 apiRouter.get('/bookings/:ref', (req: Request, res: Response) => {

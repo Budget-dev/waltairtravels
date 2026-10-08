@@ -196,3 +196,33 @@ export async function requireAdminAuth(req: Request, res: Response, next: NextFu
   }
 }
 
+/**
+ * Helper to inspect bearer token and extract user email safely
+ */
+export async function verifyTokenEmail(token?: string): Promise<string | null> {
+  if (!token) return null;
+  const clean = token.startsWith('Bearer ') ? token.substring(7).trim() : token.trim();
+  if (!clean) return null;
+
+  const now = Date.now();
+  const cached = verifiedTokenCache.get(clean);
+  if (cached && cached.expiresAt > now) {
+    return cached.email;
+  }
+
+  try {
+    const googleRes = await fetch(
+      `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(clean)}`
+    );
+    if (googleRes.ok) {
+      const payload: any = await googleRes.json();
+      const email = (payload.email || '').toLowerCase().trim();
+      const expSec = Number(payload.exp) || Math.floor((now + 600000) / 1000);
+      const expiresAt = Math.min(expSec * 1000, now + 15 * 60 * 1000);
+      verifiedTokenCache.set(clean, { email, expiresAt });
+      return email;
+    }
+  } catch {}
+  return null;
+}
+

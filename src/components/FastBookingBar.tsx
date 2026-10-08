@@ -432,7 +432,7 @@ export const FastBookingBar: React.FC<FastBookingBarProps> = ({
                             setTravelDate(e.target.value);
                             syncFootprint({ field: `FastBar date: ${e.target.value}` });
                           }}
-                          className="w-full text-xs font-semibold bg-transparent outline-none cursor-pointer"
+                          className="w-full text-base sm:text-xs font-semibold bg-transparent outline-none cursor-pointer"
                           required
                         />
                       </div>
@@ -445,7 +445,7 @@ export const FastBookingBar: React.FC<FastBookingBarProps> = ({
                             setPickupTime(e.target.value);
                             syncFootprint({ field: `FastBar time: ${e.target.value}` });
                           }}
-                          className="w-full text-xs font-semibold bg-transparent outline-none cursor-pointer"
+                          className="w-full text-base sm:text-xs font-semibold bg-transparent outline-none cursor-pointer"
                           required
                         />
                       </div>
@@ -463,7 +463,7 @@ export const FastBookingBar: React.FC<FastBookingBarProps> = ({
                             syncFootprint({ name: e.target.value, field: `FastBar name: ${e.target.value}` });
                           }}
                           placeholder="Your Name"
-                          className="w-full text-xs font-semibold bg-transparent outline-none placeholder:text-slate-400"
+                          className="w-full text-base sm:text-xs font-semibold bg-transparent outline-none placeholder:text-slate-400"
                           required
                         />
                       </div>
@@ -481,7 +481,7 @@ export const FastBookingBar: React.FC<FastBookingBarProps> = ({
                               syncFootprint({ phone: val, field: val ? `FastBar phone: +91 ${val}` : 'Cleared phone' });
                             }}
                             placeholder="98765 43210"
-                            className="w-full text-xs font-semibold bg-transparent outline-none placeholder:text-slate-400"
+                            className="w-full text-base sm:text-xs font-semibold bg-transparent outline-none placeholder:text-slate-400"
                             required
                           />
                         </div>

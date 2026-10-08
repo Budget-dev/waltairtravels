@@ -20,7 +20,9 @@ async function getAdminAuthHeaders(): Promise<Record<string, string>> {
 export function getLocalBookings(): Booking[] {
   try {
     const raw = localStorage.getItem(LOCAL_BOOKINGS_KEY);
-    return raw ? JSON.parse(raw) : [];
+    const list: Booking[] = raw ? JSON.parse(raw) : [];
+    // Filter out legacy mock seed data so user only sees their real trips
+    return list.filter(b => b.id !== 'seed-wal-84920' && b.bookingRef !== 'WAL-84920');
   } catch (err) {
     console.warn('[dbSync] Local storage read error:', err);
     return [];
@@ -30,7 +32,9 @@ export function getLocalBookings(): Booking[] {
 // Helper to write local bookings safely
 export function setLocalBookings(bookings: Booking[]) {
   try {
-    localStorage.setItem(LOCAL_BOOKINGS_KEY, JSON.stringify(bookings));
+    // Ensure mock data is never persisted
+    const clean = bookings.filter(b => b.id !== 'seed-wal-84920' && b.bookingRef !== 'WAL-84920');
+    localStorage.setItem(LOCAL_BOOKINGS_KEY, JSON.stringify(clean));
   } catch (err) {
     console.warn('[dbSync] Local storage write error:', err);
   }
@@ -39,24 +43,52 @@ export function setLocalBookings(bookings: Booking[]) {
 /**
  * Universal multi-tier fetch:
  * 1. Reads instant local cache (0ms latency, works offline)
- * 2. Fetches from Server Persistent FileDatabase (/api/bookings)
+ * 2. Fetches from Server Persistent FileDatabase (/api/bookings with user filter or admin auth)
  * 3. Safely queries Cloud Firestore (with permission-denied / offline error handling)
  * 4. Combines, deduplicates, and saves back to local storage
  */
-export async function syncFetchBookings(): Promise<Booking[]> {
+export async function syncFetchBookings(userFilter?: { email?: string; phone?: string; userId?: string }): Promise<Booking[]> {
   const localList = getLocalBookings();
   const bookingsMap = new Map<string, Booking>();
 
-  // Populate local bookings first
+  // Populate local real bookings first
   localList.forEach(b => {
     const key = b.bookingRef || b.id || '';
-    if (key) bookingsMap.set(key, b);
+    if (key && key !== 'WAL-84920') bookingsMap.set(key, b);
   });
 
-  // 1. Fetch from Express Backend API (with admin auth header if available)
+  // 1. Fetch from Express Backend API (with user query or admin auth header)
   try {
     const authHeaders = await getAdminAuthHeaders();
-    const res = await fetch('/api/bookings', { 
+    let url = '/api/bookings';
+    const params = new URLSearchParams();
+
+    // Determine query filter for current user
+    let email = userFilter?.email;
+    let phone = userFilter?.phone;
+    let userId = userFilter?.userId;
+
+    if (!email && !phone && typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('waltair_user_session');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed.email) email = parsed.email;
+          if (parsed.phone) phone = parsed.phone;
+          if (parsed.uid) userId = parsed.uid;
+        }
+      } catch {}
+    }
+
+    if (email) params.set('email', email);
+    if (phone) params.set('phone', phone);
+    if (userId) params.set('userId', userId);
+
+    if (params.toString()) {
+      url += `?${params.toString()}`;
+    }
+
+    const res = await fetch(url, { 
       cache: 'no-store',
       headers: authHeaders
     });
@@ -66,7 +98,7 @@ export async function syncFetchBookings(): Promise<Booking[]> {
       if (Array.isArray(json.bookings)) {
         json.bookings.forEach((serverB: Booking) => {
           const key = serverB.bookingRef || serverB.id || '';
-          if (!key) return;
+          if (!key || key === 'WAL-84920') return;
           const existing = bookingsMap.get(key);
           if (!existing) {
             bookingsMap.set(key, serverB);
@@ -93,7 +125,7 @@ export async function syncFetchBookings(): Promise<Booking[]> {
       const data = docSnap.data() as Booking;
       const remoteB: Booking = { id: docSnap.id, ...data };
       const key = remoteB.bookingRef || remoteB.id || '';
-      if (!key) return;
+      if (!key || key === 'WAL-84920') return;
       const existing = bookingsMap.get(key);
       if (!existing) {
         bookingsMap.set(key, remoteB);
@@ -110,61 +142,14 @@ export async function syncFetchBookings(): Promise<Booking[]> {
     console.debug('[dbSync] Cloud Firestore fetch note (resilient fallback active):', fsErr);
   }
 
-  // 3. If completely empty (first time install), provide initial seed
-  if (bookingsMap.size === 0) {
-    const seedToday = new Date().toISOString().split('T')[0];
-    const initialBooking: Booking = {
-      id: 'seed-wal-84920',
-      bookingRef: 'WAL-84920',
-      customerName: 'Suresh Varma',
-      customerPhone: '9848012345',
-      customerEmail: 'suresh.varma@example.com',
-      serviceType: 'airport',
-      subType: 'pickup',
-      pickupLocation: 'Alluri Sitharama Raju International Airport ASI , Bhogapuram',
-      dropoffLocation: 'Siripuram Circle & Waltair Uplands, Visakhapatnam',
-      travelDate: seedToday,
-      pickupTime: '11:00',
-      vehicleCategory: 'Sedan',
-      vehicleName: 'Maruti Suzuki Dzire',
-      estimatedDistanceKm: 42,
-      baseFare: 550,
-      distanceFare: 351,
-      tollCharges: 140,
-      gstAmount: 52,
-      totalFare: 1093,
-      paymentMethod: 'cash_to_driver',
-      status: 'on_the_way',
-      driver: {
-        name: 'K. Satish Varma',
-        phone: '+91 98480 23456',
-        vehicleNumber: 'AP 31 TH 7842',
-        vehicleModel: 'Maruti Suzuki Dzire (White)',
-        rating: 4.9,
-        totalTrips: 1420,
-        photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80',
-        currentLat: 17.729,
-        currentLng: 83.310,
-        etaMinutes: 8
-      },
-      otp: '4821',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      city: 'Visakhapatnam, IN',
-      isRegistered: false
-    };
-    bookingsMap.set(initialBooking.bookingRef, initialBooking);
-  }
-
   const combinedList = Array.from(bookingsMap.values()).sort((a, b) => {
     const timeA = new Date(a.createdAt || 0).getTime();
     const timeB = new Date(b.createdAt || 0).getTime();
     return timeB - timeA;
   });
 
-  // Keep local storage updated
+  // Keep local storage updated with real bookings only
   setLocalBookings(combinedList);
-
   return combinedList;
 }
 

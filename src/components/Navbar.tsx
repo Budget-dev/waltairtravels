@@ -76,10 +76,14 @@ export const Navbar: React.FC<NavbarProps> = ({
   });
 
   useEffect(() => {
+    let lastSaved = localStorage.getItem('waltair_user_session') || '';
     const syncSession = () => {
       try {
-        const saved = localStorage.getItem('waltair_user_session');
-        setLocalSession(saved ? JSON.parse(saved) : null);
+        const current = localStorage.getItem('waltair_user_session') || '';
+        if (current !== lastSaved) {
+          lastSaved = current;
+          setLocalSession(current ? JSON.parse(current) : null);
+        }
       } catch {
         setLocalSession(null);
       }
@@ -99,8 +103,26 @@ export const Navbar: React.FC<NavbarProps> = ({
     (activeUser.uid || activeUser.email || activeUser.name || activeUser.phone)
   );
 
-  const handleSignOut = () => {
+  const toggleNotifications = () => {
     setIsProfileMenuOpen(false);
+    setIsServicesOpen(false);
+    setIsNotifOpen(prev => !prev);
+  };
+
+  const toggleProfileMenu = () => {
+    setIsNotifOpen(false);
+    setIsServicesOpen(false);
+    setIsProfileMenuOpen(prev => !prev);
+  };
+
+  const closeAllDropdowns = () => {
+    setIsNotifOpen(false);
+    setIsProfileMenuOpen(false);
+    setIsServicesOpen(false);
+  };
+
+  const handleSignOut = () => {
+    closeAllDropdowns();
     setIsMobileMenuOpen(false);
     try {
       localStorage.removeItem('waltair_user_session');
@@ -127,13 +149,12 @@ export const Navbar: React.FC<NavbarProps> = ({
     setIsServicesOpen(false);
   };
 
-  // Prevent background scrolling when mobile menu drawer is open
+  // Prevent background scrolling when mobile menu drawer is open without layout shift
   useEffect(() => {
     if (isMobileMenuOpen) {
-      const originalOverflow = document.body.style.overflow;
-      document.body.style.overflow = 'hidden';
+      document.documentElement.classList.add('overflow-hidden');
       return () => {
-        document.body.style.overflow = originalOverflow;
+        document.documentElement.classList.remove('overflow-hidden');
       };
     }
   }, [isMobileMenuOpen]);
@@ -425,7 +446,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="relative">
             <button
               id="notif-bell-btn"
-              onClick={() => setIsNotifOpen(!isNotifOpen)}
+              onClick={toggleNotifications}
               className="p-2 rounded-full border border-slate-200 hover:bg-slate-100 text-slate-700 relative transition-colors cursor-pointer"
               aria-label="Notifications"
             >
@@ -439,44 +460,53 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <AnimatePresence>
               {isNotifOpen && (
-                <motion.div 
-                  initial={{ opacity: 0, y: 8, scale: 0.98 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 8, scale: 0.98 }}
-                  className="fixed left-4 right-4 top-[72px] sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-88 bg-white rounded-2xl shadow-2xl border border-slate-200 p-4 z-50"
-                >
-                  <div className="flex items-center justify-between pb-2.5 border-b border-slate-100">
-                    <div className="font-bold text-slate-900 text-xs sm:text-sm flex items-center gap-2">
-                      <Bell className="w-4 h-4 text-teal-700" />
-                      Trip Updates & Offers
-                    </div>
-                    {unreadCount > 0 && (
-                      <button 
-                        onClick={handleMarkAllRead}
-                        className="text-xs text-teal-700 hover:underline font-medium cursor-pointer"
-                      >
-                        Mark all read
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="mt-3 space-y-2 max-h-72 overflow-y-auto">
-                    {notifications.map(n => (
-                      <div 
-                        key={n.id} 
-                        className={`p-2.5 rounded-xl text-xs transition-colors ${
-                          n.read ? 'bg-slate-50 text-slate-600' : 'bg-teal-50/70 border border-teal-100 text-slate-800'
-                        }`}
-                      >
-                        <div className="font-semibold text-slate-900 mb-0.5 flex justify-between">
-                          <span>{n.title}</span>
-                          <span className="text-[10px] text-slate-400 font-normal">{n.time}</span>
-                        </div>
-                        <p className="text-slate-600 text-[11px] leading-relaxed">{n.message}</p>
+                <>
+                  <div
+                    className="fixed inset-0 z-40 bg-black/10"
+                    onClick={closeAllDropdowns}
+                    onTouchStart={closeAllDropdowns}
+                    aria-hidden="true"
+                  />
+                  <motion.div 
+                    initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                    transition={{ duration: 0.15 }}
+                    className="fixed left-4 right-4 top-[72px] sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-88 bg-white rounded-2xl shadow-2xl border border-slate-200 p-4 z-50"
+                  >
+                    <div className="flex items-center justify-between pb-2.5 border-b border-slate-100">
+                      <div className="font-bold text-slate-900 text-xs sm:text-sm flex items-center gap-2">
+                        <Bell className="w-4 h-4 text-teal-700" />
+                        Trip Updates & Offers
                       </div>
-                    ))}
-                  </div>
-                </motion.div>
+                      {unreadCount > 0 && (
+                        <button 
+                          onClick={handleMarkAllRead}
+                          className="text-xs text-teal-700 hover:underline font-medium cursor-pointer"
+                        >
+                          Mark all read
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="mt-3 space-y-2 max-h-72 overflow-y-auto">
+                      {notifications.map(n => (
+                        <div 
+                          key={n.id} 
+                          className={`p-2.5 rounded-xl text-xs transition-colors ${
+                            n.read ? 'bg-slate-50 text-slate-600' : 'bg-teal-50/70 border border-teal-100 text-slate-800'
+                          }`}
+                        >
+                          <div className="font-semibold text-slate-900 mb-0.5 flex justify-between">
+                            <span>{n.title}</span>
+                            <span className="text-[10px] text-slate-400 font-normal">{n.time}</span>
+                          </div>
+                          <p className="text-slate-600 text-[11px] leading-relaxed">{n.message}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                </>
               )}
             </AnimatePresence>
           </div>
@@ -486,7 +516,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div className="relative shrink-0">
               <button 
                 id="user-profile-btn"
-                onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                onClick={toggleProfileMenu}
                 className="whitespace-nowrap shrink-0 flex items-center gap-1.5 sm:gap-2 bg-slate-900 hover:bg-slate-800 text-white px-2.5 sm:px-3 py-1.5 rounded-xl font-medium text-xs sm:text-sm shadow-xs transition-all cursor-pointer border border-slate-700/60 hover:border-teal-500/50"
               >
                 <div className="relative">
@@ -503,49 +533,58 @@ export const Navbar: React.FC<NavbarProps> = ({
 
               <AnimatePresence>
                 {isProfileMenuOpen && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 8 }}
-                    className="fixed left-4 right-4 top-[72px] sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-64 bg-white rounded-2xl shadow-xl border border-slate-200 p-2.5 z-50 whitespace-normal"
-                  >
-                    <div className="px-3 py-2 border-b border-slate-100 flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-full bg-teal-800 text-white flex items-center justify-center text-sm font-bold shrink-0">
-                        {activeUser.name ? activeUser.name.charAt(0).toUpperCase() : 'U'}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="font-bold text-slate-900 text-xs sm:text-sm truncate">{activeUser.name || 'Waltair Rider'}</div>
-                        <div className="text-[11px] text-slate-500 truncate">{activeUser.email || activeUser.phone || 'Verified Account'}</div>
-                        <div className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded mt-0.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                          <span>Logged In</span>
+                  <>
+                    <div
+                      className="fixed inset-0 z-40 bg-black/10"
+                      onClick={closeAllDropdowns}
+                      onTouchStart={closeAllDropdowns}
+                      aria-hidden="true"
+                    />
+                    <motion.div 
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 8 }}
+                      transition={{ duration: 0.15 }}
+                      className="fixed left-4 right-4 top-[72px] sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-64 bg-white rounded-2xl shadow-xl border border-slate-200 p-2.5 z-50 whitespace-normal"
+                    >
+                      <div className="px-3 py-2 border-b border-slate-100 flex items-center gap-2.5">
+                        <div className="w-9 h-9 rounded-full bg-teal-800 text-white flex items-center justify-center text-sm font-bold shrink-0">
+                          {activeUser.name ? activeUser.name.charAt(0).toUpperCase() : 'U'}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="font-bold text-slate-900 text-xs sm:text-sm truncate">{activeUser.name || 'Waltair Rider'}</div>
+                          <div className="text-[11px] text-slate-500 truncate">{activeUser.email || activeUser.phone || 'Verified Account'}</div>
+                          <div className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded mt-0.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                            <span>Logged In</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="py-1">
-                      <button
-                        onClick={() => {
-                          setIsProfileMenuOpen(false);
-                          onOpenManageTrips();
-                        }}
-                        className="w-full text-left px-3 py-2 text-xs rounded-xl text-slate-700 hover:bg-teal-50 hover:text-teal-900 flex items-center gap-2 cursor-pointer font-medium transition-colors"
-                      >
-                        <Car className="w-4 h-4 text-teal-700" />
-                        <span>My Trips & Invoices</span>
-                      </button>
-                    </div>
+                      <div className="py-1">
+                        <button
+                          onClick={() => {
+                            closeAllDropdowns();
+                            onOpenManageTrips();
+                          }}
+                          className="w-full text-left px-3 py-2 text-xs rounded-xl text-slate-700 hover:bg-teal-50 hover:text-teal-900 flex items-center gap-2 cursor-pointer font-medium transition-colors"
+                        >
+                          <Car className="w-4 h-4 text-teal-700" />
+                          <span>My Trips & Invoices</span>
+                        </button>
+                      </div>
 
-                    <div className="pt-1 border-t border-slate-100">
-                      <button
-                        onClick={handleSignOut}
-                        className="w-full text-left px-3 py-2 text-xs rounded-xl text-rose-600 hover:bg-rose-50 flex items-center gap-2 font-medium cursor-pointer transition-colors"
-                      >
-                        <LogOut className="w-4 h-4" />
-                        <span>Sign Out</span>
-                      </button>
-                    </div>
-                  </motion.div>
+                      <div className="pt-1 border-t border-slate-100">
+                        <button
+                          onClick={handleSignOut}
+                          className="w-full text-left px-3 py-2 text-xs rounded-xl text-rose-600 hover:bg-rose-50 flex items-center gap-2 font-medium cursor-pointer transition-colors"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          <span>Sign Out</span>
+                        </button>
+                      </div>
+                    </motion.div>
+                  </>
                 )}
               </AnimatePresence>
             </div>

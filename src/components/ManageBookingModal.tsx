@@ -17,24 +17,28 @@ import {
   Users,
   Copy
 } from 'lucide-react';
-import { Booking } from '../types';
+import { Booking, AppUser } from '../types';
 import { db, doc, updateDoc } from '../firebase';
 import { createBookingWhatsAppUrl, DISPLAY_PHONE_NUMBER } from '../utils/whatsapp';
-import { syncUpdateBookingStatus } from '../services/dbSync';
+import { syncFetchBookings, syncUpdateBookingStatus } from '../services/dbSync';
 
 interface ManageBookingModalProps {
   isOpen: boolean;
   onClose: () => void;
-  allBookings: Booking[];
+  allBookings?: Booking[];
+  currentUser?: AppUser | null;
   onOpenLiveTrack?: (bookingRef: string) => void;
   onBookingUpdated?: (updated: Booking) => void;
+  onOpenBookingFlow?: () => void;
 }
 
 export const ManageBookingModal: React.FC<ManageBookingModalProps> = ({
   isOpen,
   onClose,
   allBookings = [],
+  currentUser,
   onBookingUpdated,
+  onOpenBookingFlow,
 }) => {
   const [searchPhoneOrRef, setSearchPhoneOrRef] = useState<string>('');
   const [localBookings, setLocalBookings] = useState<Booking[]>([]);
@@ -42,30 +46,72 @@ export const ManageBookingModal: React.FC<ManageBookingModalProps> = ({
   const [isCancelling, setIsCancelling] = useState<boolean>(false);
   const [cancelFeedback, setCancelFeedback] = useState<string>('');
   const [copiedRef, setCopiedRef] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<'details' | 'invoice'>('details');
 
-  // Sync bookings from localStorage + props whenever modal opens
+  // Filter bookings belonging exclusively to this user
+  const filterUserTrips = (list: Booking[]): Booking[] => {
+    return list.filter(b => {
+      if (!b || b.bookingRef === 'WAL-84920' || b.id === 'seed-wal-84920') return false;
+      if (currentUser && (currentUser.email || currentUser.phone || currentUser.uid)) {
+        if (currentUser.uid && b.userId === currentUser.uid) return true;
+        if (currentUser.email && b.customerEmail && b.customerEmail.toLowerCase().trim() === currentUser.email.toLowerCase().trim()) return true;
+        if (currentUser.phone && b.customerPhone && b.customerPhone.replace(/\D/g, '').endsWith(currentUser.phone.replace(/\D/g, '').slice(-10))) return true;
+        // If created locally on this machine during current session
+        return b.isRegistered === false;
+      }
+      return true;
+    });
+  };
+
+  // Sync bookings from server API + local storage whenever modal opens or user changes
   useEffect(() => {
     if (isOpen) {
-      try {
-        const stored = JSON.parse(localStorage.getItem('waltair_user_bookings') || '[]');
-        const combined = [...stored];
-        allBookings.forEach(ab => {
-          if (!combined.some(c => c.bookingRef === ab.bookingRef)) {
-            combined.push(ab);
+      let isMounted = true;
+
+      const loadTrips = async () => {
+        try {
+          const fresh = await syncFetchBookings({
+            email: currentUser?.email || undefined,
+            phone: currentUser?.phone || undefined,
+            userId: currentUser?.uid || undefined,
+          });
+
+          if (!isMounted) return;
+
+          const combined = filterUserTrips([...allBookings, ...fresh]);
+          // Deduplicate by bookingRef
+          const uniqueMap = new Map<string, Booking>();
+          combined.forEach(b => {
+            if (b.bookingRef) uniqueMap.set(b.bookingRef, b);
+          });
+          const uniqueList = Array.from(uniqueMap.values());
+
+          setLocalBookings(uniqueList);
+          if (uniqueList.length > 0) {
+            setSelectedBooking(prev => {
+              if (prev && uniqueList.some(u => u.bookingRef === prev.bookingRef)) {
+                return uniqueList.find(u => u.bookingRef === prev.bookingRef) || uniqueList[0];
+              }
+              return uniqueList[0];
+            });
+          } else {
+            setSelectedBooking(null);
           }
-        });
-        setLocalBookings(combined);
-        if (combined.length > 0 && !selectedBooking) {
-          setSelectedBooking(combined[0]);
-        } else if (combined.length > 0 && selectedBooking) {
-          const match = combined.find(c => c.bookingRef === selectedBooking.bookingRef);
-          if (match) setSelectedBooking(match);
+        } catch (e) {
+          if (!isMounted) return;
+          const fallback = filterUserTrips(allBookings);
+          setLocalBookings(fallback);
+          setSelectedBooking(fallback[0] || null);
         }
-      } catch (e) {
-        setLocalBookings(allBookings);
-      }
+      };
+
+      loadTrips();
+
+      return () => {
+        isMounted = false;
+      };
     }
-  }, [isOpen, allBookings]);
+  }, [isOpen, currentUser, allBookings]);
 
   const displayedList = localBookings.filter(b => {
     if (!searchPhoneOrRef.trim()) return true;
@@ -173,9 +219,9 @@ export const ManageBookingModal: React.FC<ManageBookingModalProps> = ({
                   value={searchPhoneOrRef}
                   onChange={(e) => setSearchPhoneOrRef(e.target.value)}
                   placeholder="Filter by Mobile Number, Passenger Name or Booking ID (e.g. WAL-12345)..."
-                  className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-teal-600"
+                  className="w-full pl-9 pr-3 py-2.5 text-base sm:text-sm rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-teal-600"
                 />
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 sm:top-3" />
+                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
               </div>
 
               {/* Trip selector tabs */}
@@ -241,80 +287,172 @@ export const ManageBookingModal: React.FC<ManageBookingModalProps> = ({
                     </div>
                   )}
 
-                  {/* Route & Schedule Card */}
-                  <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-3 text-xs">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div className="bg-white p-3 rounded-xl border border-slate-100">
-                        <div className="text-[10px] uppercase font-bold text-emerald-700">Pickup Location</div>
-                        <div className="font-semibold text-slate-900 mt-0.5">{selectedBooking.pickupLocation}</div>
-                      </div>
-                      <div className="bg-white p-3 rounded-xl border border-slate-100">
-                        <div className="text-[10px] uppercase font-bold text-rose-700">Drop-off Destination</div>
-                        <div className="font-semibold text-slate-900 mt-0.5">{selectedBooking.dropoffLocation}</div>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-slate-700">
-                      <div className="bg-white p-2.5 rounded-xl border border-slate-100">
-                        <div className="text-[10px] text-slate-400 font-medium">Travel Date</div>
-                        <div className="font-bold text-slate-900 mt-0.5">{selectedBooking.travelDate}</div>
-                      </div>
-                      <div className="bg-white p-2.5 rounded-xl border border-slate-100">
-                        <div className="text-[10px] text-slate-400 font-medium">Pickup Time</div>
-                        <div className="font-bold text-slate-900 mt-0.5">{selectedBooking.pickupTime}</div>
-                      </div>
-                      <div className="bg-white p-2.5 rounded-xl border border-slate-100 col-span-2 sm:col-span-1">
-                        <div className="text-[10px] text-slate-400 font-medium">Cab Requested</div>
-                        <div className="font-bold text-slate-900 mt-0.5">{selectedBooking.vehicleName || selectedBooking.vehicleCategory}</div>
-                      </div>
-                    </div>
+                  {/* View Mode Toggle: Details vs Tax Invoice */}
+                  <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('details')}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                        activeTab === 'details' ? 'bg-teal-850 bg-teal-800 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      }`}
+                    >
+                      Trip Summary & Schedule
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('invoice')}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 ${
+                        activeTab === 'invoice' ? 'bg-teal-850 bg-teal-800 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      }`}
+                    >
+                      <FileText className="w-3.5 h-3.5" />
+                      <span>Tax Invoice & Invoices</span>
+                    </button>
                   </div>
 
-                  {/* Passenger Information */}
-                  <div className="p-4 rounded-2xl bg-white border border-slate-200 text-xs space-y-2">
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                      <div className="font-bold text-slate-900 text-sm flex items-center gap-1.5">
-                        <Users className="w-4 h-4 text-teal-700" />
-                        <span>Passenger & Contact Information</span>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-700">
-                      <div>
-                        <span className="text-slate-500">Primary Contact:</span>{' '}
-                        <strong className="text-slate-900 font-semibold">{selectedBooking.customerName}</strong>
-                      </div>
-                      <div>
-                        <span className="text-slate-500">Phone:</span>{' '}
-                        <strong className="text-slate-900 font-semibold">+91 {selectedBooking.customerPhone}</strong>
-                      </div>
-                      {selectedBooking.customerEmail && (
-                        <div className="col-span-1 sm:col-span-2">
-                          <span className="text-slate-500">Email:</span>{' '}
-                          <span className="text-slate-800">{selectedBooking.customerEmail}</span>
+                  {activeTab === 'details' ? (
+                    <>
+                      {/* Route & Schedule Card */}
+                      <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-3 text-xs">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div className="bg-white p-3 rounded-xl border border-slate-100">
+                            <div className="text-[10px] uppercase font-bold text-emerald-700">Pickup Location</div>
+                            <div className="font-semibold text-slate-900 mt-0.5">{selectedBooking.pickupLocation}</div>
+                          </div>
+                          <div className="bg-white p-3 rounded-xl border border-slate-100">
+                            <div className="text-[10px] uppercase font-bold text-rose-700">Drop-off Destination</div>
+                            <div className="font-semibold text-slate-900 mt-0.5">{selectedBooking.dropoffLocation}</div>
+                          </div>
                         </div>
-                      )}
-                    </div>
 
-                    {selectedBooking.passengers && selectedBooking.passengers.length > 0 && (
-                      <div className="pt-2 border-t border-slate-100">
-                        <span className="text-[11px] font-bold text-slate-500">All Passengers:</span>
-                        <div className="flex flex-wrap gap-1.5 mt-1">
-                          {[selectedBooking.customerName, ...selectedBooking.passengers].map((p, idx) => (
-                            <span key={idx} className="px-2 py-0.5 rounded-md bg-teal-50 text-teal-900 border border-teal-200 font-medium text-[11px]">
-                              {idx + 1}. {p}
-                            </span>
-                          ))}
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-slate-700">
+                          <div className="bg-white p-2.5 rounded-xl border border-slate-100">
+                            <div className="text-[10px] text-slate-400 font-medium">Travel Date</div>
+                            <div className="font-bold text-slate-900 mt-0.5">{selectedBooking.travelDate}</div>
+                          </div>
+                          <div className="bg-white p-2.5 rounded-xl border border-slate-100">
+                            <div className="text-[10px] text-slate-400 font-medium">Pickup Time</div>
+                            <div className="font-bold text-slate-900 mt-0.5">{selectedBooking.pickupTime}</div>
+                          </div>
+                          <div className="bg-white p-2.5 rounded-xl border border-slate-100 col-span-2 sm:col-span-1">
+                            <div className="text-[10px] text-slate-400 font-medium">Cab Requested</div>
+                            <div className="font-bold text-slate-900 mt-0.5">{selectedBooking.vehicleName || selectedBooking.vehicleCategory}</div>
+                          </div>
                         </div>
                       </div>
-                    )}
 
-                    {selectedBooking.specialRequests && (
-                      <div className="pt-2 border-t border-slate-100 text-slate-600">
-                        <span className="font-semibold text-slate-700">Special Notes:</span> {selectedBooking.specialRequests}
+                      {/* Passenger Information */}
+                      <div className="p-4 rounded-2xl bg-white border border-slate-200 text-xs space-y-2">
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                          <div className="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+                            <Users className="w-4 h-4 text-teal-700" />
+                            <span>Passenger & Contact Information</span>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-700">
+                          <div>
+                            <span className="text-slate-500">Primary Contact:</span>{' '}
+                            <strong className="text-slate-900 font-semibold">{selectedBooking.customerName}</strong>
+                          </div>
+                          <div>
+                            <span className="text-slate-500">Phone:</span>{' '}
+                            <strong className="text-slate-900 font-semibold">+91 {selectedBooking.customerPhone}</strong>
+                          </div>
+                          {selectedBooking.customerEmail && (
+                            <div className="col-span-1 sm:col-span-2">
+                              <span className="text-slate-500">Email:</span>{' '}
+                              <span className="text-slate-800">{selectedBooking.customerEmail}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {selectedBooking.passengers && selectedBooking.passengers.length > 0 && (
+                          <div className="pt-2 border-t border-slate-100">
+                            <span className="text-[11px] font-bold text-slate-500">All Passengers:</span>
+                            <div className="flex flex-wrap gap-1.5 mt-1">
+                              {[selectedBooking.customerName, ...selectedBooking.passengers].map((p, idx) => (
+                                <span key={idx} className="px-2 py-0.5 rounded-md bg-teal-50 text-teal-900 border border-teal-200 font-medium text-[11px]">
+                                  {idx + 1}. {p}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {selectedBooking.specialRequests && (
+                          <div className="pt-2 border-t border-slate-100 text-slate-600">
+                            <span className="font-semibold text-slate-700">Special Notes:</span> {selectedBooking.specialRequests}
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
+                    </>
+                  ) : (
+                    /* Invoice & GST Receipt Card */
+                    <div className="bg-slate-50 rounded-2xl p-4 sm:p-5 border border-slate-200 space-y-3.5 text-xs">
+                      <div className="flex items-center justify-between border-b border-slate-200/80 pb-3">
+                        <div>
+                          <div className="text-[10px] uppercase font-bold text-slate-400">Digital Trip Invoice</div>
+                          <div className="font-bold text-slate-900 text-sm font-mono">INV-{selectedBooking.bookingRef}</div>
+                        </div>
+                        <span className="text-[10px] font-mono px-2.5 py-1 rounded-md bg-teal-100 text-teal-900 border border-teal-300/80 font-bold">
+                          GSTIN: 37AAECW1234F1Z5
+                        </span>
+                      </div>
+
+                      {/* Billed To */}
+                      <div className="bg-white p-3 rounded-xl border border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-700">
+                        <div>
+                          <span className="text-slate-400 text-[10px] uppercase font-bold block">Billed To</span>
+                          <span className="font-bold text-slate-900">{selectedBooking.customerName}</span>
+                          <div className="text-[11px] text-slate-500">+91 {selectedBooking.customerPhone}</div>
+                        </div>
+                        <div>
+                          <span className="text-slate-400 text-[10px] uppercase font-bold block">Date of Service</span>
+                          <span className="font-bold text-slate-900">{selectedBooking.travelDate} at {selectedBooking.pickupTime}</span>
+                          <div className="text-[11px] text-slate-500">{selectedBooking.vehicleName || selectedBooking.vehicleCategory}</div>
+                        </div>
+                      </div>
+
+                      {/* Itemized Fare Table */}
+                      <div className="space-y-2 bg-white p-3.5 rounded-xl border border-slate-100">
+                        <div className="flex justify-between py-1 text-slate-600 border-b border-slate-100">
+                          <span>Base Fare & Running ({selectedBooking.estimatedDistanceKm || 30} km)</span>
+                          <span className="font-semibold text-slate-900">
+                            ₹{(selectedBooking.baseFare || Math.round((selectedBooking.totalFare || 1000) * 0.85)).toLocaleString()}
+                          </span>
+                        </div>
+
+                        {selectedBooking.tollCharges ? (
+                          <div className="flex justify-between py-1 text-slate-600 border-b border-slate-100">
+                            <span>Toll Charges & Parking</span>
+                            <span className="font-semibold text-slate-900">₹{selectedBooking.tollCharges.toLocaleString()}</span>
+                          </div>
+                        ) : null}
+
+                        <div className="flex justify-between py-1 text-slate-600 border-b border-slate-100">
+                          <span>GST (5% Passenger Road Transport)</span>
+                          <span className="font-semibold text-slate-900">
+                            ₹{(selectedBooking.gstAmount || Math.round((selectedBooking.totalFare || 1000) * 0.05)).toLocaleString()}
+                          </span>
+                        </div>
+
+                        <div className="flex justify-between py-2 text-sm font-extrabold text-slate-900">
+                          <span>Total Amount Due / Paid</span>
+                          <span className="text-teal-800 font-mono text-base">₹{(selectedBooking.totalFare || 0).toLocaleString()}</span>
+                        </div>
+                      </div>
+
+                      <div className="p-3 bg-emerald-50/80 border border-emerald-200/80 rounded-xl text-emerald-900 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                          <span className="font-semibold text-xs">Payment Method:</span>
+                          <span className="font-bold text-xs uppercase">{selectedBooking.paymentMethod ? selectedBooking.paymentMethod.replace(/_/g, ' ') : 'Cash to Driver'}</span>
+                        </div>
+                        <span className="text-[11px] font-bold text-emerald-700">GST Invoice Ready</span>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Action Buttons: WhatsApp Send Button (Primary) */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2">
@@ -334,7 +472,7 @@ export const ManageBookingModal: React.FC<ManageBookingModalProps> = ({
                       className="py-3 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                     >
                       <Download className="w-4 h-4" />
-                      <span>Print Slip</span>
+                      <span>Print Invoice Slip</span>
                     </button>
 
                     {selectedBooking.status !== 'cancelled' && selectedBooking.status !== 'completed' && (
@@ -352,14 +490,30 @@ export const ManageBookingModal: React.FC<ManageBookingModalProps> = ({
 
                 </div>
               ) : (
-                <div className="p-10 text-center text-slate-500 text-xs space-y-2">
-                  <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
-                    <Car className="w-6 h-6" />
+                <div className="p-8 sm:p-10 text-center text-slate-500 text-xs space-y-3">
+                  <div className="w-14 h-14 rounded-2xl bg-teal-50 text-teal-700 border border-teal-200/60 flex items-center justify-center mx-auto shadow-xs">
+                    <Car className="w-7 h-7" />
                   </div>
-                  <div className="font-bold text-slate-700 text-sm">No Bookings Found</div>
-                  <p className="max-w-xs mx-auto text-slate-500">
-                    You haven't made any bookings yet on this browser, or matching your search.
-                  </p>
+                  <div>
+                    <div className="font-bold text-slate-800 text-base">No Bookings Found Yet</div>
+                    <p className="max-w-xs mx-auto text-slate-500 text-xs mt-1">
+                      {currentUser?.email || currentUser?.phone 
+                        ? `No trip reservations associated with ${currentUser.email || currentUser.phone}.` 
+                        : "You haven't reserved any rides yet on this device."}
+                    </p>
+                  </div>
+                  {onOpenBookingFlow && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onClose();
+                        onOpenBookingFlow();
+                      }}
+                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-teal-800 hover:bg-teal-900 text-white font-bold text-xs shadow-sm transition-all cursor-pointer mt-2"
+                    >
+                      <span>Book a Verified Cab Now</span>
+                    </button>
+                  )}
                 </div>
               )}
             </div>

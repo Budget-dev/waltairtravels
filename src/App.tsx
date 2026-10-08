@@ -306,7 +306,11 @@ export default function App() {
   // Fetch & Synchronize Bookings Multi-tier (Server DB + LocalStorage + Cloud Firestore)
   const fetchBookings = async () => {
     try {
-      const list = await syncFetchBookings();
+      const list = await syncFetchBookings({
+        email: user?.email || undefined,
+        phone: user?.phone || undefined,
+        userId: user?.uid || undefined,
+      });
       setAllBookings(list);
     } catch (err) {
       console.warn('Sync fetch bookings note:', err);
@@ -315,6 +319,9 @@ export default function App() {
 
   useEffect(() => {
     fetchBookings();
+  }, [user]);
+
+  useEffect(() => {
     
     // Listen to custom booking changes across components & tabs
     const handleBookingsChanged = () => {
@@ -766,7 +773,9 @@ export default function App() {
         isOpen={isManageOpen}
         onClose={() => setIsManageOpen(false)}
         allBookings={allBookings}
+        currentUser={user}
         onBookingUpdated={fetchBookings}
+        onOpenBookingFlow={() => navigateToPage('booking')}
       />
 
       {/* Rider Login / Sign Up */}

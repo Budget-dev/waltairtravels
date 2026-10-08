@@ -347,7 +347,7 @@ export const GooglePlacesAutocompleteInput: React.FC<GooglePlacesAutocompleteInp
           required={required}
           autoComplete="off"
           className={`w-full min-w-0 bg-transparent text-slate-900 placeholder:text-slate-400 font-semibold outline-none ${
-            compact ? 'text-xs sm:text-sm' : 'text-xs sm:text-sm'
+            compact ? 'text-base sm:text-xs' : 'text-base sm:text-sm'
           }`}
         />
 

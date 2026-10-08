@@ -14,10 +14,14 @@ service cloud.firestore {
     }
 
     // Bookings collection
-    // Public can create bookings. Only authorized admin can list/read all bookings, update, or delete.
+    // Public can create bookings. Admin can manage all. Signed-in users can read their own trips.
     match /bookings/{bookingId} {
       allow create: if true;
-      allow read, update, delete: if isAdmin();
+      allow read: if isAdmin() || (isSignedIn() && (
+        resource.data.userId == request.auth.uid || 
+        (resource.data.customerEmail != null && request.auth.token.email != null && resource.data.customerEmail.lower() == request.auth.token.email.lower())
+      ));
+      allow update, delete: if isAdmin();
     }
 
     // Real-time leads and form field footprints collection

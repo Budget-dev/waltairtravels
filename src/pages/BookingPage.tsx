@@ -1064,7 +1064,7 @@ export const BookingPage: React.FC<BookingPageProps> = ({
                         min={new Date().toISOString().split('T')[0]}
                         value={travelDate}
                         onChange={(e) => setTravelDate(e.target.value)}
-                        className="w-full text-xs sm:text-sm font-semibold text-slate-900 bg-transparent outline-none cursor-pointer"
+                        className="w-full text-base sm:text-sm font-semibold text-slate-900 bg-transparent outline-none cursor-pointer"
                         required
                       />
                     </div>
@@ -1114,7 +1114,7 @@ export const BookingPage: React.FC<BookingPageProps> = ({
                         type="time"
                         value={pickupTime}
                         onChange={(e) => setPickupTime(e.target.value)}
-                        className="w-full text-xs sm:text-sm font-semibold text-slate-900 bg-transparent outline-none cursor-pointer"
+                        className="w-full text-base sm:text-sm font-semibold text-slate-900 bg-transparent outline-none cursor-pointer"
                         required
                       />
                     </div>
@@ -1140,7 +1140,7 @@ export const BookingPage: React.FC<BookingPageProps> = ({
                           });
                         }}
                         placeholder="Full Name (e.g. Rajesh Kumar)"
-                        className="w-full text-xs sm:text-sm font-semibold text-slate-900 bg-transparent outline-none placeholder:text-slate-400"
+                        className="w-full text-base sm:text-sm font-semibold text-slate-900 bg-transparent outline-none placeholder:text-slate-400"
                         required
                       />
                     </div>
@@ -1169,7 +1169,7 @@ export const BookingPage: React.FC<BookingPageProps> = ({
                             });
                           }}
                           placeholder="98765 43210"
-                          className="w-full text-xs sm:text-sm font-semibold text-slate-900 bg-transparent outline-none placeholder:text-slate-400"
+                          className="w-full text-base sm:text-sm font-semibold text-slate-900 bg-transparent outline-none placeholder:text-slate-400"
                           required
                         />
                       </div>
