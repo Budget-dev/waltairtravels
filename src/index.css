@@ -330,6 +330,32 @@ img, video, canvas, svg {
   }
 }
 
+/* Mobile PWA & Web App Optimizations */
+@media (max-width: 768px) {
+  /* Prevent iOS zoom on input focus */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+
+  /* Tap target sizing and touch handling */
+  button, a, input, select {
+    touch-action: manipulation;
+  }
+}
+
+/* Standalone PWA Mode enhancements */
+@media all and (display-mode: standalone) {
+  body {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  
+  input, textarea {
+    user-select: text;
+    -webkit-user-select: text;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .wt-page-enter,
@@ -340,3 +366,4 @@ img, video, canvas, svg {
     transition-duration: 0.01ms !important;
   }
 }
+

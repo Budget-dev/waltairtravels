@@ -1,0 +1,37 @@
+{
+  "name": "Waltair Travels & Cabs",
+  "short_name": "Waltair Cabs",
+  "description": "Premier 24/7 taxi and outstation cab service in Visakhapatnam (Vizag). Airport transfers to VTZ & Bhogapuram ASI, Araku tours, and local rentals.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0f172a",
+  "theme_color": "#0f766e",
+  "categories": ["travel", "transportation"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

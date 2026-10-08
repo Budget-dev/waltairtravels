@@ -1,5 +1,6 @@
 import { 
   db, 
+  auth,
   collection, 
   doc, 
   setDoc, 
@@ -12,6 +13,19 @@ import { LeadFootprint, LeadStatus, RegisteredUserProfile } from '../types';
 
 const LEAD_SESSION_KEY = 'waltair_lead_session_id';
 const LOCAL_LEADS_KEY = 'waltair_local_leads';
+
+async function getAdminAuthHeaders(): Promise<Record<string, string>> {
+  try {
+    if (auth.currentUser) {
+      const token = await auth.currentUser.getIdToken();
+      if (token) return { Authorization: `Bearer ${token}` };
+    }
+  } catch (e) {
+    console.debug('[leadTracking] Auth token read note:', e);
+  }
+  return {};
+}
+
 
 /**
  * Retrieve or create persistent session ID for the active booking attempt.
@@ -272,11 +286,13 @@ export async function updateLeadStatus(leadId: string, newStatus: LeadStatus, no
     }
 
     // 3. Backend Persistent Server DB
-    fetch(`/api/leads/${encodeURIComponent(leadId)}/status`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: newStatus, notes })
-    }).catch(() => {});
+    getAdminAuthHeaders().then(authHeaders => {
+      fetch(`/api/leads/${encodeURIComponent(leadId)}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        body: JSON.stringify({ status: newStatus, notes })
+      }).catch(() => {});
+    });
 
     // 4. Cloud Firestore update (safe catch)
     await updateDoc(doc(db, 'leads', leadId), {
@@ -306,9 +322,12 @@ export async function deleteLead(leadId: string) {
     window.dispatchEvent(new CustomEvent('waltair_lead_captured', { detail: { id: leadId, deleted: true } }));
 
     // 3. Backend Persistent Server DB
-    fetch(`/api/leads/${encodeURIComponent(leadId)}`, {
-      method: 'DELETE'
-    }).catch(() => {});
+    getAdminAuthHeaders().then(authHeaders => {
+      fetch(`/api/leads/${encodeURIComponent(leadId)}`, {
+        method: 'DELETE',
+        headers: authHeaders
+      }).catch(() => {});
+    });
 
     // 4. Cloud Firestore delete (safe catch)
     await deleteDoc(doc(db, 'leads', leadId));
@@ -334,40 +353,41 @@ export function subscribeToLeads(callback: (leads: LeadFootprint[]) => void): ()
   callback(getLocalLeads());
 
   // 1. Fetch from Persistent Server DB
-  fetch('/api/leads', { cache: 'no-store' })
-    .then(res => res.json())
-    .then(json => {
-      if (Array.isArray(json.leads)) {
-        const local = getLocalLeads();
-        const mergedMap = new Map<string, LeadFootprint>();
-        local.forEach(l => mergedMap.set(l.leadSessionId || l.id || '', l));
-        json.leads.forEach((serverLead: LeadFootprint) => {
-          const key = serverLead.leadSessionId || serverLead.id || '';
-          if (!key) return;
-          const existing = mergedMap.get(key);
-          if (!existing) {
-            mergedMap.set(key, serverLead);
-          } else {
-            const localTime = new Date(existing.updatedAt || existing.createdAt || 0).getTime();
-            const serverTime = new Date(serverLead.updatedAt || serverLead.createdAt || 0).getTime();
-            if (serverTime >= localTime) {
+  getAdminAuthHeaders().then(authHeaders => {
+    fetch('/api/leads', { cache: 'no-store', headers: authHeaders })
+      .then(res => res.json())
+      .then(json => {
+        if (Array.isArray(json.leads)) {
+          const local = getLocalLeads();
+          const mergedMap = new Map<string, LeadFootprint>();
+          local.forEach(l => mergedMap.set(l.leadSessionId || l.id || '', l));
+          json.leads.forEach((serverLead: LeadFootprint) => {
+            const key = serverLead.leadSessionId || serverLead.id || '';
+            if (!key) return;
+            const existing = mergedMap.get(key);
+            if (!existing) {
               mergedMap.set(key, serverLead);
+            } else {
+              const localTime = new Date(existing.updatedAt || existing.createdAt || 0).getTime();
+              const serverTime = new Date(serverLead.updatedAt || serverLead.createdAt || 0).getTime();
+              if (serverTime >= localTime) {
+                mergedMap.set(key, serverLead);
+              }
             }
-          }
-        });
+          });
 
-        const combined = Array.from(mergedMap.values()).sort((a, b) => {
-          const timeA = new Date(a.updatedAt || a.createdAt || 0).getTime();
-          const timeB = new Date(b.updatedAt || b.createdAt || 0).getTime();
-          return timeB - timeA;
-        });
+          const combined = Array.from(mergedMap.values()).sort((a, b) => {
+            const timeA = new Date(a.updatedAt || a.createdAt || 0).getTime();
+            const timeB = new Date(b.updatedAt || b.createdAt || 0).getTime();
+            return timeB - timeA;
+          });
 
-        localStorage.setItem(LOCAL_LEADS_KEY, JSON.stringify(combined));
-        callback(combined);
-      }
-    })
-    .catch(() => {});
-
+          localStorage.setItem(LOCAL_LEADS_KEY, JSON.stringify(combined));
+          callback(combined);
+        }
+      })
+      .catch(() => {});
+  });
   let unsubscribeFirestore = () => {};
 
   try {
@@ -449,13 +469,27 @@ export function subscribeToLeads(callback: (leads: LeadFootprint[]) => void): ()
  * Real-time listener for registered users
  */
 export function subscribeToUsers(callback: (users: RegisteredUserProfile[]) => void): () => void {
+  // 1. Fetch from persistent backend with admin auth header
+  getAdminAuthHeaders().then(authHeaders => {
+    fetch('/api/users', { cache: 'no-store', headers: authHeaders })
+      .then(res => res.json())
+      .then(json => {
+        if (Array.isArray(json?.users) && json.users.length > 0) {
+          callback(json.users);
+        }
+      })
+      .catch(() => {});
+  });
+
   try {
     const unsubscribe = onSnapshot(collection(db, 'users'), (snapshot) => {
       const userList: RegisteredUserProfile[] = [];
       snapshot.forEach(docSnap => {
         userList.push({ uid: docSnap.id, ...docSnap.data() } as RegisteredUserProfile);
       });
-      callback(userList);
+      if (userList.length > 0) {
+        callback(userList);
+      }
     }, (err) => {
       console.warn('Users snapshot listener note:', err);
       // Fallback: check current user in local storage
@@ -472,6 +506,7 @@ export function subscribeToUsers(callback: (users: RegisteredUserProfile[]) => v
     return () => {};
   }
 }
+
 
 /**
  * Web Audio API synthesizer chime to notify Admin when a new lead or booking is detected!

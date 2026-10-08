@@ -105,3 +105,94 @@ export function errorHandler(err: any, req: Request, res: Response, _next: NextF
     timestamp: new Date().toISOString(),
   });
 }
+
+/**
+ * Strict Admin Authorization Middleware
+ * Enforces access solely for waltairtravelsandcabs@gmail.com
+ */
+export const AUTHORIZED_ADMIN_EMAIL = 'waltairtravelsandcabs@gmail.com';
+
+interface VerifiedTokenRecord {
+  email: string;
+  expiresAt: number;
+}
+
+const verifiedTokenCache = new Map<string, VerifiedTokenRecord>();
+
+export async function requireAdminAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    res.status(401).json({
+      error: 'Admin access restricted',
+      message: 'Authentication credentials required to access the administration panel.',
+    });
+    return;
+  }
+
+  const token = authHeader.substring(7).trim();
+  if (!token) {
+    res.status(401).json({
+      error: 'Admin access restricted',
+      message: 'Empty authorization token provided.',
+    });
+    return;
+  }
+
+  // 1. Check in-memory fast cache
+  const cached = verifiedTokenCache.get(token);
+  const now = Date.now();
+  if (cached && cached.expiresAt > now) {
+    if (cached.email.toLowerCase() === AUTHORIZED_ADMIN_EMAIL) {
+      next();
+      return;
+    } else {
+      res.status(403).json({
+        error: 'Admin access restricted',
+        message: 'This account is not authorized to access the administration panel.',
+      });
+      return;
+    }
+  }
+
+  // 2. Validate Firebase / Google ID Token via Google tokeninfo service
+  try {
+    const googleRes = await fetch(
+      `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(token)}`
+    );
+
+    if (googleRes.ok) {
+      const payload: any = await googleRes.json();
+      const email = (payload.email || '').toLowerCase();
+      const expSec = Number(payload.exp) || Math.floor((now + 600000) / 1000);
+      const expiresAt = Math.min(expSec * 1000, now + 15 * 60 * 1000); // Max 15 mins cache
+
+      verifiedTokenCache.set(token, { email, expiresAt });
+
+      if (email === AUTHORIZED_ADMIN_EMAIL) {
+        next();
+        return;
+      } else {
+        res.status(403).json({
+          error: 'Admin access restricted',
+          message: 'This account is not authorized to access the administration panel.',
+        });
+        return;
+      }
+    } else {
+      // If Google tokeninfo returns 400 (e.g., custom Firebase email/password token or malformed)
+      // Check if user session header / verification can be inspected
+      res.status(401).json({
+        error: 'Admin access restricted',
+        message: 'Invalid or expired administrative authorization session.',
+      });
+      return;
+    }
+  } catch (err: any) {
+    console.error('[requireAdminAuth] Verification network error:', err);
+    res.status(503).json({
+      error: 'Admin access restricted',
+      message: 'Unable to verify administrative authorization at this time.',
+    });
+  }
+}
+

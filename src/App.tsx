@@ -11,11 +11,11 @@ import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
 import { WhatsAppButton } from './components/WhatsAppButton';
 import { ManageBookingModal } from './components/ManageBookingModal';
-import { AdminDashboardModal } from './components/AdminDashboardModal';
 import { AdminPanel } from './components/AdminPanel';
 import { AuthModal } from './components/AuthModal';
 import { BackendTelemetryModal } from './components/BackendTelemetryModal';
 import { AiTripPlannerModal } from './components/AiTripPlannerModal';
+import { TravelSplashScreen } from './components/TravelSplashScreen';
 
 // Dedicated SEO Pages
 import { AboutUsPage } from './pages/AboutUsPage';
@@ -132,6 +132,27 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // First visit travel splash experience state (skipped on subsequent visits or direct /admin)
+  const [showSplash, setShowSplash] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    const path = window.location.pathname.replace(/^\/|\/$/g, '');
+    const hash = window.location.hash.replace('#', '');
+    if (path === 'admin' || hash === 'admin') return false;
+    try {
+      const seen = sessionStorage.getItem('waltair_splash_viewed');
+      return !seen;
+    } catch {
+      return false;
+    }
+  });
+
+  const handleSplashComplete = () => {
+    try {
+      sessionStorage.setItem('waltair_splash_viewed', 'true');
+    } catch {}
+    setShowSplash(false);
+  };
+
   // Sync with browser back/forward buttons, pushState popstate, and hash changes
   useEffect(() => {
     const handleLocationChange = () => {
@@ -147,6 +168,7 @@ export default function App() {
       window.removeEventListener('hashchange', handleLocationChange);
     };
   }, []);
+
   
   // Modals state
   const [bookingInitialData, setBookingInitialData] = useState<{
@@ -398,9 +420,32 @@ export default function App() {
     setUser(null);
   };
 
+  // Dedicated Strict Admin Route (Independent of public UI)
+  if (currentPage === 'admin') {
+    return (
+      <div className="min-h-screen w-full bg-slate-950 font-sans">
+        <SEOHead
+          title="Admin Portal | Waltair Travels & Cabs"
+          description="Waltair Travels & Cabs administration and operations portal."
+          canonicalPath="/admin"
+        />
+        <AdminPanel
+          isOpen={true}
+          onClose={() => navigateToPage('home')}
+          allBookings={allBookings}
+          onRefresh={fetchBookings}
+          isFullPage={true}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen w-full max-w-[100vw] overflow-x-hidden relative bg-slate-50 text-slate-900 font-sans">
       <a href="#main-content" className="skip-link">Skip to content</a>
+
+      {/* Elegant Travel Entrance Splash Screen */}
+      {showSplash && <TravelSplashScreen onComplete={handleSplashComplete} />}
 
       {/* 1. Sticky Navigation Bar */}
       <Navbar
@@ -422,7 +467,6 @@ export default function App() {
         }}
         onOpenTrackTrip={() => setIsManageOpen(true)}
         onOpenManageTrips={() => setIsManageOpen(true)}
-        onOpenAdmin={() => navigateToPage('admin')}
         onOpenAuth={() => setIsAuthOpen(true)}
         onOpenTelemetry={() => setIsTelemetryOpen(true)}
         onOpenAiPlanner={() => setIsAiPlannerOpen(true)}
@@ -705,15 +749,7 @@ export default function App() {
               />
             )}
 
-            {currentPage === 'admin' && (
-              <AdminPanel
-                isOpen={true}
-                onClose={() => navigateToPage('home')}
-                allBookings={allBookings}
-                onRefresh={fetchBookings}
-                isFullPage={true}
-              />
-            )}
+            {/* End of Pages */}
         </div>
       </main>
 
@@ -731,14 +767,6 @@ export default function App() {
         onClose={() => setIsManageOpen(false)}
         allBookings={allBookings}
         onBookingUpdated={fetchBookings}
-      />
-
-      {/* Operations Admin Dashboard */}
-      <AdminDashboardModal
-        isOpen={isAdminOpen}
-        onClose={() => setIsAdminOpen(false)}
-        allBookings={allBookings}
-        onRefresh={fetchBookings}
       />
 
       {/* Rider Login / Sign Up */}

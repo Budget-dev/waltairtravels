@@ -27,6 +27,13 @@ import {
   AlertCircle, 
   Download, 
   ShieldCheck, 
+  ShieldAlert,
+  Lock,
+  Mail,
+  KeyRound,
+  LogOut,
+  Eye,
+  EyeOff,
   User, 
   Zap, 
   ArrowRight, 
@@ -35,7 +42,22 @@ import {
   FileSpreadsheet
 } from 'lucide-react';
 import { Booking, BookingStatus, LeadFootprint, LeadStatus, RegisteredUserProfile } from '../types';
-import { db, collection, addDoc, doc, updateDoc, deleteDoc, getDocs } from '../firebase';
+import { 
+  db, 
+  auth,
+  googleProvider,
+  signInWithPopup,
+  signInWithRedirect,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  collection, 
+  addDoc, 
+  doc, 
+  updateDoc, 
+  deleteDoc, 
+  getDocs 
+} from '../firebase';
 import { 
   subscribeToLeads, 
   subscribeToUsers, 
@@ -58,6 +80,8 @@ interface AdminPanelProps {
   isFullPage?: boolean;
 }
 
+export const AUTHORIZED_ADMIN_EMAIL = 'waltairtravelsandcabs@gmail.com';
+
 type TabType = 'overview' | 'leads' | 'bookings' | 'users' | 'datewise' | 'dispatch';
 type DatePreset = 'all' | 'today' | 'yesterday' | 'week' | 'month' | 'custom';
 
@@ -68,6 +92,109 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   onRefresh,
   isFullPage = false,
 }) => {
+  // Strict Admin Authentication & Authorization State
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [authStatus, setAuthStatus] = useState<'checking' | 'unauthenticated' | 'unauthorized' | 'authorized'>('checking');
+  const [loginEmail, setLoginEmail] = useState<string>('');
+  const [loginPassword, setLoginPassword] = useState<string>('');
+  const [loginError, setLoginError] = useState<string>('');
+  const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+
+  // Synchronize Firebase Auth state specifically for Admin portal
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (fbUser) => {
+      if (!fbUser) {
+        setCurrentUser(null);
+        setAuthStatus('unauthenticated');
+        return;
+      }
+      setCurrentUser(fbUser);
+      const email = (fbUser.email || '').toLowerCase().trim();
+      if (email === AUTHORIZED_ADMIN_EMAIL) {
+        setAuthStatus('authorized');
+      } else {
+        setAuthStatus('unauthorized');
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  const handleGoogleSignIn = async () => {
+    setIsLoggingIn(true);
+    setLoginError('');
+    try {
+      googleProvider.setCustomParameters({ prompt: 'select_account' });
+      const result = await signInWithPopup(auth, googleProvider);
+      const email = (result.user?.email || '').toLowerCase().trim();
+      if (email !== AUTHORIZED_ADMIN_EMAIL) {
+        setAuthStatus('unauthorized');
+      }
+    } catch (err: any) {
+      if (err?.code !== 'auth/popup-closed-by-user') {
+        try {
+          await signInWithRedirect(auth, googleProvider);
+        } catch {
+          setLoginError('Authentication encountered an issue. Please try again or use administrator credentials.');
+        }
+      }
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  const handlePasswordSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!loginEmail || !loginPassword) {
+      setLoginError('Please enter both administrator email and password.');
+      return;
+    }
+    if (loginEmail.toLowerCase().trim() !== AUTHORIZED_ADMIN_EMAIL) {
+      setLoginError('This account is not authorized to access the administration panel.');
+      return;
+    }
+    setIsLoggingIn(true);
+    setLoginError('');
+    try {
+      await signInWithEmailAndPassword(auth, loginEmail.trim(), loginPassword);
+    } catch {
+      setLoginError('Invalid administrator credentials. Please check your password and try again.');
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  const handleSwitchAccount = async () => {
+    try {
+      await signOut(auth);
+      localStorage.removeItem('waltair_user_session');
+      window.dispatchEvent(new Event('waltair_auth_change'));
+      setAuthStatus('unauthenticated');
+      googleProvider.setCustomParameters({ prompt: 'select_account' });
+      const result = await signInWithPopup(auth, googleProvider);
+      const email = (result.user?.email || '').toLowerCase().trim();
+      if (email === AUTHORIZED_ADMIN_EMAIL) {
+        setAuthStatus('authorized');
+      } else {
+        setAuthStatus('unauthorized');
+      }
+    } catch {
+      setAuthStatus('unauthenticated');
+    }
+  };
+
+  const handleAdminSignOut = async () => {
+    try {
+      await signOut(auth);
+      localStorage.removeItem('waltair_user_session');
+      window.dispatchEvent(new Event('waltair_auth_change'));
+      setAuthStatus('unauthenticated');
+      setCurrentUser(null);
+    } catch (err) {
+      console.warn('Admin logout notice:', err);
+    }
+  };
+
   // Navigation & Tabs with persistent memory across refresh
   const [activeTab, setActiveTabState] = useState<TabType>(() => {
     try {
@@ -121,8 +248,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   // Selected Lead for Detailed Quick Dispatch
   const [selectedLeadForDispatch, setSelectedLeadForDispatch] = useState<LeadFootprint | null>(null);
 
-  // 1. Subscribe to Live Leads & Footprints
+  // 1. Subscribe to Live Leads & Footprints (ONLY when authenticated and authorized!)
   useEffect(() => {
+    if (authStatus !== 'authorized') return;
     let previousCount = 0;
     const unsub = subscribeToLeads((freshLeads) => {
       // Check if new lead arrived
@@ -138,15 +266,17 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       setLeads(freshLeads);
     });
     return () => unsub();
-  }, [soundEnabled]);
+  }, [authStatus, soundEnabled]);
 
-  // 2. Subscribe to Registered Users
+  // 2. Subscribe to Registered Users (ONLY when authenticated and authorized!)
   useEffect(() => {
+    if (authStatus !== 'authorized') return;
     const unsub = subscribeToUsers((users) => {
       setRegisteredUsers(users);
     });
     return () => unsub();
-  }, []);
+  }, [authStatus]);
+
 
   // Format Helpers
   const getTodayStr = () => new Date().toISOString().split('T')[0];
@@ -504,7 +634,197 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     }
   };
 
-  // Classy White Executive Dashboard Styling
+  // 1. Authentication Checking State (Executive Screen)
+  if (authStatus === 'checking') {
+    return (
+      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-4">
+        <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-500 via-emerald-400 to-teal-500 animate-pulse" />
+          <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400">
+            <ShieldCheck className="w-8 h-8 animate-pulse text-teal-400" />
+          </div>
+          <h2 className="text-xl font-bold tracking-tight text-white mb-1">Waltair Travels & Cabs</h2>
+          <p className="text-xs uppercase tracking-widest text-teal-400/90 font-semibold mb-4">Operations Administration</p>
+          <div className="flex items-center justify-center gap-2 text-xs text-slate-400">
+            <RefreshCw className="w-3.5 h-3.5 animate-spin text-teal-400" />
+            <span>Verifying administrator credentials...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Unauthenticated State -> Minimal Executive Admin Authentication Screen
+  if (authStatus === 'unauthenticated') {
+    return (
+      <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-center items-center p-4 sm:p-6 relative">
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-teal-600/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="w-full max-w-md bg-slate-900/95 backdrop-blur-md border border-slate-800 rounded-3xl shadow-2xl overflow-hidden relative z-10">
+          <div className="p-6 sm:p-8">
+            {/* Header Branding */}
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-300 text-[11px] font-bold uppercase tracking-wider mb-3">
+                <Lock className="w-3 h-3 text-teal-400" />
+                <span>Administration Portal</span>
+              </div>
+              <h1 className="text-2xl font-extrabold text-white tracking-tight">Waltair Travels & Cabs</h1>
+              <p className="text-xs text-slate-400 mt-1">Authorized Operations Personnel Only</p>
+            </div>
+
+            {/* Error Message */}
+            {loginError && (
+              <div className="mb-5 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-start gap-2.5">
+                <AlertCircle className="w-4 h-4 shrink-0 text-rose-400 mt-0.5" />
+                <span>{loginError}</span>
+              </div>
+            )}
+
+            {/* Google Authentication (One-Click Executive Login) */}
+            <button
+              type="button"
+              onClick={handleGoogleSignIn}
+              disabled={isLoggingIn}
+              className="w-full py-3.5 px-4 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-bold text-sm flex items-center justify-center gap-3 transition-all cursor-pointer shadow-md disabled:opacity-50"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+              </svg>
+              <span>{isLoggingIn ? 'Authenticating...' : 'Sign In with Authorized Google Account'}</span>
+            </button>
+
+            {/* Divider */}
+            <div className="relative my-6 text-center">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-slate-800" />
+              </div>
+              <span className="relative px-3 bg-slate-900 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                Or Admin Credentials
+              </span>
+            </div>
+
+            {/* Password Login Form */}
+            <form onSubmit={handlePasswordSignIn} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">Admin Email Address</label>
+                <div className="relative">
+                  <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="email"
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
+                    placeholder="waltairtravelsandcabs@gmail.com"
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-white text-xs placeholder:text-slate-600 focus:outline-none focus:border-teal-500 transition-colors"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">Admin Password</label>
+                <div className="relative">
+                  <KeyRound className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    placeholder="Enter security password"
+                    className="w-full pl-10 pr-10 py-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-white text-xs placeholder:text-slate-600 focus:outline-none focus:border-teal-500 transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoggingIn}
+                className="w-full py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs transition-colors cursor-pointer shadow-xs disabled:opacity-50 mt-2"
+              >
+                {isLoggingIn ? 'Verifying Credentials...' : 'Sign In with Credentials'}
+              </button>
+            </form>
+          </div>
+
+          {/* Footer Card */}
+          <div className="bg-slate-950/60 p-4 border-t border-slate-800/80 text-center flex items-center justify-between text-xs">
+            <span className="text-[11px] text-slate-500 flex items-center gap-1.5">
+              <ShieldCheck className="w-3.5 h-3.5 text-teal-500" />
+              <span>Restricted to waltairtravelsandcabs@gmail.com</span>
+            </span>
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-slate-400 hover:text-white transition-colors text-xs font-medium cursor-pointer"
+            >
+              Exit to Website →
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 3. Unauthorized State -> Access Denied Screen (Strictly blocks non-admin accounts)
+  if (authStatus === 'unauthorized') {
+    return (
+      <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-center items-center p-4 sm:p-6 relative">
+        <div className="w-full max-w-md bg-slate-900 border border-rose-900/40 rounded-3xl p-6 sm:p-8 text-center shadow-2xl relative overflow-hidden">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400">
+            <ShieldAlert className="w-8 h-8 text-rose-400" />
+          </div>
+
+          <h1 className="text-xl font-extrabold text-white tracking-tight mb-2">Admin access restricted</h1>
+          <p className="text-xs text-slate-400 leading-relaxed mb-6">
+            This account is not authorized to access the administration panel.
+          </p>
+
+          <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 mb-6 text-left">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Attempted Account</span>
+              <span className="px-2 py-0.5 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[10px] font-bold">
+                Access Denied
+              </span>
+            </div>
+            <div className="text-sm font-mono text-slate-200 truncate">
+              {currentUser?.email || 'Unknown account'}
+            </div>
+            <div className="text-[11px] text-slate-500 mt-2">
+              Only <span className="text-teal-400 font-mono">waltairtravelsandcabs@gmail.com</span> is granted administrative privileges.
+            </div>
+          </div>
+
+          <div className="space-y-2.5">
+            <button
+              type="button"
+              onClick={handleSwitchAccount}
+              className="w-full py-3 px-4 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs transition-colors cursor-pointer shadow-xs flex items-center justify-center gap-2"
+            >
+              <span>Sign In with Authorized Account</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition-colors cursor-pointer"
+            >
+              Return to Homepage
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 4. Authorized State -> Full Operations Admin Dashboard
   const contentClass = isFullPage
     ? "min-h-screen bg-slate-100 text-slate-900 flex flex-col w-full"
     : "fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4";
@@ -576,7 +896,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       Live Sync Active
                     </span>
                   </div>
-                  <p className="text-xs text-slate-500 font-medium">Real-Time Footprint Capture • Who Registered & Who Booked • Instant Lead WhatsApp & Dispatch</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <p className="text-xs text-slate-500 font-medium">Real-Time Footprint Capture • Instant Lead WhatsApp & Dispatch</p>
+                    <span className="text-slate-300">•</span>
+                    <span className="text-[11px] font-semibold text-teal-800 bg-teal-50 px-2 py-0.5 rounded-md border border-teal-200">
+                      waltairtravelsandcabs@gmail.com
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -605,17 +931,29 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   <span className="hidden sm:inline">Refresh</span>
                 </button>
 
+                {/* Secure Sign Out Button */}
+                <button
+                  type="button"
+                  onClick={handleAdminSignOut}
+                  className="p-2 sm:px-3 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                  title="Securely Sign Out of Administration"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Sign Out</span>
+                </button>
+
                 {/* Close Button */}
                 <button
                   type="button"
                   onClick={onClose}
                   className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 hover:text-slate-900 transition-colors cursor-pointer"
-                  title="Close Admin Panel"
+                  title="Return to Website"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
             </div>
+
 
             {/* Navigation Tabs Bar */}
             <div className="bg-slate-50 border-b border-slate-200 px-2 sm:px-6 flex items-center gap-1 overflow-x-auto no-scrollbar shrink-0">

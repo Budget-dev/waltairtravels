@@ -6,6 +6,7 @@ import { FareEngineService } from './services/fareEngine';
 import { RouteService } from './services/routeService';
 import { bookingEngine, BookingStatus } from './services/bookingEngine';
 import { AiTravelService } from './services/aiService';
+import { requireAdminAuth } from './middleware';
 
 export const apiRouter = Router();
 
@@ -24,9 +25,9 @@ apiRouter.get('/health', (_req: Request, res: Response) => {
 });
 
 /**
- * 2. Real-time Telemetry & Latency Histogram
+ * 2. Real-time Telemetry & Latency Histogram (Admin Protected)
  */
-apiRouter.get('/metrics', (_req: Request, res: Response) => {
+apiRouter.get('/metrics', requireAdminAuth, (_req: Request, res: Response) => {
   const metrics = metricsCollector.getMetrics();
   res.json({
     ...metrics,
@@ -39,9 +40,9 @@ apiRouter.get('/metrics', (_req: Request, res: Response) => {
 });
 
 /**
- * 3. Cache Diagnostics & Invalidation
+ * 3. Cache Diagnostics & Invalidation (Admin Protected)
  */
-apiRouter.get('/cache/stats', (_req: Request, res: Response) => {
+apiRouter.get('/cache/stats', requireAdminAuth, (_req: Request, res: Response) => {
   res.json({
     fareCache: fareCache.getStats(),
     routeCache: routeCache.getStats(),
@@ -49,12 +50,13 @@ apiRouter.get('/cache/stats', (_req: Request, res: Response) => {
   });
 });
 
-apiRouter.post('/cache/clear', (_req: Request, res: Response) => {
+apiRouter.post('/cache/clear', requireAdminAuth, (_req: Request, res: Response) => {
   fareCache.clear();
   routeCache.clear();
   aiResponseCache.clear();
   res.json({ status: 'ok', message: 'All in-memory LRU caches cleared successfully' });
 });
+
 
 /**
  * 4. High-Performance Fare Calculation Engine
@@ -153,7 +155,7 @@ apiRouter.post('/bookings', (req: Request, res: Response) => {
   });
 });
 
-apiRouter.get('/bookings', (_req: Request, res: Response) => {
+apiRouter.get('/bookings', requireAdminAuth, (_req: Request, res: Response) => {
   const list = FileDatabase.getAllBookings();
   res.json({ success: true, count: list.length, bookings: list });
 });
@@ -168,7 +170,7 @@ apiRouter.get('/bookings/:ref', (req: Request, res: Response) => {
   res.json({ success: true, booking });
 });
 
-apiRouter.patch('/bookings/:ref/status', (req: Request, res: Response) => {
+apiRouter.patch('/bookings/:ref/status', requireAdminAuth, (req: Request, res: Response) => {
   const { status, note } = req.body || {};
   try {
     const updated = FileDatabase.updateBookingStatus(req.params.ref, status, note);
@@ -186,7 +188,7 @@ apiRouter.patch('/bookings/:ref/status', (req: Request, res: Response) => {
   }
 });
 
-apiRouter.delete('/bookings/:ref', (req: Request, res: Response) => {
+apiRouter.delete('/bookings/:ref', requireAdminAuth, (req: Request, res: Response) => {
   const deleted = FileDatabase.deleteBooking(req.params.ref);
   if (!deleted) {
     res.status(404).json({ error: `Booking ${req.params.ref} not found` });
@@ -198,7 +200,7 @@ apiRouter.delete('/bookings/:ref', (req: Request, res: Response) => {
 /**
  * 6B. Persistent Real-time Leads Footprints Engine
  */
-apiRouter.get('/leads', (_req: Request, res: Response) => {
+apiRouter.get('/leads', requireAdminAuth, (_req: Request, res: Response) => {
   const leads = FileDatabase.getAllLeads();
   res.json({ success: true, count: leads.length, leads });
 });
@@ -208,7 +210,7 @@ apiRouter.post('/leads', (req: Request, res: Response) => {
   res.status(201).json({ success: true, lead: saved });
 });
 
-apiRouter.patch('/leads/:id/status', (req: Request, res: Response) => {
+apiRouter.patch('/leads/:id/status', requireAdminAuth, (req: Request, res: Response) => {
   const { status, notes } = req.body || {};
   const updated = FileDatabase.updateLeadStatus(req.params.id, status, notes);
   if (!updated) {
@@ -218,7 +220,7 @@ apiRouter.patch('/leads/:id/status', (req: Request, res: Response) => {
   res.json({ success: true, lead: updated });
 });
 
-apiRouter.delete('/leads/:id', (req: Request, res: Response) => {
+apiRouter.delete('/leads/:id', requireAdminAuth, (req: Request, res: Response) => {
   const deleted = FileDatabase.deleteLead(req.params.id);
   if (!deleted) {
     res.status(404).json({ error: `Lead ${req.params.id} not found` });
@@ -230,7 +232,7 @@ apiRouter.delete('/leads/:id', (req: Request, res: Response) => {
 /**
  * 6C. Registered Users Engine
  */
-apiRouter.get('/users', (_req: Request, res: Response) => {
+apiRouter.get('/users', requireAdminAuth, (_req: Request, res: Response) => {
   const users = FileDatabase.getAllUsers();
   res.json({ success: true, count: users.length, users });
 });

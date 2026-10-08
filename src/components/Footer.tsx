@@ -255,14 +255,6 @@ export const Footer: React.FC<FooterProps> = ({ onNavigatePage }) => {
             <button onClick={(e) => handleLinkClick(e, 'cancellation-policy')} className="hover:text-teal-300 transition-colors cursor-pointer">Cancellation</button>
             <span>•</span>
             <button onClick={(e) => handleLinkClick(e, 'faqs')} className="hover:text-teal-300 transition-colors cursor-pointer">FAQs</button>
-            <span>•</span>
-            <button 
-              onClick={(e) => handleLinkClick(e, 'admin')} 
-              className="text-teal-400 hover:text-teal-300 font-bold transition-colors cursor-pointer flex items-center gap-1"
-            >
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Admin Portal</span>
-            </button>
           </div>
         </div>
 

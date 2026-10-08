@@ -1,7 +1,20 @@
 import { Booking, BookingStatus } from '../types';
-import { db, collection, addDoc, doc, updateDoc, deleteDoc, getDocs } from '../firebase';
+import { db, auth, collection, addDoc, doc, updateDoc, deleteDoc, getDocs } from '../firebase';
 
 const LOCAL_BOOKINGS_KEY = 'waltair_user_bookings';
+
+// Helper to get admin auth header if signed in
+async function getAdminAuthHeaders(): Promise<Record<string, string>> {
+  try {
+    if (auth.currentUser) {
+      const token = await auth.currentUser.getIdToken();
+      if (token) return { Authorization: `Bearer ${token}` };
+    }
+  } catch (e) {
+    console.debug('[dbSync] Auth token read note:', e);
+  }
+  return {};
+}
 
 // Helper to read local bookings safely
 export function getLocalBookings(): Booking[] {
@@ -40,9 +53,14 @@ export async function syncFetchBookings(): Promise<Booking[]> {
     if (key) bookingsMap.set(key, b);
   });
 
-  // 1. Fetch from Express Backend API
+  // 1. Fetch from Express Backend API (with admin auth header if available)
   try {
-    const res = await fetch('/api/bookings', { cache: 'no-store' });
+    const authHeaders = await getAdminAuthHeaders();
+    const res = await fetch('/api/bookings', { 
+      cache: 'no-store',
+      headers: authHeaders
+    });
+
     if (res.ok) {
       const json = await res.json();
       if (Array.isArray(json.bookings)) {
@@ -236,12 +254,17 @@ export async function syncUpdateBookingStatus(
   } catch {}
 
   // 3. Call backend PATCH API
-  fetch(`/api/bookings/${encodeURIComponent(targetKey)}/status`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ status: newStatus, note }),
-  }).catch(err => {
-    console.debug('[dbSync] Server DB PATCH note:', err);
+  getAdminAuthHeaders().then(authHeaders => {
+    fetch(`/api/bookings/${encodeURIComponent(targetKey)}/status`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        ...authHeaders
+      },
+      body: JSON.stringify({ status: newStatus, note }),
+    }).catch(err => {
+      console.debug('[dbSync] Server DB PATCH note:', err);
+    });
   });
 
   // 4. Update Firestore in background if document exists
@@ -280,10 +303,13 @@ export async function syncDeleteBooking(
   } catch {}
 
   // 3. Call backend DELETE API
-  fetch(`/api/bookings/${encodeURIComponent(targetKey)}`, {
-    method: 'DELETE',
-  }).catch(err => {
-    console.debug('[dbSync] Server DB DELETE note:', err);
+  getAdminAuthHeaders().then(authHeaders => {
+    fetch(`/api/bookings/${encodeURIComponent(targetKey)}`, {
+      method: 'DELETE',
+      headers: authHeaders
+    }).catch(err => {
+      console.debug('[dbSync] Server DB DELETE note:', err);
+    });
   });
 
   // 4. Delete from Firestore in background
@@ -293,3 +319,4 @@ export async function syncDeleteBooking(
     });
   }
 }
+

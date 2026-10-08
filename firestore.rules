@@ -7,70 +7,64 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function isValidString(val, minLen, maxLen) {
-      return val is string && val.size() >= minLen && val.size() <= maxLen;
+    function isAdmin() {
+      return isSignedIn() && 
+             request.auth.token.email != null && 
+             request.auth.token.email.lower() == 'waltairtravelsandcabs@gmail.com';
     }
 
     // Bookings collection
+    // Public can create bookings. Only authorized admin can list/read all bookings, update, or delete.
     match /bookings/{bookingId} {
-      allow read: if true;
       allow create: if true;
-      allow update: if true;
-      allow delete: if isSignedIn();
+      allow read, update, delete: if isAdmin();
     }
 
     // Real-time leads and form field footprints collection
+    // Public can create & track their active lead footprint. Only authorized admin can view/manage leads.
     match /leads/{leadId} {
-      allow read: if true;
-      allow create: if true;
-      allow update: if true;
-      allow delete: if true;
+      allow create, update: if true;
+      allow read, delete: if isAdmin();
     }
 
     // Contact submissions collection (from contact form)
     match /contact_submissions/{submissionId} {
-      allow read: if true;
       allow create: if true;
-      allow update, delete: if isSignedIn();
+      allow read, update, delete: if isAdmin();
     }
 
-    // Legacy inquiries collection fallback
+    // Inquiries collection fallback
     match /inquiries/{inquiryId} {
-      allow read: if true;
       allow create: if true;
-      allow update, delete: if isSignedIn();
+      allow read, update, delete: if isAdmin();
     }
 
     // Blog posts collection (CRUD for travel blog)
     match /blog_posts/{postId} {
       allow read: if true;
-      allow create: if true;
-      allow update: if true;
-      allow delete: if true;
+      allow write: if isAdmin();
     }
 
     // Customer reviews
     match /reviews/{reviewId} {
-      allow read: if true;
-      allow create: if true;
-      allow update, delete: if isSignedIn();
+      allow read, create: if true;
+      allow update, delete: if isAdmin();
     }
 
     // Users profile collection
     match /users/{userId} {
-      allow read: if true;
-      allow write: if isSignedIn() && request.auth.uid == userId;
+      allow read, write: if isAdmin() || (isSignedIn() && request.auth.uid == userId);
     }
 
     // Vehicles and packages
     match /vehicles/{vehicleId} {
       allow read: if true;
-      allow write: if true;
+      allow write: if isAdmin();
     }
 
     match /packages/{packageId} {
       allow read: if true;
-      allow write: if true;
+      allow write: if isAdmin();
     }
   }
 }

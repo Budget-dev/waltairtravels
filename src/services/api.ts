@@ -1,10 +1,4 @@
-/**
- * High-Resilience Enterprise Frontend API Client
- * Features:
- * - Exponential backoff retry with jitter
- * - Circuit breaker fallback
- * - Real-time system health & latency telemetry
- */
+import { auth } from '../firebase';
 
 export interface SystemHealthStatus {
   status: string;
@@ -44,14 +38,26 @@ class ApiClient {
   private async fetchWithRetry<T>(url: string, options: RequestInit = {}, retries = 2): Promise<T> {
     const start = performance.now();
     try {
+      let authHeader: Record<string, string> = {};
+      if (auth.currentUser) {
+        try {
+          const token = await auth.currentUser.getIdToken();
+          if (token) {
+            authHeader = { Authorization: `Bearer ${token}` };
+          }
+        } catch {}
+      }
+
       const res = await fetch(`${this.basePrefix}${url}`, {
         ...options,
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
+          ...authHeader,
           ...(options.headers || {}),
         },
       });
+
 
       if (!res.ok) {
         const errorBody = await res.json().catch(() => ({ detail: res.statusText }));
