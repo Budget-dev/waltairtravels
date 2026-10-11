@@ -80,8 +80,8 @@ export const ContactSection: React.FC = () => {
                 </div>
                 <div>
                   <div className="text-[11px] text-slate-400 font-semibold uppercase tracking-wider">24/7 Booking Helpline</div>
-                  <a href="tel:+919110510236" className="text-base sm:text-lg font-bold text-white hover:text-teal-300 transition-colors">
-                    +91 91105 10236
+                  <a href="tel:+919441873821" className="text-base sm:text-lg font-bold text-white hover:text-teal-300 transition-colors">
+                    +91 94418 73821
                   </a>
                   <div className="text-xs text-slate-400">Toll Free: 1800 270 4567</div>
                 </div>

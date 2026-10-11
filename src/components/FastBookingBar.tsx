@@ -194,7 +194,7 @@ export const FastBookingBar: React.FC<FastBookingBarProps> = ({
           {/* Quick CTA Buttons */}
           <div className="flex items-center gap-1.5 shrink-0">
             <a
-              href="https://wa.me/919110510236?text=Hi%20Waltair%20Travels,%20I%20want%20to%20express%20book%20a%20cab%20now."
+              href="https://wa.me/919441873821?text=Hi%20Waltair%20Travels,%20I%20want%20to%20express%20book%20a%20cab%20now."
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => trackWhatsAppClick('fast_bar')}

@@ -1,7 +1,7 @@
 import { Booking } from '../types';
 
-export const WHATSAPP_PHONE_NUMBER = '919110510236';
-export const DISPLAY_PHONE_NUMBER = '+91 91105 10236';
+export const WHATSAPP_PHONE_NUMBER = '919441873821';
+export const DISPLAY_PHONE_NUMBER = '+91 94418 73821';
 
 export const createBookingWhatsAppUrl = (booking: Partial<Booking>): string => {
   const passengerList = booking.passengers && booking.passengers.length > 0

@@ -102,4 +102,4 @@ Modern search engines and AI answer engines (Google AI Overviews, Perplexity, Ch
 | `/local-rentals-vizag` | Commercial Revenue | local cabs vizag | 8 hour cab rental vizag, hourly cab vizag, car rental with driver vizag | Flexible 4-hour, 8-hour, and 12-hour hourly rentals for meetings and city errands |
 | `/packages` | Commercial Package | vizag sightseeing cab | vizag city tour cab, vizag tour packages cab, araku tour package cab | All-inclusive itineraries for coastal beaches, heritage museums, and hill stations |
 | `/about-us` | Entity & Trust | waltair cabs visakhapatnam | waltair travels vizag, cab company visakhapatnam | Established local taxi operator in Waltair Uplands, Siripuram, Visakhapatnam |
-| `/contact-us` | Local NAP & Enquiry | contact waltair cabs vizag | vizag cab phone number, cab booking office vizag | Authoritative NAP, direct 24/7 phone +91 91105 10236, WhatsApp dispatch |
+| `/contact-us` | Local NAP & Enquiry | contact waltair cabs vizag | vizag cab phone number, cab booking office vizag | Authoritative NAP, direct 24/7 phone +91 94418 73821, WhatsApp dispatch |

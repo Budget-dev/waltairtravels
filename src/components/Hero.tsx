@@ -539,11 +539,11 @@ export const Hero: React.FC<HeroProps> = ({
                   <span className="truncate text-[11px] sm:text-xs">No cancellation fee • Guaranteed pickup</span>
                 </div>
                 <a
-                  href="tel:+919110510236"
+                  href="tel:+919441873821"
                   id="hero-call-link"
                   className="text-teal-800 hover:text-teal-950 font-semibold flex items-center gap-0.5 hover:underline shrink-0 text-[11px] sm:text-xs"
                 >
-                  <span>+91 91105 10236</span>
+                  <span>+91 94418 73821</span>
                   <ChevronRight className="w-3 h-3 shrink-0" />
                 </a>
               </div>

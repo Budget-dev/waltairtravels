@@ -305,7 +305,7 @@ export const OutstationCabsPage: React.FC<OutstationCabsPageProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
               <img
-                src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=500&q=80"
+                src="/fleet/dzire.jpg"
                 alt="Dzire Sedan"
                 className="w-full h-36 object-cover rounded-xl"
               />
@@ -318,7 +318,7 @@ export const OutstationCabsPage: React.FC<OutstationCabsPageProps> = ({
 
             <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
               <img
-                src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=500&q=80"
+                src="/fleet/ertiga.jpg"
                 alt="Ertiga SUV"
                 className="w-full h-36 object-cover rounded-xl"
               />
@@ -331,7 +331,7 @@ export const OutstationCabsPage: React.FC<OutstationCabsPageProps> = ({
 
             <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
               <img
-                src="https://waltairtravelsandcabs.sirv.com/WhatsApp%20Image%202026-09-17%20at%2010.56.01%20AM%20(3).jpeg"
+                src="/fleet/crysta.jpg"
                 alt="Innova Crysta"
                 className="w-full h-36 object-cover rounded-xl"
               />

@@ -145,7 +145,7 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
         '@id': 'https://waltaircabs.in/#organization',
       },
       'serviceType': 'Cab and Taxi Service',
-      'telephone': '+91-9110510236',
+      'telephone': '+91-9441873821',
       'priceRange': '₹₹',
       'areaServed': [
         { '@type': 'City', 'name': 'Visakhapatnam' },
@@ -171,7 +171,7 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       'url': 'https://waltaircabs.in',
       'logo': 'https://waltaircabs.in/logo.png',
       'image': ogImage,
-      'telephone': '+91-9110510236',
+      'telephone': '+91-9441873821',
       'priceRange': '₹₹',
       'address': {
         '@type': 'PostalAddress',

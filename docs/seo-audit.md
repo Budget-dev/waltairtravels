@@ -44,7 +44,7 @@ While the application features a modern, responsive user experience with real-ti
 - **sitemap.xml:** ❌ Missing. No sitemap index or URL registry for search engine discovery.
 
 ### 2.5 Structured Data (Schema.org Graph)
-- **Current Graph:** A single client-side `TaxiService` schema was defined inside `SEOHead.tsx` pointing to `@id: https://waltairtravels.com` with telephone `+91-9110510236`.
+- **Current Graph:** A single client-side `TaxiService` schema was defined inside `SEOHead.tsx` pointing to `@id: https://waltairtravels.com` with telephone `+91-9441873821`.
 - **Missing Graph Components:**
   - `Organization` with logo, official URL, and social profiles.
   - `LocalBusiness` / `TaxiService` with precise coordinates, GeoCircle service areas, and operational hours.
@@ -54,7 +54,7 @@ While the application features a modern, responsive user experience with real-ti
 
 ### 2.6 Analytics & Conversion Measurement
 - **GA4 Measurement ID:** Identified `G-4MX7ZXV2JW` in `src/firebase.ts`.
-- **Event Gaps:** No event firing on phone clicks (`tel:+919110510236`), WhatsApp CTA clicks, booking modal openings, or step progressions.
+- **Event Gaps:** No event firing on phone clicks (`tel:+919441873821`), WhatsApp CTA clicks, booking modal openings, or step progressions.
 - **Required Events:**
   - `click_phone` (Phone call initiator)
   - `click_whatsapp` (WhatsApp chat initiator)
@@ -105,7 +105,7 @@ While the application features a modern, responsive user experience with real-ti
    - Optimize existing pages: `AirportTaxiPage`, `LocalRentalsPage`, `OutstationCabsPage`, `OneWayTripsPage`, `RoundTripsPage`, `PackagesPage`, `AboutUsPage`, `ContactUsPage`, `FaqsPage`.
    - Build high-value route pages: `VizagToArakuPage` (Vizag to Araku Cab), `VizagAirportPage` (VTZ & Bhogapuram Airport Cabs).
 4. **Phase D — Local Authority & Google Business Profile Alignment:**
-   - Standardize NAP (Waltair Cabs, Waltair Uplands, Siripuram, Visakhapatnam 530003, +91 91105 10236).
+   - Standardize NAP (Waltair Cabs, Waltair Uplands, Siripuram, Visakhapatnam 530003, +91 94418 73821).
    - Document GBP optimization strategy and legitimate review acquisition workflow.
 5. **Phase E — Validation & Build Verification:**
    - Run typecheck, build, and automated verification tests.

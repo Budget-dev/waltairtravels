@@ -69,7 +69,7 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
       title: 'Headquarters & Operations Desk',
       address: 'Waltair Uplands, Siripuram Circle, Visakhapatnam, AP - 530003',
       timings: '24 Hours Open / 365 Days',
-      phone: '+91 91105 10236',
+      phone: '+91 94418 73821',
       icon: Building2,
       badge: 'Main HQ'
     },
@@ -77,7 +77,7 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
       title: 'Bhogapuram Airport Transit Counter',
       address: 'Near NH-16 Airport Expressway Junction, Bhogapuram, AP',
       timings: 'Synchronized with Flight Schedules',
-      phone: '+91 91105 10236',
+      phone: '+91 94418 73821',
       icon: Plane,
       badge: 'Airport Terminal'
     },
@@ -85,7 +85,7 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
       title: 'Railway Station Pickup Point',
       address: 'Platform 1 & 8 Passenger Exits, Visakhapatnam Junction (VSKP)',
       timings: '24/7 Train Arrivals',
-      phone: '+91 91105 10236',
+      phone: '+91 94418 73821',
       icon: Train,
       badge: 'Rail Kiosk'
     }
@@ -95,7 +95,7 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
     <>
       <SEOHead
         title="Contact Waltair Cabs | 24/7 Taxi Booking Visakhapatnam"
-        description="Contact Waltair Cabs in Visakhapatnam. 24/7 taxi booking hotline +91 91105 10236, WhatsApp dispatch desk, and office located at Waltair Uplands, Siripuram."
+        description="Contact Waltair Cabs in Visakhapatnam. 24/7 taxi booking hotline +91 94418 73821, WhatsApp dispatch desk, and office located at Waltair Uplands, Siripuram."
         canonicalPath="/contact-us"
         keywords={[
           'contact waltair cabs vizag',
@@ -127,7 +127,7 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
         {/* Quick Contact Action Banner */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <a
-            href="tel:+919110510236"
+            href="tel:+919441873821"
             className="p-6 rounded-3xl bg-white border border-slate-200 shadow-md hover:border-teal-500 transition-all flex items-start gap-4 group"
           >
             <div className="p-3.5 rounded-2xl bg-teal-50 text-teal-700 group-hover:bg-teal-700 group-hover:text-white transition-colors">
@@ -136,14 +136,14 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
             <div>
               <div className="text-[11px] uppercase tracking-wider text-slate-500 font-bold">Direct Phone Dispatch</div>
               <div className="text-lg font-black text-slate-900 group-hover:text-teal-700 transition-colors mt-0.5">
-                +91 91105 10236
+                +91 94418 73821
               </div>
               <div className="text-xs text-slate-500 mt-1">Available 24x7 for urgent rides</div>
             </div>
           </a>
 
           <a
-            href="https://wa.me/919110510236?text=Hi%20Waltair%20Travels,%20I%20would%20like%20to%20inquire%20about%20a%20cab%20booking."
+            href="https://wa.me/919441873821?text=Hi%20Waltair%20Travels,%20I%20would%20like%20to%20inquire%20about%20a%20cab%20booking."
             target="_blank"
             rel="noopener noreferrer"
             className="p-6 rounded-3xl bg-white border border-slate-200 shadow-md hover:border-emerald-500 transition-all flex items-start gap-4 group"

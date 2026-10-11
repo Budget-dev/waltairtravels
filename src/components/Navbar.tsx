@@ -191,12 +191,12 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           <div className="flex items-center gap-4 shrink-0 font-medium">
             <a 
-              href="tel:+919110510236" 
+              href="tel:+919441873821" 
               onClick={() => trackPhoneClick('navbar_top')}
               className="text-teal-300 hover:text-white font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <Phone className="w-3.5 h-3.5 text-teal-400" />
-              <span>+91 91105 10236</span>
+              <span>+91 94418 73821</span>
             </a>
             <span className="text-teal-700 hidden md:inline">•</span>
             <span className="text-emerald-400 text-[11px] font-semibold hidden md:inline">
@@ -757,7 +757,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
                   {/* 24/7 Helpline Card */}
                   <a
-                    href="tel:+919110510236"
+                    href="tel:+919441873821"
                     className="flex items-center justify-between p-3 rounded-2xl bg-teal-50 border border-teal-200 text-teal-950 font-medium text-xs transition-transform active:scale-98"
                   >
                     <div className="flex items-center gap-2">
@@ -766,7 +766,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       </div>
                       <div>
                         <div className="font-bold text-slate-900 text-xs">24/7 Booking Helpline</div>
-                        <div className="text-[10px] text-teal-700">+91 91105 10236</div>
+                        <div className="text-[10px] text-teal-700">+91 94418 73821</div>
                       </div>
                     </div>
                     <span className="text-[10px] font-bold px-2 py-1 bg-teal-800 text-white rounded-lg">Call</span>

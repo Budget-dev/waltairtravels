@@ -36,7 +36,7 @@ export const AirportTaxiPage: React.FC<AirportTaxiPageProps> = ({
   const airportFaqs = [
     {
       question: 'How do I book an airport taxi in Visakhapatnam with Waltair Cabs?',
-      answer: 'You can book online in seconds by selecting your pickup/drop location, flight arrival/departure time, and preferred vehicle. You can also call or WhatsApp our 24/7 dispatch desk directly at +91 91105 10236 for instant confirmation.'
+      answer: 'You can book online in seconds by selecting your pickup/drop location, flight arrival/departure time, and preferred vehicle. You can also call or WhatsApp our 24/7 dispatch desk directly at +91 94418 73821 for instant confirmation.'
     },
     {
       question: 'Do you provide cab transfers to the new Bhogapuram International Airport (ASI)?',

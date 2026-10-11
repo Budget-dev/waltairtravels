@@ -88,10 +88,10 @@ export const AboutSection: React.FC = () => {
             <div className="p-4 rounded-2xl bg-gradient-to-r from-teal-900 via-slate-900 to-teal-950 text-white flex flex-col sm:flex-row items-center justify-between gap-3 shadow-md">
               <div>
                 <div className="text-[11px] text-teal-200 font-medium">Need Urgent Ride Dispatch?</div>
-                <div className="text-sm sm:text-base font-bold text-white">24/7 Control Desk: +91 91105 10236</div>
+                <div className="text-sm sm:text-base font-bold text-white">24/7 Control Desk: +91 94418 73821</div>
               </div>
               <a
-                href="tel:+919110510236"
+                href="tel:+919441873821"
                 className="px-4 py-2 rounded-xl bg-teal-700 hover:bg-teal-600 text-white text-xs font-bold transition-colors whitespace-nowrap cursor-pointer"
               >
                 Call Hotline

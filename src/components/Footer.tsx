@@ -35,11 +35,11 @@ export const Footer: React.FC<FooterProps> = ({ onNavigatePage }) => {
           </div>
           <div className="flex items-center gap-2">
             <a
-              href="tel:+919110510236"
+              href="tel:+919441873821"
               onClick={() => trackPhoneClick('footer_banner')}
               className="px-4 py-2.5 rounded-xl bg-white text-teal-900 font-bold text-xs hover:bg-teal-50"
             >
-              Call +91 91105 10236
+              Call +91 94418 73821
             </a>
             <a
               href="#booking"
@@ -221,12 +221,12 @@ export const Footer: React.FC<FooterProps> = ({ onNavigatePage }) => {
             {/* Direct Contact Links */}
             <div className="pt-1 space-y-1.5 text-xs">
               <a 
-                href="tel:+919110510236" 
+                href="tel:+919441873821" 
                 onClick={() => trackPhoneClick('footer_contact')}
                 className="flex items-center gap-2 text-slate-300 hover:text-teal-300 transition-colors"
               >
                 <Phone className="w-3.5 h-3.5 text-teal-400 shrink-0" />
-                <span>+91 91105 10236</span>
+                <span>+91 94418 73821</span>
               </a>
               <a href="mailto:info@waltairtravels.com" className="flex items-center gap-2 text-slate-300 hover:text-teal-300 transition-colors">
                 <Mail className="w-3.5 h-3.5 text-teal-400 shrink-0" />
@@ -255,6 +255,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigatePage }) => {
             <button onClick={(e) => handleLinkClick(e, 'cancellation-policy')} className="hover:text-teal-300 transition-colors cursor-pointer">Cancellation</button>
             <span>•</span>
             <button onClick={(e) => handleLinkClick(e, 'faqs')} className="hover:text-teal-300 transition-colors cursor-pointer">FAQs</button>
+            <span>•</span>
+            <button onClick={(e) => handleLinkClick(e, 'admin')} className="hover:text-teal-300 transition-colors cursor-pointer">Admin</button>
           </div>
         </div>
 

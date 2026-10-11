@@ -180,17 +180,17 @@ export const HelpCenterPage: React.FC<HelpCenterPageProps> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto">
             <a
-              href="tel:+919110510236"
+              href="tel:+919441873821"
               className="p-5 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-center space-y-2 transition-all block group"
             >
               <Phone className="w-6 h-6 text-teal-300 mx-auto group-hover:scale-110 transition-transform" />
               <div className="text-xs font-bold text-white uppercase tracking-wider">Call Helpline</div>
-              <div className="text-base font-black text-teal-300">+91 91105 10236</div>
+              <div className="text-base font-black text-teal-300">+91 94418 73821</div>
               <div className="text-[11px] text-slate-300">Immediate human pickup</div>
             </a>
 
             <a
-              href="https://wa.me/919110510236"
+              href="https://wa.me/919441873821"
               target="_blank"
               rel="noopener noreferrer"
               className="p-5 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-center space-y-2 transition-all block group"

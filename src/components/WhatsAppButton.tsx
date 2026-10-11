@@ -6,7 +6,7 @@ interface WhatsAppButtonProps {
 }
 
 export const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({ offsetForMobileCta = false }) => {
-  const whatsappNumber = '919110510236';
+  const whatsappNumber = '919441873821';
   const defaultText = encodeURIComponent('Hello Waltair Cabs! I would like to book a cab.');
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${defaultText}`;
 

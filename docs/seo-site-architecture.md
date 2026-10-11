@@ -33,7 +33,7 @@ Rather than creating hundreds of thin, spammy doorway pages, we implement a **ti
          ▼                   ▼                   ▼
   [ Trust & Entity ]   [ Customer Care ]   [ Conversion Endpoints ]
   - /about-us          - /faqs             - /booking
-  - /contact-us        - /help-center      - tel:+919110510236
+  - /contact-us        - /help-center      - tel:+919441873821
   - Policies           - /travel-blog      - WhatsApp Direct
 ```
 
@@ -142,7 +142,7 @@ Rather than creating hundreds of thin, spammy doorway pages, we implement a **ti
 - **About Us Canonical:** `https://waltaircabs.in/about-us`
   - **Entity Focus:** Waltair Cabs history, fleet standards, driver verification process, commitment to zero surge pricing in Visakhapatnam.
 - **Contact Us Canonical:** `https://waltaircabs.in/contact-us`
-  - **NAP Focus:** Waltair Cabs, Waltair Uplands, Siripuram, Visakhapatnam, Andhra Pradesh 530003. Direct 24/7 Telephone: `+91 91105 10236`. Email: `support@waltaircabs.in`.
+  - **NAP Focus:** Waltair Cabs, Waltair Uplands, Siripuram, Visakhapatnam, Andhra Pradesh 530003. Direct 24/7 Telephone: `+91 94418 73821`. Email: `support@waltaircabs.in`.
 
 ---
 

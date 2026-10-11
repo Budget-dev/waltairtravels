@@ -36,7 +36,7 @@ export const AboutUsPage: React.FC<AboutUsPageProps> = ({
       luggage: '2 Large + 1 Small Bags',
       ac: 'Climate Control AC',
       ideal: 'Solo airport transfers, corporate city commutes & economical outstation drops.',
-      img: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=600&q=80',
+      img: '/fleet/dzire.jpg',
       badge: 'Most Booked Sedan'
     },
     {
@@ -46,7 +46,7 @@ export const AboutUsPage: React.FC<AboutUsPageProps> = ({
       luggage: '3 Large Bags',
       ac: 'Rear AC Vents with Speed Control',
       ideal: 'Small families, shopping sprees, weekend Lambasingi trips & group airport commutes.',
-      img: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80',
+      img: '/fleet/ertiga.jpg',
       badge: 'Family Favorite'
     },
     {
@@ -56,7 +56,7 @@ export const AboutUsPage: React.FC<AboutUsPageProps> = ({
       luggage: '5 Large Bags + Overhead Carrier',
       ac: 'Triple-Row Dual Zone AC',
       ideal: 'VIP delegates, wedding parties, Araku Ghat hairpin roads & long-distance interstate tours.',
-      img: 'https://waltairtravelsandcabs.sirv.com/WhatsApp%20Image%202026-09-17%20at%2010.56.01%20AM%20(3).jpeg',
+      img: '/fleet/crysta.jpg',
       badge: 'Ultimate Highway Comfort'
     }
   ];

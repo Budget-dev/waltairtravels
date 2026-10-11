@@ -89,7 +89,7 @@
    - Set Website URL: `https://waltaircabs.in` (with UTM parameters `?utm_source=google&utm_medium=organic&utm_campaign=gbp`).
    - Set Appointment/Booking URL: `https://waltaircabs.in/booking`.
    - Verify Physical Address: Waltair Uplands, Siripuram Circle, Visakhapatnam, Andhra Pradesh 530003.
-   - Verify Primary Phone: `+91 91105 10236`.
+   - Verify Primary Phone: `+91 94418 73821`.
 
 3. **Domain Hosting & CDN Edge Redirects:**
    - Verify DNS CNAME/A records for `waltaircabs.in`.

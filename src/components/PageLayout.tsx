@@ -108,11 +108,11 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
               )}
 
               <a
-                href="tel:+919110510236"
+                href="tel:+919441873821"
                 className="px-5 py-3 rounded-xl bg-white/10 hover:bg-white/15 text-white border border-white/15 font-semibold text-sm transition-all flex items-center gap-2"
               >
                 <Phone className="w-4 h-4 text-teal-300" />
-                <span>+91 91105 10236</span>
+                <span>+91 94418 73821</span>
               </a>
             </div>
           </div>
